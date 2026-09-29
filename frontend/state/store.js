@@ -4,6 +4,6 @@ export const state = {
   perfil: null,         // linha de `professores` desse usuário (nome, papel)
   professores: [],
   turmas: [],           // só turmas ativas, em ordem de dia da semana
+  categorias: null,     // categorias de reunião, iguais para todos; null = ainda não carregadas
   filtros: { texto: '', curso: '', turmaId: '' },
-  selecionadoId: null,  // id (em texto) do professor selecionado na grade
 };

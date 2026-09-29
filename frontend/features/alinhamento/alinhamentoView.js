@@ -401,11 +401,9 @@ function render() {
   els.estado.hidden = true;
   els.grade.hidden = false;
   els.grade.innerHTML = lista.map(cartaoHtml).join('');
-  ajustarTabulacao();
 }
 
 function cartaoHtml(item) {
-  const selecionado = item.id === state.selecionadoId;
   // O leitor de tela lê o cartão numa frase só, na ordem em que aparece.
   const rotulo = [
     item.nome,
@@ -419,17 +417,21 @@ function cartaoHtml(item) {
       </ul>`
     : '<p class="cartao__sem-cursos">Sem turmas ativas</p>';
 
+  // A seta (›) só aparece no celular, quando o quadrado vira uma linha: é o
+  // indicador de "abre outra página" das listas do iOS.
   return `
-    <div class="cartao" role="option" id="professor-${escapeHtml(item.id)}" data-id="${escapeHtml(item.id)}"
-         tabindex="-1" aria-selected="${selecionado}" aria-label="${escapeHtml(rotulo)}">
-      <span class="avatar" aria-hidden="true">${escapeHtml(iniciais(item.nome))}</span>
-      <span class="cartao__marcador" aria-hidden="true"><svg class="icone"><use href="#i-check"/></svg></span>
-      <div class="cartao__info">
-        <p class="cartao__nome">${escapeHtml(item.nome)}</p>
-        <p class="cartao__email"${item.email ? ` title="${escapeHtml(item.email)}"` : ''}>${escapeHtml(item.email || 'Sem e-mail cadastrado')}</p>
-        ${cursos}
-      </div>
-    </div>`;
+    <li>
+      <a class="cartao" href="${escapeHtml(enderecoDoProfessor(item.id))}" id="professor-${escapeHtml(item.id)}"
+         data-id="${escapeHtml(item.id)}" aria-label="${escapeHtml(rotulo)}">
+        <span class="avatar" aria-hidden="true">${escapeHtml(iniciais(item.nome))}</span>
+        <svg class="icone cartao__seta" aria-hidden="true"><use href="#i-seta-direita"/></svg>
+        <div class="cartao__info">
+          <p class="cartao__nome">${escapeHtml(item.nome)}</p>
+          <p class="cartao__email"${item.email ? ` title="${escapeHtml(item.email)}"` : ''}>${escapeHtml(item.email || 'Sem e-mail cadastrado')}</p>
+          ${cursos}
+        </div>
+      </a>
+    </li>`;
 }
 
 function mostrarEsqueleto() {
@@ -438,24 +440,22 @@ function mostrarEsqueleto() {
   els.grade.setAttribute('aria-busy', 'true');
   els.contagem.textContent = 'Carregando professores…';
   els.grade.innerHTML = `
-    <div class="cartao cartao--esqueleto" aria-hidden="true">
-      <span class="avatar"></span>
-      <div class="cartao__info">
-        <span class="linha-esqueleto l1"></span>
-        <span class="linha-esqueleto l2"></span>
-        <span class="linha-esqueleto l3"></span>
+    <li aria-hidden="true">
+      <div class="cartao cartao--esqueleto">
+        <span class="avatar"></span>
+        <div class="cartao__info">
+          <span class="linha-esqueleto l1"></span>
+          <span class="linha-esqueleto l2"></span>
+          <span class="linha-esqueleto l3"></span>
+        </div>
       </div>
-    </div>`.repeat(8);
+    </li>`.repeat(8);
 }
 
-function mostrarEstado({ icone, titulo, texto, acao }) {
+function mostrarEstado(estado) {
   els.grade.hidden = true;
   els.grade.innerHTML = '';
-  els.estado.innerHTML = `
-    <svg class="icone" aria-hidden="true"><use href="#${icone}"/></svg>
-    <h3 class="estado__titulo">${escapeHtml(titulo)}</h3>
-    <p class="estado__texto">${escapeHtml(texto)}</p>
-    ${acao ? `<button type="button" class="botao-secundario" data-acao="${acao[0]}">${escapeHtml(acao[1])}</button>` : ''}`;
+  els.estado.innerHTML = estadoHtml(estado);
   els.estado.hidden = false;
 }
 
@@ -482,75 +482,10 @@ function anunciarContagem(visiveis, filtrando) {
   }, 500);
 }
 
-// ---------- Seleção e teclado ----------
-
-function alternarSelecao(id) {
-  state.selecionadoId = state.selecionadoId === id ? null : id;
-  for (const cartao of els.grade.querySelectorAll('.cartao[data-id]')) {
-    cartao.setAttribute('aria-selected', String(cartao.dataset.id === state.selecionadoId));
-  }
-}
-
-// Só um cartão fica no Tab: o último focado, senão o selecionado, senão o primeiro.
-function ajustarTabulacao() {
-  const cartoes = [...els.grade.querySelectorAll('.cartao[data-id]')];
-  const alvo = cartoes.find(c => c.dataset.id === focoId)
-    ?? cartoes.find(c => c.dataset.id === state.selecionadoId)
-    ?? cartoes[0];
-  for (const cartao of cartoes) cartao.tabIndex = cartao === alvo ? 0 : -1;
-}
-
-function marcarFoco(cartao) {
-  focoId = cartao.dataset.id;
-  for (const outro of els.grade.querySelectorAll('.cartao[data-id]')) outro.tabIndex = outro === cartao ? 0 : -1;
-}
-
-function focar(cartao) {
-  marcarFoco(cartao);
-  cartao.focus({ preventScroll: true });
-  cartao.scrollIntoView({ block: 'nearest' });
-}
-
-function navegarPeloTeclado(evento) {
-  const atual = evento.target.closest('.cartao[data-id]');
-  if (!atual || evento.altKey || evento.ctrlKey || evento.metaKey) return;
-
-  const cartoes = [...els.grade.querySelectorAll('.cartao[data-id]')];
-  const i = cartoes.indexOf(atual);
-  const colunas = getComputedStyle(els.grade).gridTemplateColumns.split(' ').length;
-  const destinos = {
-    ArrowRight: i + 1,
-    ArrowLeft: i - 1,
-    ArrowDown: i + colunas,
-    ArrowUp: i - colunas,
-    Home: 0,
-    End: cartoes.length - 1,
-  };
-
-  if (evento.key in destinos) {
-    evento.preventDefault();
-    const alvo = cartoes[destinos[evento.key]];
-    if (alvo) focar(alvo);
-    return;
-  }
-  if (evento.key === 'Enter' || (evento.key === ' ' && !digitado)) {
-    evento.preventDefault();
-    alternarSelecao(atual.dataset.id);
-    return;
-  }
-  if (evento.key.length === 1 && evento.key !== '/') pularParaNome(evento, cartoes, i);
-}
-
-// Digitar com a grade em foco leva ao primeiro nome que começa com o texto;
-// repetir a mesma letra percorre quem começa com ela.
-function pularParaNome(evento, cartoes, i) {
-  evento.preventDefault();
-  digitado += evento.key === ' ' ? ' ' : normalizar(evento.key);
-  clearTimeout(digitadoTimer);
-  digitadoTimer = setTimeout(() => { digitado = ''; }, 700);
-
-  const inicio = digitado.length === 1 ? i + 1 : i;
-  const ordem = [...cartoes.slice(inicio), ...cartoes.slice(0, inicio)];
-  const alvo = ordem.find(cartao => itemPorId.get(cartao.dataset.id)?.nomeBusca.startsWith(digitado));
-  if (alvo) focar(alvo);
+// Realce azul-claro que se apaga sozinho (cartoes.css › .cartao--realce).
+function realcar(cartao) {
+  cartao.classList.remove('cartao--realce');
+  void cartao.offsetWidth; // recomeça a animação se já estava rodando
+  cartao.classList.add('cartao--realce');
+  cartao.addEventListener('animationend', () => cartao.classList.remove('cartao--realce'), { once: true });
 }
