@@ -5,11 +5,6 @@ import { chaveCorCurso, compararTurmas, turmaAtiva } from '../../../backend/doma
 import { escapeHtml, iniciais, listaPorExtenso, normalizar } from '../../shared/dom.js';
 import { criarMenuFiltro } from '../../shared/menuFiltro.js';
 
-// Página "Alinhamento": um cartão grande e selecionável por professor, com
-// busca por nome/e-mail e filtros de curso e turma (tudo do banco do
-// Sistema de Presença). A grade é um listbox de seleção única: Tab entra
-// nela uma vez, as setas andam entre os cartões e Espaço/Enter seleciona.
-
 const els = {};
 const ptBR = (a, b) => a.localeCompare(b, 'pt-BR', { sensitivity: 'base' });
 const quantos = n => `${n} ${n === 1 ? 'professor' : 'professores'}`;

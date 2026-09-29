@@ -6,6 +6,7 @@ Por enquanto tem:
 
 - **Login** com o e-mail e a senha do Sistema de Presença, incluindo "Esqueci minha senha".
 - **Alinhamento** (página inicial): um cartão por professor com e-mail e cursos em que dá aula, busca por nome ou e-mail e filtros de curso e turma. Os cartões são selecionáveis por clique ou teclado.
+- **Novo professor** (só administradores): cria o login e o cadastro do professor do mesmo jeito que o Sistema de Presença. O professor aparece nos dois sistemas e entra nos dois com o mesmo e-mail e senha.
 
 ## Como rodar
 
@@ -33,20 +34,27 @@ frontend/
   features/auth/            entrar, sair, "Esqueci minha senha"
   features/app/             barra lateral e menu da conta
   features/alinhamento/     busca, filtros e cartões de professores
-  shared/, state/           utilitários e estado da tela
+  features/professores/     janela "Novo professor"
+  shared/menuFiltro.js      menu dos filtros de curso e turma (com busca)
+  shared/, state/           outros utilitários e estado da tela
   styles/                   tokens.css (cores, tipografia) → base → auth / app / alinhamento
 ```
 
 ## Dados usados
 
-A tela só lê o banco; não altera nada.
-
 | Tabela | Colunas | Para quê |
 |---|---|---|
-| `professores` | `id`, `nome`, `email`, `user_id` | cartões e nome no menu da conta |
+| `professores` | `id`, `nome`, `email`, `papel`, `user_id` | cartões, nome no menu da conta e quem pode cadastrar (`papel = 'admin'`) |
 | `turmas` | `id`, `turma`, `curso`, `professor_id`, `ativa` | cursos de cada professor e filtros |
 
 Turmas com `ativa = false` ficam de fora, como no Sistema de Presença.
+
+O único ponto que grava no banco é **Novo professor**, com os mesmos dois passos do Sistema de Presença:
+
+1. cria o login pelo cadastro público do Supabase Auth (`/auth/v1/signup`), sem trocar a sessão de quem está logado;
+2. insere `nome`, `email`, `papel` e `user_id` em `professores`.
+
+A senha inicial sugerida é a mesma do Sistema de Presença (`Teste1234`). Se o Supabase exigir confirmação de e-mail, o professor precisa confirmar antes do primeiro acesso.
 
 ## Bom saber
 
