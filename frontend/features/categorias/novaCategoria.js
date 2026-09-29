@@ -39,7 +39,8 @@ export function iniciarNovaCategoria(opcoes) {
     criada = null;
     aoCriar(categoria);
   });
-  campoNome.addEventListener('input', () => campoNome.removeAttribute('aria-invalid'));
+  // O aviso some assim que a pessoa começa a corrigir o nome.
+  campoNome.addEventListener('input', esconderErro);
 }
 
 // Aberta de dentro da página de um professor: a descrição deixa claro que a
