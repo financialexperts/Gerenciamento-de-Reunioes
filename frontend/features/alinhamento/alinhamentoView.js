@@ -2,8 +2,11 @@ import { state } from '../../state/store.js';
 import { buscarProfessores } from '../../../backend/api/professoresRepo.js';
 import { buscarTurmas } from '../../../backend/api/turmasRepo.js';
 import { chaveCorCurso, compararTurmas, turmaAtiva } from '../../../backend/domain/turmas.js';
-import { escapeHtml, iniciais, listaPorExtenso, normalizar } from '../../shared/dom.js';
+import { escapeHtml, iniciais, listaPorExtenso, movimentoReduzido, normalizar } from '../../shared/dom.js';
+import { estadoHtml } from '../../shared/estado.js';
+import { criarTecladoDaGrade } from '../../shared/grade.js';
 import { criarMenuFiltro } from '../../shared/menuFiltro.js';
+import { enderecoDoProfessor } from '../app/rotas.js';
 
 const els = {};
 const ptBR = (a, b) => a.localeCompare(b, 'pt-BR', { sensitivity: 'base' });
@@ -13,10 +16,8 @@ let menus = [];             // menus dos filtros de curso e turma
 let indice = [];            // um item por professor, já com turmas e cursos
 let itemPorId = new Map();
 let carga = null;           // carga em andamento (evita duas em paralelo)
+let cargaOk = false;        // a última carga terminou bem
 let geracao = 0;            // muda ao sair: descarta resposta de carga antiga
-let focoId = null;          // cartão que recebe o Tab (roving tabindex)
-let digitado = '';          // digitar dentro da grade pula para o nome
-let digitadoTimer = 0;
 let avisoTimer = 0;
 
 const ESTADOS = {
@@ -33,8 +34,10 @@ const ESTADOS = {
   },
 };
 
-export function iniciarAlinhamento() {
+export function iniciarAlinhamento({ aoAbrirProfessor }) {
   els.app = document.getElementById('app');
+  els.titulo = document.getElementById('titulo-alinhamento');
+  els.controles = document.getElementById('controles-alinhamento');
   els.grade = document.getElementById('lista-professores');
   els.estado = document.getElementById('estado-lista');
   els.contagem = document.getElementById('contagem');
@@ -88,14 +91,24 @@ export function iniciarAlinhamento() {
     els.curso.focus();
   });
 
+  // Cada cartão é um link para a página do professor. Clique simples abre
+  // aqui mesmo; Ctrl/⌘ ou o botão do meio abrem em outra aba, como qualquer link.
   els.grade.addEventListener('click', evento => {
     const cartao = evento.target.closest('.cartao[data-id]');
-    if (cartao) alternarSelecao(cartao.dataset.id);
+    if (!cartao || evento.button !== 0 || evento.metaKey || evento.ctrlKey || evento.shiftKey || evento.altKey) return;
+    evento.preventDefault();
+    aoAbrirProfessor(cartao.dataset.id);
   });
-  els.grade.addEventListener('keydown', navegarPeloTeclado);
-  els.grade.addEventListener('focusin', evento => {
-    const cartao = evento.target.closest('.cartao[data-id]');
-    if (cartao) marcarFoco(cartao);
+  const teclado = criarTecladoDaGrade({
+    grade: els.grade,
+    seletor: '.cartao[data-id]',
+    nomeDe: cartao => itemPorId.get(cartao.dataset.id)?.nomeBusca ?? '',
+  });
+  els.grade.addEventListener('keydown', evento => {
+    const alvo = teclado.destino(evento);
+    if (!alvo) return;
+    alvo.focus({ preventScroll: true });
+    alvo.scrollIntoView({ block: 'nearest' });
   });
 
   els.estado.addEventListener('click', evento => {
@@ -109,7 +122,7 @@ export function iniciarAlinhamento() {
 
   // "/" leva para a busca (sem sequestrar atalhos do navegador como Ctrl+F).
   document.addEventListener('keydown', evento => {
-    if (evento.key !== '/' || evento.ctrlKey || evento.metaKey || evento.altKey || els.app.hidden) return;
+    if (evento.key !== '/' || evento.ctrlKey || evento.metaKey || evento.altKey || els.app.hidden || els.controles.hidden) return;
     if (evento.target.closest?.('input, textarea, select, [contenteditable="true"]')) return;
     evento.preventDefault();
     els.busca.focus();
@@ -117,6 +130,7 @@ export function iniciarAlinhamento() {
   });
 }
 
+// Devolve true quando a lista chegou e false quando a carga falhou.
 export function carregarAlinhamento() {
   if (!carga) {
     const promessa = executarCarga().finally(() => {
@@ -127,31 +141,54 @@ export function carregarAlinhamento() {
   return carga;
 }
 
-// Professor recém-cadastrado: entra na lista sem recarregar a página, já
-// selecionado e à vista (busca e filtros são limpos para ele aparecer).
+// Para quem precisa da lista pronta (a página de um professor aberta pelo
+// endereço, antes de a lista chegar): espera a carga em andamento, se houver.
+export function esperarAlinhamento() {
+  return carga ?? Promise.resolve(cargaOk);
+}
+
+// Professor já com turmas e cursos resumidos, ou null se não está na lista
+// (id que não existe ou que o RLS não deixa ver).
+export function professorPorId(id) {
+  return itemPorId.get(String(id)) ?? null;
+}
+
+// Ao voltar de um professor, o foco (e o olhar) volta para o cartão de onde
+// a pessoa saiu, com um realce que se apaga, como numa lista do iOS.
+export function focarProfessor(id) {
+  const cartao = document.getElementById(`professor-${id}`);
+  if (!cartao) {
+    els.titulo.focus({ preventScroll: true });
+    return;
+  }
+  cartao.focus({ preventScroll: true });
+  cartao.scrollIntoView({ block: 'nearest' });
+  realcar(cartao);
+}
+
+// Professor recém-cadastrado: entra na lista sem recarregar a página, em
+// destaque e à vista (busca e filtros são limpos para ele aparecer).
 export function adicionarProfessor(professor) {
   state.professores.push(professor);
   montarIndice();
-  state.selecionadoId = String(professor.id);
-  focoId = state.selecionadoId;
   limparFiltros();
-  const cartao = document.getElementById(`professor-${state.selecionadoId}`);
+  const cartao = document.getElementById(`professor-${professor.id}`);
   if (!cartao) return;
   cartao.focus({ preventScroll: true });
-  cartao.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+  cartao.scrollIntoView({ block: 'center', behavior: movimentoReduzido() ? 'auto' : 'smooth' });
+  realcar(cartao);
 }
 
-// Ao sair: esquece dados, filtros e seleção da pessoa anterior.
+// Ao sair: esquece dados e filtros da pessoa anterior.
 export function limparAlinhamento() {
   geracao++;
   carga = null;
+  cargaOk = false;
   indice = [];
   itemPorId = new Map();
-  focoId = null;
   state.professores = [];
   state.turmas = [];
   state.filtros = { texto: '', curso: '', turmaId: '' };
-  state.selecionadoId = null;
   for (const menu of menus) menu.fechar();
   els.busca.value = '';
   els.limparBusca.hidden = true;
@@ -170,19 +207,22 @@ async function executarCarga() {
   mostrarEsqueleto();
   try {
     const [professores, turmas] = await Promise.all([buscarProfessores(), buscarTurmas()]);
-    if (minhaGeracao !== geracao) return;
+    if (minhaGeracao !== geracao) return false;
     state.professores = professores;
     state.turmas = turmas.filter(turmaAtiva).sort(compararTurmas);
     montarIndice();
     validarFiltros();
     atualizarBotoesFiltro();
     render();
+    cargaOk = true;
   } catch (erro) {
-    if (minhaGeracao !== geracao) return;
+    if (minhaGeracao !== geracao) return false;
     console.error('Erro ao carregar professores e turmas:', erro);
     els.contagem.textContent = '';
     mostrarEstado(ESTADOS.erro);
+    cargaOk = false;
   }
+  return cargaOk;
 }
 
 // Liga cada professor às turmas ativas dele (pelo professor_id, o vínculo

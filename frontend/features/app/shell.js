@@ -1,13 +1,15 @@
-import { iniciais } from '../../shared/dom.js';
+import { iniciais, movimentoReduzido } from '../../shared/dom.js';
 
-// Estrutura do aplicativo: barra lateral (mostrar/ocultar), efeito de borda
-// de rolagem no cabeçalho e o menu da conta no canto superior direito.
+// Estrutura do aplicativo: barra lateral (mostrar/ocultar), troca entre as
+// telas (lista e página do professor), efeito de borda de rolagem no
+// cabeçalho e o menu da conta no canto superior direito.
 
 const app = document.getElementById('app');
 const barra = document.getElementById('barra-lateral');
 const btnBarra = document.getElementById('btn-barra-lateral');
+const linkAlinhamento = document.getElementById('link-alinhamento');
 const veu = document.getElementById('veu');
-const principal = document.getElementById('alinhamento');
+const principal = document.getElementById('principal');
 const cabecalho = document.getElementById('cabecalho');
 const btnConta = document.getElementById('btn-conta');
 const menuConta = document.getElementById('menu-conta');
@@ -16,7 +18,10 @@ const menuConta = document.getElementById('menu-conta');
 const janelaEstreita = matchMedia('(max-width: 899px)');
 const CHAVE_BARRA_OCULTA = 'gestao-reunioes:barra-lateral-oculta';
 
-export function iniciarShell({ aoSair }) {
+let telaAtual = 'alinhamento';
+let rolagemDaLista = 0;
+
+export function iniciarShell({ aoSair, aoAbrirAlinhamento }) {
   app.toggleAttribute('data-barra-oculta', lerPreferenciaBarra());
 
   btnBarra.addEventListener('click', alternarBarra);
@@ -34,10 +39,17 @@ export function iniciarShell({ aoSair }) {
     sincronizarBarra();
   });
 
+  // "Alinhamento" na barra lateral: de dentro de um professor, volta para a
+  // lista; já na lista, sobe para o topo (como tocar de novo numa aba).
+  linkAlinhamento.addEventListener('click', evento => {
+    if (evento.button !== 0 || evento.metaKey || evento.ctrlKey || evento.shiftKey || evento.altKey) return;
+    evento.preventDefault();
+    if (telaAtual === 'alinhamento') principal.scrollTo({ top: 0, behavior: movimentoReduzido() ? 'auto' : 'smooth' });
+    else aoAbrirAlinhamento();
+  });
+
   // O efeito só aparece quando há conteúdo passando por baixo do cabeçalho.
-  principal.addEventListener('scroll', () => {
-    cabecalho.classList.toggle('rolado', principal.scrollTop > 4);
-  }, { passive: true });
+  principal.addEventListener('scroll', atualizarBordaDeRolagem, { passive: true });
   // Ao navegar pelo teclado, o cartão focado não fica escondido sob o cabeçalho fixo.
   new ResizeObserver(() => {
     principal.style.setProperty('--altura-cabecalho', `${cabecalho.offsetHeight}px`);
@@ -68,7 +80,23 @@ export function esconderApp() {
   if (menuConta.matches(':popover-open')) menuConta.hidePopover();
   app.hidden = true;
   app.removeAttribute('data-barra-aberta');
+  trocarTela('alinhamento');
+  rolagemDaLista = 0;
   sincronizarBarra();
+}
+
+// Mostra só os pedaços da tela pedida (cabeçalho e conteúdo têm
+// data-tela). A lista volta para a rolagem onde estava; a página de um
+// professor sempre abre no topo.
+export function trocarTela(nome) {
+  if (nome === telaAtual) return;
+  if (telaAtual === 'alinhamento') rolagemDaLista = principal.scrollTop;
+  telaAtual = nome;
+  for (const parte of app.querySelectorAll('[data-tela]')) parte.hidden = parte.dataset.tela !== nome;
+  principal.scrollTop = nome === 'alinhamento' ? rolagemDaLista : 0;
+  atualizarBordaDeRolagem();
+  // A seção continua marcada na barra lateral dentro de um professor.
+  linkAlinhamento.setAttribute('aria-current', nome === 'alinhamento' ? 'page' : 'true');
 }
 
 export function atualizarConta({ nome, email }) {
@@ -82,6 +110,10 @@ export function atualizarConta({ nome, email }) {
   linhaEmail.hidden = !nome;
   btnConta.setAttribute('aria-label', `Conta de ${titulo}`);
   btnConta.title = titulo;
+}
+
+function atualizarBordaDeRolagem() {
+  cabecalho.classList.toggle('rolado', principal.scrollTop > 4);
 }
 
 // ---------- Barra lateral ----------
