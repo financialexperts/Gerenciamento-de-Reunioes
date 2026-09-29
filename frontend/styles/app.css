@@ -57,8 +57,9 @@
 }
 .menu__item .icone { color: var(--rotulo-2); }
 .menu__item:hover { background: var(--preenchimento); }
+/* Item atual: realce cinza com ícone no azul, como na barra lateral do Finder */
 .menu__item[aria-current="page"] {
-  background: var(--acento-suave);
+  background: var(--preenchimento-2);
   font-weight: 600;
 }
 .menu__item[aria-current="page"] .icone { color: var(--acento); }
@@ -104,7 +105,7 @@
     position: fixed;
     inset: 0;
     z-index: 35;
-    background: rgb(16 15 38 / 0.28);
+    background: rgb(0 0 0 / 0.2);
     opacity: 0;
     pointer-events: none;
     transition: opacity var(--medio) ease;
@@ -213,14 +214,11 @@
   padding: 6px;
   border: 1px solid var(--vidro-contorno);
   border-radius: 16px;
-  background: var(--vidro-forte);
+  background: var(--vidro-menu);
   -webkit-backdrop-filter: var(--vidro-desfoque);
   backdrop-filter: var(--vidro-desfoque);
-  box-shadow: var(--vidro-brilho), var(--sombra-painel);
+  box-shadow: var(--vidro-brilho), var(--sombra-menu);
   color: var(--rotulo);
-}
-@media (prefers-color-scheme: dark) {
-  .menu-conta { background: color-mix(in srgb, var(--superficie-elevada) 88%, transparent); }
 }
 
 .menu-conta__perfil {

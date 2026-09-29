@@ -71,36 +71,19 @@
 .busca__limpar:hover { color: var(--rotulo-2); }
 .busca__limpar .icone { width: 18px; height: 18px; }
 
-/* Botão pop-up (escolha única numa lista): rótulo fixo à esquerda
-   para prever as opções sem abrir, valor atual em negrito e o
-   indicador de duas setas do macOS. O <select> nativo ocupa o botão
-   inteiro, então a lista que abre é a do próprio sistema. */
+/* Botão pop-up (escolha única numa lista): rótulo fixo à esquerda para
+   prever as opções sem abrir, valor atual em negrito e o indicador de
+   duas setas do macOS. Com filtro aplicado o botão fica azulado, para
+   se ver de relance o que está filtrando a grade. */
 .popup {
-  position: relative;
   display: inline-flex;
+  align-items: center;
+  gap: 7px;
   flex: none;
-}
-
-.popup__rotulo {
-  position: absolute;
-  top: 50%;
-  left: 15px;
-  z-index: 1;
-  translate: 0 -50%;
-  color: var(--rotulo-2);
-  font-weight: 500;
-  pointer-events: none;
-}
-
-.popup__seletor {
-  -webkit-appearance: none;
-  appearance: none;
-  field-sizing: content;
-  min-width: 8.5rem;
-  max-width: 17rem;
+  min-width: 0;
+  max-width: 19rem;
   height: var(--altura-controle);
-  padding: 0 34px 0 4.25rem;
-  overflow: hidden;
+  padding: 0 12px 0 15px;
   border: 1px solid var(--vidro-contorno);
   border-radius: 999px;
   background: var(--vidro);
@@ -108,44 +91,195 @@
   backdrop-filter: var(--vidro-desfoque);
   box-shadow: var(--vidro-brilho), var(--sombra-controle);
   color: var(--rotulo);
-  font-weight: 600;
-  text-overflow: ellipsis;
   white-space: nowrap;
-  cursor: pointer;
   transition: border-color var(--rapido) ease, box-shadow var(--rapido) ease, background-color var(--rapido) ease;
 }
-.popup__seletor:hover:not(:disabled) { background: var(--vidro-forte); }
-.popup__seletor:focus-visible {
+.popup:hover:not(:disabled) { background: var(--vidro-forte); }
+.popup:focus-visible {
   outline: none;
   border-color: var(--acento);
   box-shadow: 0 0 0 4px var(--anel-foco-suave), var(--sombra-controle);
 }
-.popup__seletor:disabled { cursor: default; opacity: 0.55; }
-/* No Windows o Chrome pinta a lista com as cores do <select>: define
-   fundo e texto explícitos para a lista não sumir no modo escuro. */
-.popup__seletor option,
-.popup__seletor optgroup {
-  background-color: var(--superficie-elevada);
-  color: var(--rotulo);
-  font-weight: 400;
-}
-.popup__seletor optgroup { font-weight: 600; }
+.popup:disabled { cursor: default; opacity: 0.55; }
+.popup[aria-expanded="true"] { background: var(--superficie); border-color: var(--contorno-campo); }
 
+.popup__rotulo { color: var(--rotulo-2); font-weight: 500; }
+.popup__valor {
+  min-width: 0;
+  overflow: hidden;
+  font-weight: 600;
+  text-overflow: ellipsis;
+}
+.popup__ponto {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--cor-curso, var(--curso-outro));
+}
 .popup__setas {
-  position: absolute;
-  top: 50%;
-  right: 13px;
-  translate: 0 -50%;
+  flex: none;
   width: 10px;
+  height: 16px;
+  margin-left: 1px;
+  color: var(--rotulo-2);
+}
+
+.popup--ativo { border-color: rgb(0 113 227 / 0.28); background: var(--acento-suave); }
+.popup--ativo:hover:not(:disabled) { background: #E4EFFC; }
+.popup--ativo .popup__valor,
+.popup--ativo .popup__setas { color: var(--link); }
+
+@media (max-width: 599px) {
+  .busca { flex-basis: 100%; max-width: none; }
+  .popup { flex: 1 1 0; max-width: none; }
+  .popup__valor { flex: 1; text-align: left; }
+}
+
+/* ---------- Menu dos filtros ----------
+   Lista que abre do botão pop-up, como um menu do macOS: material claro
+   translúcido, ✓ na opção atual e realce azul com texto branco sob o
+   ponteiro ou as setas. O de turmas tem busca e seções por curso. */
+.menu-filtro {
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  width: min(19rem, calc(100vw - 16px));
+  padding: 6px;
+  overflow: hidden;
+  border: 1px solid var(--vidro-contorno);
+  border-radius: 14px;
+  background: var(--vidro-menu);
+  -webkit-backdrop-filter: var(--vidro-desfoque);
+  backdrop-filter: var(--vidro-desfoque);
+  box-shadow: var(--vidro-brilho), var(--sombra-menu);
+  color: var(--rotulo);
+}
+.menu-filtro:popover-open { display: flex; flex-direction: column; }
+.menu-filtro--turma { width: min(26rem, calc(100vw - 16px)); }
+
+.menu-filtro__busca { position: relative; flex: none; margin: 2px 2px 6px; }
+.menu-filtro__busca .icone {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  left: 10px;
+  translate: 0 -50%;
+  width: 16px;
   height: 16px;
   color: var(--rotulo-2);
   pointer-events: none;
 }
+.menu-filtro__campo {
+  width: 100%;
+  height: 34px;
+  padding: 0 10px 0 32px;
+  border: 0;
+  border-radius: 9px;
+  background: var(--campo-menu);
+  color: var(--rotulo);
+}
+.menu-filtro__campo::placeholder { color: var(--placeholder); opacity: 1; }
+.menu-filtro__campo::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; display: none; }
+.menu-filtro__campo:focus-visible { outline: none; box-shadow: 0 0 0 3px var(--anel-foco-suave); }
 
-@media (max-width: 599px) {
-  .busca { flex-basis: 100%; max-width: none; }
-  .popup { flex: 1 1 0; min-width: 0; }
-  .popup__seletor { width: 100%; max-width: none; min-width: 0; }
+.menu-filtro__lista {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scroll-padding-block: 30px 4px;
+}
+.menu-filtro__lista:focus { outline: none; }
+
+/* Título de seção (curso) fixo no topo enquanto a lista rola */
+.menu-filtro__grupo {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 10px 4px;
+  background: var(--vidro-menu);
+  font: 600 0.75rem/1rem var(--fonte);
+  color: var(--rotulo-2);
+}
+.menu-filtro__grupo::before {
+  content: "";
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--cor-curso, var(--curso-outro));
+}
+
+.opcao {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 34px;
+  padding: 0 10px 0 8px;
+  border-radius: 8px;
+  cursor: default;
+  user-select: none;
+}
+.opcao__check {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  stroke-width: 2.4;
+  color: var(--link);
+  visibility: hidden;
+}
+.opcao[aria-selected="true"] .opcao__check { visibility: visible; }
+.opcao__ponto {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--cor-curso, var(--curso-outro));
+}
+.opcao__texto {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.opcao__detalhe {
+  flex: none;
+  max-width: 45%;
+  overflow: hidden;
+  font: var(--t-chamada);
+  font-variant-numeric: tabular-nums;
+  color: var(--rotulo-2);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* "Todos": separado das demais opções por uma linha fina */
+.opcao--todos { position: relative; margin-bottom: 9px; }
+.opcao--todos::after {
+  content: "";
+  position: absolute;
+  right: 8px;
+  bottom: -5px;
+  left: 8px;
+  height: 1px;
+  background: var(--separador);
+}
+
+.opcao.ativa { background: var(--acento); color: var(--sobre-acento); }
+.opcao.ativa .opcao__check,
+.opcao.ativa .opcao__detalhe { color: var(--sobre-acento); }
+.opcao.ativa .opcao__ponto { box-shadow: 0 0 0 1.5px var(--sobre-acento); }
+
+.menu-filtro__vazio {
+  padding: 18px 10px;
+  text-align: center;
+  font: var(--t-chamada);
+  color: var(--rotulo-2);
 }
 
 /* ---------- Grade de professores ---------- */
@@ -187,9 +321,6 @@
 .cartao > .avatar { width: 64px; height: 64px; font-size: 1.375rem; }
 
 .cartao:hover { box-shadow: var(--sombra-cartao-hover); }
-@media (prefers-color-scheme: dark) {
-  .cartao:hover { background: color-mix(in srgb, var(--superficie) 90%, #FFFFFF); }
-}
 .cartao:active { transform: scale(0.985); }
 .cartao:focus-visible { outline: 2px solid var(--anel-foco); outline-offset: 3px; }
 
@@ -296,10 +427,6 @@
   background: var(--cor-curso, var(--curso-outro));
 }
 .chip > span { overflow: hidden; text-overflow: ellipsis; }
-.chip[data-curso="elas"] { --cor-curso: var(--curso-elas); }
-.chip[data-curso="master"] { --cor-curso: var(--curso-master); }
-.chip[data-curso="evolution"] { --cor-curso: var(--curso-evolution); }
-.chip[data-curso="clube"] { --cor-curso: var(--curso-clube); }
 
 /* Janela de celular: o quadrado vira uma linha (mesmas informações,
    mesma seleção) — layout pelo espaço disponível (HIG › Layout). */
@@ -347,11 +474,6 @@
   background-size: 250% 100%;
   animation: brilho 1.6s ease-in-out infinite;
 }
-@media (prefers-color-scheme: dark) {
-  .cartao--esqueleto::after {
-    background-image: linear-gradient(100deg, transparent 30%, rgb(255 255 255 / 0.05) 50%, transparent 70%);
-  }
-}
 @keyframes brilho {
   from { background-position: 120% 0; }
   to { background-position: -120% 0; }
@@ -384,5 +506,7 @@
   .cartao__marcador { border-color: CanvasText; }
   .cartao[aria-selected="true"] .cartao__marcador { background: Highlight; border-color: Highlight; }
   .chip::before { forced-color-adjust: none; }
-  .busca__campo, .popup__seletor { border: 1px solid ButtonText; }
+  .busca__campo, .popup, .menu-filtro { border: 1px solid ButtonText; }
+  .opcao.ativa { forced-color-adjust: none; background: Highlight; color: HighlightText; }
+  .popup__ponto, .opcao__ponto, .menu-filtro__grupo::before { forced-color-adjust: none; }
 }

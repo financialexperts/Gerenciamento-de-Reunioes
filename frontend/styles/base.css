@@ -13,7 +13,7 @@ body {
   overflow: hidden; /* quem rola é cada tela (login ou área principal) */
   font: var(--t-corpo);
   color: var(--rotulo);
-  background: var(--lavagem), var(--janela);
+  background: var(--janela);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -88,7 +88,7 @@ a { color: inherit; }
   border: 0;
   border-radius: 8px;
   background: none;
-  color: var(--acento);
+  color: var(--link);
   font-weight: 500;
 }
 .botao-texto:hover { text-decoration: underline; text-underline-offset: 3px; }
@@ -195,7 +195,133 @@ a { color: inherit; }
 }
 .mensagem .icone { width: 18px; height: 18px; margin-top: 0; }
 .mensagem--erro { background: var(--perigo-suave); color: var(--perigo); }
-.mensagem--sucesso { background: var(--acento-suave); color: var(--acento); }
+.mensagem--sucesso { background: var(--sucesso-suave); color: var(--sucesso); }
+
+/* Ação principal da página na barra de ferramentas: cápsula azul com "+"
+   (uma só por tela — HIG › Buttons). No celular vira só o ícone. */
+.botao-destaque {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex: none;
+  height: var(--altura-controle);
+  padding: 0 16px 0 12px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--acento);
+  color: var(--sobre-acento);
+  font-weight: 600;
+  white-space: nowrap;
+  box-shadow: var(--sombra-controle);
+  transition: filter var(--rapido) ease, transform var(--rapido) ease;
+}
+.botao-destaque .icone { width: 18px; height: 18px; stroke-width: 2.2; }
+.botao-destaque:hover { filter: brightness(1.08); }
+.botao-destaque:active { transform: scale(0.97); }
+@media (max-width: 599px) {
+  .botao-destaque { width: var(--altura-controle); padding: 0; }
+  .botao-destaque__texto {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+}
+
+/* ---------- Janela (sheet) ----------
+   Uma tarefa curta por vez, com saída óbvia: Cancelar, Esc ou clique
+   fora (HIG › Modality). O fundo escurece de leve, como numa folha. */
+.dialogo {
+  width: min(28rem, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  padding: 0;
+  overflow: auto;
+  border: 1px solid var(--contorno);
+  border-radius: 22px;
+  background: var(--superficie);
+  box-shadow: var(--sombra-menu);
+  color: var(--rotulo);
+}
+.dialogo::backdrop { background: rgb(0 0 0 / 0.28); }
+.dialogo[open] { animation: surgir-dialogo 240ms var(--mola); }
+@keyframes surgir-dialogo {
+  from { opacity: 0; transform: translateY(10px) scale(0.98); }
+}
+
+.dialogo__corpo { display: grid; gap: var(--e-4); padding: 28px 28px 24px; }
+.dialogo__cabecalho { display: grid; gap: 4px; margin-bottom: var(--e-1); }
+.dialogo__titulo { font: var(--t-titulo-2); letter-spacing: -0.012em; }
+.dialogo__descricao { color: var(--rotulo-2); text-wrap: pretty; }
+.dialogo__acoes {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--e-3);
+  margin-top: var(--e-2);
+}
+.dialogo__acoes .botao-primario,
+.dialogo__acoes .botao-secundario { min-height: 40px; padding: 0 var(--e-5); }
+
+.dialogo__concluido { justify-items: center; text-align: center; }
+.dialogo__concluido > .icone { width: 48px; height: 48px; color: var(--sucesso); stroke-width: 1.5; }
+.dialogo__concluido p { color: var(--rotulo-2); text-wrap: pretty; }
+.dialogo__concluido strong { color: var(--rotulo); font-weight: 600; }
+.dialogo__concluido .dialogo__acoes { width: 100%; }
+.dialogo__concluido .dialogo__acoes .botao-primario { flex: 1; }
+
+/* Dados de acesso para repassar ao professor (selecionáveis de uma vez) */
+.credenciais {
+  display: grid;
+  gap: 6px;
+  width: 100%;
+  margin: 0;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: var(--janela);
+  text-align: left;
+}
+.credenciais div { display: flex; justify-content: space-between; gap: var(--e-4); }
+.credenciais dt { color: var(--rotulo-2); }
+.credenciais dd { margin: 0; font-weight: 600; word-break: break-all; user-select: all; }
+
+/* ---------- Controle segmentado (escolha entre 2 opções) ----------
+   Rádios nativos por baixo: setas do teclado e leitor de tela funcionam. */
+.grupo-escolha { min-width: 0; margin: 0; padding: 0; border: 0; }
+.grupo-escolha legend { margin-bottom: 6px; padding: 0; }
+.grupo-escolha .campo__ajuda { margin-top: 6px; }
+
+.segmentado {
+  display: grid;
+  grid-auto-columns: 1fr;
+  grid-auto-flow: column;
+  padding: 2px;
+  border-radius: 10px;
+  background: var(--preenchimento);
+}
+.segmentado label { position: relative; }
+.segmentado input {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.segmentado span {
+  display: grid;
+  place-items: center;
+  height: 32px;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: background-color var(--rapido) ease, box-shadow var(--rapido) ease;
+}
+.segmentado input:checked + span {
+  background: var(--superficie);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.12), 0 0 0 0.5px rgb(0 0 0 / 0.06);
+  font-weight: 600;
+}
+.segmentado input:focus-visible + span { outline: 2px solid var(--anel-foco); outline-offset: 1px; }
 
 /* ---------- Avatar (monograma) ---------- */
 
@@ -229,5 +355,7 @@ a { color: inherit; }
 /* Alto contraste do Windows: cores do sistema, bordas sempre visíveis */
 @media (forced-colors: active) {
   .botao-icone, .botao-secundario, .entrada { border: 1px solid ButtonText; }
-  .botao-primario { border: 1px solid ButtonText; }
+  .botao-primario, .botao-destaque { border: 1px solid ButtonText; }
+  .dialogo { border: 1px solid CanvasText; }
+  .segmentado input:checked + span { outline: 2px solid Highlight; }
 }

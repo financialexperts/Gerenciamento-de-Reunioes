@@ -1,7 +1,7 @@
 /* ============================================================
    TELA DE ACESSO — entrar, pedir link de senha, criar senha nova.
-   Um painel de vidro sobre a luz ambiente da marca; formulário em
-   coluna única, rótulo sempre visível acima do campo.
+   Cartão branco sobre o cinza-claro da janela, como nas telas de
+   conta da Apple; formulário em coluna única, rótulo sempre visível.
    ============================================================ */
 
 .tela-auth {
@@ -11,18 +11,16 @@
   display: grid;
   place-items: center;
   padding: var(--e-8) var(--e-4);
-  background: var(--lavagem-auth), var(--janela);
+  background: var(--janela);
 }
 
 .cartao-auth {
   width: min(100%, 24.5rem);
   padding: 36px 32px 28px;
-  border: 1px solid var(--vidro-contorno);
+  border: 1px solid var(--contorno);
   border-radius: 28px;
-  background: var(--vidro-forte);
-  -webkit-backdrop-filter: var(--vidro-desfoque);
-  backdrop-filter: var(--vidro-desfoque);
-  box-shadow: var(--vidro-brilho), var(--sombra-painel);
+  background: var(--superficie);
+  box-shadow: var(--sombra-painel);
 }
 
 @media (max-width: 479px) {
@@ -42,18 +40,14 @@
 }
 
 .marca-barras {
-  --cor-barras: var(--marca-menta);
   width: 52px;
   height: 40px;
   overflow: visible;
 }
-@media (prefers-color-scheme: dark) {
-  .marca-barras { --cor-barras: var(--marca-menta-suave); }
-}
 
 /* 420 ms + 4 × 30 ms de escalonamento = 540 ms (DURACAO_ALINHAR em auth.js) */
 .marca-barras rect {
-  fill: var(--cor-barras);
+  fill: var(--marca-menta);
   transition: transform 420ms var(--mola);
 }
 .marca-barras rect:nth-child(2) { transition-delay: 30ms; }

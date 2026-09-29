@@ -3,9 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="color-scheme" content="light dark">
-  <meta name="theme-color" content="#F4F5F9" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#100F26" media="(prefers-color-scheme: dark)">
+  <meta name="color-scheme" content="light">
+  <meta name="theme-color" content="#F5F5F7">
   <title>Gestão de Reuniões</title>
   <link rel="icon" type="image/png" href="frontend/img/favicon.png">
   <!-- SDK do Supabase por CDN: mesma versão e mesmo hash de integridade do Sistema de Presença -->
@@ -76,6 +75,13 @@
     <symbol id="i-sem-conexao" viewBox="0 0 20 20">
       <path d="M2.2 7.6a11.3 11.3 0 0 1 15.6 0M4.8 10.6a7.5 7.5 0 0 1 10.4 0M7.4 13.5a3.7 3.7 0 0 1 5.2 0"/>
       <path d="m3 3 14 14"/>
+    </symbol>
+    <symbol id="i-mais" viewBox="0 0 20 20">
+      <path d="M10 4.25v11.5M4.25 10h11.5"/>
+    </symbol>
+    <symbol id="i-check-circulo" viewBox="0 0 20 20">
+      <circle cx="10" cy="10" r="7.75"/>
+      <path d="m6.9 10.2 2.2 2.2 4.1-4.6"/>
     </symbol>
   </defs>
 </svg>
@@ -199,10 +205,7 @@
 
   <aside class="barra-lateral" id="barra-lateral" aria-label="Menu principal">
     <div class="barra-lateral__marca">
-      <picture>
-        <source srcset="frontend/img/financial-experts%20branco.png" media="(prefers-color-scheme: dark)">
-        <img src="frontend/img/finexperts_pos%20preto.png" alt="Financial Experts" width="202" height="62">
-      </picture>
+      <img src="frontend/img/finexperts_pos%20preto.png" alt="Financial Experts" width="202" height="62">
     </div>
     <nav aria-label="Seções">
       <ul class="menu">
@@ -229,6 +232,10 @@
           <p class="subtitulo" id="contagem">Carregando professores…</p>
           <p class="vh" id="aviso-lista" aria-live="polite"></p>
         </div>
+        <button type="button" class="botao-destaque" id="btn-novo-professor" hidden>
+          <svg class="icone" aria-hidden="true"><use href="#i-mais"/></svg>
+          <span class="botao-destaque__texto">Novo professor</span>
+        </button>
         <button type="button" class="botao-conta" id="btn-conta" popovertarget="menu-conta" aria-label="Conta" title="Conta">
           <span class="avatar" id="conta-avatar" aria-hidden="true"></span>
         </button>
@@ -242,20 +249,19 @@
             <svg class="icone" aria-hidden="true"><use href="#i-limpar"/></svg>
           </button>
         </div>
-        <div class="popup">
-          <label class="popup__rotulo" for="filtro-curso">Curso</label>
-          <select class="popup__seletor" id="filtro-curso">
-            <option value="">Todos</option>
-          </select>
+        <button type="button" class="popup" id="filtro-curso">
+          <span class="popup__rotulo">Curso</span>
+          <span class="popup__ponto" id="filtro-curso-ponto" hidden></span>
+          <span class="popup__valor" id="filtro-curso-valor">Todos</span>
           <svg class="icone popup__setas" aria-hidden="true"><use href="#i-setas"/></svg>
-        </div>
-        <div class="popup">
-          <label class="popup__rotulo" for="filtro-turma">Turma</label>
-          <select class="popup__seletor" id="filtro-turma">
-            <option value="">Todas</option>
-          </select>
+        </button>
+        <div class="menu-filtro menu-filtro--curso" id="menu-curso" popover></div>
+        <button type="button" class="popup" id="filtro-turma">
+          <span class="popup__rotulo">Turma</span>
+          <span class="popup__valor" id="filtro-turma-valor">Todas</span>
           <svg class="icone popup__setas" aria-hidden="true"><use href="#i-setas"/></svg>
-        </div>
+        </button>
+        <div class="menu-filtro menu-filtro--turma" id="menu-turma" popover></div>
         <button type="button" class="botao-texto" id="btn-limpar-filtros" hidden>Limpar filtros</button>
       </div>
     </header>
@@ -281,6 +287,57 @@
       Sair
     </button>
   </div>
+
+  <!-- Novo professor: mesma tabela e mesmo login do Sistema de Presença -->
+  <dialog class="dialogo" id="dialogo-novo-professor" aria-labelledby="novo-professor-titulo">
+    <form class="dialogo__corpo" id="form-novo-professor" novalidate>
+      <div class="dialogo__cabecalho">
+        <h2 class="dialogo__titulo" id="novo-professor-titulo">Novo professor</h2>
+        <p class="dialogo__descricao">O cadastro vale também para o Sistema de Presença: mesmo login e mesma lista de professores.</p>
+      </div>
+      <div class="campo">
+        <label class="campo__rotulo" for="novo-nome">Nome</label>
+        <input class="entrada" id="novo-nome" name="nome" type="text" autocomplete="off" placeholder="Ex.: Ana Clara" required aria-describedby="novo-professor-erro">
+      </div>
+      <div class="campo">
+        <label class="campo__rotulo" for="novo-email">E-mail</label>
+        <input class="entrada" id="novo-email" name="email" type="email" inputmode="email" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="professor@exemplo.com" required aria-describedby="novo-professor-erro">
+      </div>
+      <div class="campo">
+        <label class="campo__rotulo" for="novo-senha">Senha inicial</label>
+        <input class="entrada" id="novo-senha" name="senha" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" required aria-describedby="novo-senha-ajuda novo-professor-erro">
+        <p class="campo__ajuda" id="novo-senha-ajuda">A mesma senha padrão do Sistema de Presença. O professor pode trocá-la depois em “Esqueci minha senha”.</p>
+      </div>
+      <fieldset class="grupo-escolha" aria-describedby="novo-papel-ajuda">
+        <legend class="campo__rotulo">Acesso</legend>
+        <div class="segmentado">
+          <label><input type="radio" name="papel" value="professor" checked><span>Professor</span></label>
+          <label><input type="radio" name="papel" value="admin"><span>Administrador</span></label>
+        </div>
+        <p class="campo__ajuda" id="novo-papel-ajuda">Administrador também gerencia turmas, professores e configurações.</p>
+      </fieldset>
+      <p class="mensagem mensagem--erro" id="novo-professor-erro" role="alert" hidden></p>
+      <div class="dialogo__acoes">
+        <button type="button" class="botao-secundario" id="btn-cancelar-novo-professor">Cancelar</button>
+        <button type="submit" class="botao-primario" id="btn-salvar-novo-professor"><span class="giro" aria-hidden="true"></span><span class="rotulo-botao">Cadastrar professor</span></button>
+      </div>
+    </form>
+
+    <div class="dialogo__corpo dialogo__concluido" id="novo-professor-concluido" hidden>
+      <svg class="icone" aria-hidden="true"><use href="#i-check-circulo"/></svg>
+      <h2 class="dialogo__titulo">Cadastro concluído</h2>
+      <p><strong id="concluido-nome"></strong> já aparece aqui e no Sistema de Presença. Para entrar nos dois, use:</p>
+      <dl class="credenciais">
+        <div><dt>E-mail</dt><dd id="concluido-email"></dd></div>
+        <div><dt>Senha inicial</dt><dd id="concluido-senha"></dd></div>
+      </dl>
+      <p class="campo__ajuda" id="concluido-confirmacao" hidden>Antes do primeiro acesso, o professor precisa confirmar o e-mail pelo link que o Supabase enviou.</p>
+      <p class="campo__ajuda">As turmas dele são definidas no Sistema de Presença, ao editar cada turma.</p>
+      <div class="dialogo__acoes">
+        <button type="button" class="botao-primario" id="btn-concluir-novo-professor">Concluído</button>
+      </div>
+    </div>
+  </dialog>
 </div>
 
 <script type="module" src="frontend/main.js"></script>

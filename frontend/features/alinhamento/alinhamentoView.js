@@ -3,6 +3,7 @@ import { buscarProfessores } from '../../../backend/api/professoresRepo.js';
 import { buscarTurmas } from '../../../backend/api/turmasRepo.js';
 import { chaveCorCurso, compararTurmas, turmaAtiva } from '../../../backend/domain/turmas.js';
 import { escapeHtml, iniciais, listaPorExtenso, normalizar } from '../../shared/dom.js';
+import { criarMenuFiltro } from '../../shared/menuFiltro.js';
 
 // Página "Alinhamento": um cartão grande e selecionável por professor, com
 // busca por nome/e-mail e filtros de curso e turma (tudo do banco do
@@ -11,7 +12,9 @@ import { escapeHtml, iniciais, listaPorExtenso, normalizar } from '../../shared/
 
 const els = {};
 const ptBR = (a, b) => a.localeCompare(b, 'pt-BR', { sensitivity: 'base' });
+const quantos = n => `${n} ${n === 1 ? 'professor' : 'professores'}`;
 
+let menus = [];             // menus dos filtros de curso e turma
 let indice = [];            // um item por professor, já com turmas e cursos
 let itemPorId = new Map();
 let carga = null;           // carga em andamento (evita duas em paralelo)
@@ -44,7 +47,10 @@ export function iniciarAlinhamento() {
   els.busca = document.getElementById('busca-professor');
   els.limparBusca = document.getElementById('btn-limpar-busca');
   els.curso = document.getElementById('filtro-curso');
+  els.cursoValor = document.getElementById('filtro-curso-valor');
+  els.cursoPonto = document.getElementById('filtro-curso-ponto');
   els.turma = document.getElementById('filtro-turma');
+  els.turmaValor = document.getElementById('filtro-turma-valor');
   els.limparFiltros = document.getElementById('btn-limpar-filtros');
 
   // A busca filtra enquanto se digita (HIG › Search fields).
@@ -63,15 +69,25 @@ export function iniciarAlinhamento() {
     els.busca.focus();
   });
 
-  els.curso.addEventListener('change', () => {
-    state.filtros.curso = els.curso.value;
-    popularTurmas();
-    render();
-  });
-  els.turma.addEventListener('change', () => {
-    state.filtros.turmaId = els.turma.value;
-    render();
-  });
+  menus = [
+    criarMenuFiltro({
+      botao: els.curso,
+      painel: document.getElementById('menu-curso'),
+      rotulo: 'Cursos',
+      montar: montarMenuCursos,
+      aoEscolher: escolherCurso,
+    }),
+    criarMenuFiltro({
+      botao: els.turma,
+      painel: document.getElementById('menu-turma'),
+      rotulo: 'Turmas',
+      buscaPlaceholder: 'Buscar turma ou professor',
+      montar: montarMenuTurmas,
+      aoEscolher: escolherTurma,
+    }),
+  ];
+  atualizarBotoesFiltro();
+
   els.limparFiltros.addEventListener('click', () => {
     limparFiltros({ manterBusca: true });
     els.curso.focus();
@@ -116,6 +132,20 @@ export function carregarAlinhamento() {
   return carga;
 }
 
+// Professor recém-cadastrado: entra na lista sem recarregar a página, já
+// selecionado e à vista (busca e filtros são limpos para ele aparecer).
+export function adicionarProfessor(professor) {
+  state.professores.push(professor);
+  montarIndice();
+  state.selecionadoId = String(professor.id);
+  focoId = state.selecionadoId;
+  limparFiltros();
+  const cartao = document.getElementById(`professor-${state.selecionadoId}`);
+  if (!cartao) return;
+  cartao.focus({ preventScroll: true });
+  cartao.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+}
+
 // Ao sair: esquece dados, filtros e seleção da pessoa anterior.
 export function limparAlinhamento() {
   geracao++;
@@ -127,11 +157,11 @@ export function limparAlinhamento() {
   state.turmas = [];
   state.filtros = { texto: '', curso: '', turmaId: '' };
   state.selecionadoId = null;
+  for (const menu of menus) menu.fechar();
   els.busca.value = '';
   els.limparBusca.hidden = true;
   els.limparFiltros.hidden = true;
-  els.curso.innerHTML = '<option value="">Todos</option>';
-  els.turma.innerHTML = '<option value="">Todas</option>';
+  atualizarBotoesFiltro();
   els.grade.innerHTML = '';
   els.estado.hidden = true;
   els.contagem.textContent = '';
@@ -149,7 +179,8 @@ async function executarCarga() {
     state.professores = professores;
     state.turmas = turmas.filter(turmaAtiva).sort(compararTurmas);
     montarIndice();
-    popularCursos();
+    validarFiltros();
+    atualizarBotoesFiltro();
     render();
   } catch (erro) {
     if (minhaGeracao !== geracao) return;
@@ -192,43 +223,103 @@ function montarIndice() {
 
 // ---------- Filtros ----------
 
-const opcao = (valor, texto) => `<option value="${escapeHtml(valor)}">${escapeHtml(texto)}</option>`;
-
-function popularCursos() {
-  const cursos = [...new Set(state.turmas.map(t => t.curso?.trim()).filter(Boolean))].sort(ptBR);
-  if (!cursos.includes(state.filtros.curso)) state.filtros.curso = '';
-  els.curso.innerHTML = '<option value="">Todos</option>' + cursos.map(c => opcao(c, c)).join('');
-  els.curso.value = state.filtros.curso;
-  els.curso.disabled = !cursos.length;
-  popularTurmas();
+function cursosAtivos() {
+  return [...new Set(state.turmas.map(t => t.curso?.trim()).filter(Boolean))].sort(ptBR);
 }
 
-// Com um curso escolhido, lista só as turmas dele; com "Todos", agrupa as
-// turmas por curso (títulos de seção no menu).
-function popularTurmas() {
-  const { curso } = state.filtros;
-  const turmas = state.turmas.filter(t => !curso || t.curso?.trim() === curso);
-  if (!turmas.some(t => String(t.id) === state.filtros.turmaId)) state.filtros.turmaId = '';
+function turmasDoCurso(curso) {
+  return state.turmas.filter(t => !curso || t.curso?.trim() === curso);
+}
 
-  const opcaoTurma = t => opcao(String(t.id), t.turma?.trim() || 'Turma sem nome');
-  let html = '<option value="">Todas</option>';
-  if (curso) {
-    html += turmas.map(opcaoTurma).join('');
-  } else {
-    const grupos = new Map();
-    for (const turma of turmas) {
-      const nomeCurso = turma.curso?.trim() || 'Sem curso';
-      if (!grupos.has(nomeCurso)) grupos.set(nomeCurso, []);
-      grupos.get(nomeCurso).push(turma);
-    }
-    const nomes = [...grupos.keys()].sort((a, b) => (a === 'Sem curso') - (b === 'Sem curso') || ptBR(a, b));
-    for (const nome of nomes) {
-      html += `<optgroup label="${escapeHtml(nome)}">${grupos.get(nome).map(opcaoTurma).join('')}</optgroup>`;
-    }
+// Menu de cursos: cor de cada curso e quantos professores dão aula nele,
+// para prever o resultado antes de escolher.
+function montarMenuCursos() {
+  const professoresNoCurso = curso => indice.filter(item => item.cursos.includes(curso)).length;
+  return {
+    selecionado: state.filtros.curso,
+    todos: { valor: '', texto: 'Todos os cursos', detalhe: String(indice.length), rotulo: `Todos os cursos, ${quantos(indice.length)}` },
+    grupos: [{
+      opcoes: cursosAtivos().map(curso => {
+        const n = professoresNoCurso(curso);
+        return { valor: curso, texto: curso, cor: chaveCorCurso(curso), detalhe: String(n), rotulo: `${curso}, ${quantos(n)}` };
+      }),
+    }],
+  };
+}
+
+// Menu de turmas: com "Todos os cursos", seções por curso; com um curso
+// escolhido, só as turmas dele. Cada turma mostra quem dá aula nela.
+function montarMenuTurmas() {
+  const { curso } = state.filtros;
+  const grupos = new Map();
+  for (const turma of turmasDoCurso(curso)) {
+    const nomeCurso = turma.curso?.trim() || 'Sem curso';
+    if (!grupos.has(nomeCurso)) grupos.set(nomeCurso, []);
+    grupos.get(nomeCurso).push(turma);
   }
-  els.turma.innerHTML = html;
-  els.turma.value = state.filtros.turmaId;
-  els.turma.disabled = !turmas.length;
+  const nomes = [...grupos.keys()].sort((a, b) => (a === 'Sem curso') - (b === 'Sem curso') || ptBR(a, b));
+
+  const opcaoTurma = turma => {
+    const texto = turma.turma?.trim() || 'Turma sem nome';
+    // O texto solto `turma.professor` só cobre quem o RLS não deixa ver.
+    const professor = itemPorId.get(String(turma.professor_id))?.nome || turma.professor?.trim() || null;
+    return {
+      valor: String(turma.id),
+      texto,
+      detalhe: professor ?? 'Sem professor',
+      rotulo: professor ? `${texto}, com ${professor}` : `${texto}, sem professor`,
+    };
+  };
+
+  return {
+    selecionado: state.filtros.turmaId,
+    todos: { valor: '', texto: curso ? `Todas as turmas de ${curso}` : 'Todas as turmas' },
+    grupos: nomes.map(nome => ({
+      titulo: curso ? null : nome,
+      cor: chaveCorCurso(nome),
+      opcoes: grupos.get(nome).map(opcaoTurma),
+    })),
+  };
+}
+
+function escolherCurso(curso) {
+  state.filtros.curso = curso;
+  // A turma escolhida só continua valendo se for do curso novo.
+  const turma = state.turmas.find(t => String(t.id) === state.filtros.turmaId);
+  if (turma && curso && turma.curso?.trim() !== curso) state.filtros.turmaId = '';
+  atualizarBotoesFiltro();
+  render();
+}
+
+function escolherTurma(turmaId) {
+  state.filtros.turmaId = turmaId;
+  atualizarBotoesFiltro();
+  render();
+}
+
+// Depois de recarregar, descarta filtro que aponta para curso/turma que sumiu.
+function validarFiltros() {
+  const { curso, turmaId } = state.filtros;
+  if (curso && !cursosAtivos().includes(curso)) state.filtros.curso = '';
+  if (turmaId && !turmasDoCurso(state.filtros.curso).some(t => String(t.id) === turmaId)) state.filtros.turmaId = '';
+}
+
+// O botão mostra o valor escolhido e fica azulado quando está filtrando.
+function atualizarBotoesFiltro() {
+  const { curso, turmaId } = state.filtros;
+  els.cursoValor.textContent = curso || 'Todos';
+  els.cursoPonto.hidden = !curso;
+  els.cursoPonto.dataset.cor = chaveCorCurso(curso);
+  els.curso.classList.toggle('popup--ativo', Boolean(curso));
+  els.curso.title = curso;
+  els.curso.disabled = !cursosAtivos().length;
+
+  const turma = state.turmas.find(t => String(t.id) === turmaId);
+  const nomeTurma = turma ? turma.turma?.trim() || 'Turma sem nome' : '';
+  els.turmaValor.textContent = nomeTurma || 'Todas';
+  els.turma.classList.toggle('popup--ativo', Boolean(turma));
+  els.turma.title = nomeTurma;
+  els.turma.disabled = !turmasDoCurso(curso).length;
 }
 
 function filtrar() {
@@ -253,8 +344,7 @@ function limparFiltros({ manterBusca = false } = {}) {
   }
   state.filtros.curso = '';
   state.filtros.turmaId = '';
-  els.curso.value = '';
-  popularTurmas();
+  atualizarBotoesFiltro();
   render();
 }
 
@@ -290,7 +380,7 @@ function cartaoHtml(item) {
 
   const cursos = item.cursos.length
     ? `<ul class="cartao__cursos">${item.cursos.map(curso => `
-        <li class="chip" data-curso="${chaveCorCurso(curso)}" title="${escapeHtml(curso)}"><span>${escapeHtml(curso)}</span></li>`).join('')}
+        <li class="chip" data-cor="${chaveCorCurso(curso)}" title="${escapeHtml(curso)}"><span>${escapeHtml(curso)}</span></li>`).join('')}
       </ul>`
     : '<p class="cartao__sem-cursos">Sem turmas ativas</p>';
 
@@ -349,7 +439,6 @@ function estadoSemResultado(temBusca, temFiltro) {
 // a digitação para, em vez de uma frase por letra.
 function anunciarContagem(visiveis, filtrando) {
   const total = indice.length;
-  const quantos = n => `${n} ${n === 1 ? 'professor' : 'professores'}`;
   const texto = !total ? 'Nenhum professor' : filtrando ? `${visiveis} de ${quantos(total)}` : quantos(total);
   els.contagem.textContent = texto;
   clearTimeout(avisoTimer);

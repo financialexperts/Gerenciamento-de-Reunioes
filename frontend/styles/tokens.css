@@ -1,84 +1,75 @@
 /* ============================================================
    TOKENS DE DESIGN
-   Cores nomeadas pelo PAPEL (rótulo, superfície, acento...), nunca pela
-   aparência, com variante clara e escura — o tema segue o sistema
-   operacional (HIG › Dark Mode: "Avoid offering an app-specific
-   appearance setting"). Os contrastes (WCAG) foram medidos e estão ao
-   lado de cada cor de texto.
+   Aparência clara no estilo Apple: cinzas neutros do macOS/apple.com,
+   cartões brancos e o azul do sistema como cor de ação. O sistema é
+   sempre claro, mesmo com o Windows/macOS no modo escuro (decisão de
+   produto). Cores nomeadas pelo papel; contrastes (WCAG) medidos ao lado.
    ============================================================ */
 
 :root {
-  color-scheme: light dark;
+  color-scheme: light;
 
-  /* Marca Financial Experts — só em elementos de marca (logo, barras
-     da tela de login). Nenhuma das duas passa contraste como texto ou
-     fundo de botão (1,5:1 e 2,2:1 no branco), então nunca carregam
-     significado de estado. */
-  --marca-marinho: #272259;
+  /* Marca Financial Experts: só nas barras do logo na tela de acesso */
   --marca-menta: #3CEFA2;
-  --marca-menta-suave: #71BE92;
 
-  /* ---------- Claro ---------- */
-  --janela: #F4F5F9;
+  /* Superfícies */
+  --janela: #F5F5F7;
   --superficie: #FFFFFF;
   --superficie-elevada: #FFFFFF;
 
-  --rotulo: #272259;        /* 14,4:1 no branco · 13,2:1 na janela */
-  --rotulo-2: #5C5A7A;      /*  6,6:1 no branco ·  6,0:1 na janela */
-  --rotulo-3: #8C8AA6;      /*  3,3:1 — só bordas de controle, nunca texto */
-  --placeholder: #6A6888;   /*  5,3:1 */
+  /* Texto */
+  --rotulo: #1D1D1F;        /* 16,8:1 no branco · 15,5:1 na janela */
+  --rotulo-2: #6E6E73;      /*  5,1:1 no branco ·  4,7:1 na janela */
+  --rotulo-3: #8E8E93;      /*  3,3:1 — só bordas de controle e ícones */
+  --placeholder: #6E6E73;   /*  4,5:1 ou mais em todos os campos */
 
-  --separador: rgb(39 34 89 / 0.10);
-  --preenchimento: rgb(39 34 89 / 0.06);
-  --preenchimento-2: rgb(39 34 89 / 0.10);
-  --contorno: rgb(39 34 89 / 0.08);
-  --contorno-campo: rgb(39 34 89 / 0.16);
+  --separador: rgb(0 0 0 / 0.10);
+  --preenchimento: rgb(118 118 128 / 0.12);
+  --preenchimento-2: rgb(118 118 128 / 0.20);
+  --campo-menu: #F2F2F7;
+  --contorno: rgb(0 0 0 / 0.06);
+  --contorno-campo: rgb(0 0 0 / 0.14);
 
-  /* Acento = verde da marca escurecido até passar contraste.
-     Uma cor, um significado: ação principal, seleção e foco. */
-  --acento: #0E7A4D;        /* 5,4:1 com texto branco e como texto no branco */
-  --acento-suave: #EAF6EF;  /* fundo do cartão selecionado (acento sobre ele: 4,8:1) */
+  /* Azul do sistema: ação principal, seleção e foco — uma cor, um papel */
+  --acento: #0071E3;        /* texto branco sobre ele 4,7:1 · anel no branco 4,7:1 */
+  --link: #0066CC;          /* ações só de texto: 5,6:1 no branco · 5,1:1 na janela */
+  --acento-suave: #EEF5FD;  /* fundo de selecionado (texto secundário sobre ele 4,6:1) */
   --sobre-acento: #FFFFFF;
   --anel-foco: var(--acento);
-  --anel-foco-suave: rgb(14 122 77 / 0.28);
+  --anel-foco-suave: rgb(0 113 227 / 0.25);
 
-  --perigo: #B42318;        /* 6,6:1 no branco */
-  --perigo-suave: #FEF1F0;
+  --perigo: #D70015;        /* 5,4:1 no branco · 4,9:1 no fundo de erro */
+  --perigo-suave: #FFF0F1;
+  --sucesso: #1E7B34;       /* 5,3:1 no branco · 4,9:1 no fundo de sucesso */
+  --sucesso-suave: #EDF7EF;
 
-  /* Cor de identidade por curso — mesma família usada nos selos do
-     Sistema de Presença, para a equipe reconhecer o curso de relance.
-     Sempre acompanhada do nome do curso (nunca só a cor). */
-  --curso-elas: #2563EB;
-  --curso-master: #D97706;
-  --curso-evolution: #059669;
-  --curso-clube: #7C3AED;
-  --curso-outro: #8C8AA6;
+  /* Cor de identidade por curso (cores do sistema da Apple), sempre ao
+     lado do nome do curso. Elas usa o verde-água do próprio logo do curso,
+     para não se confundir com o azul de ação. */
+  --curso-elas: #30B0C7;
+  --curso-master: #FF9500;
+  --curso-evolution: #34C759;
+  --curso-clube: #AF52DE;
+  --curso-outro: #8E8E93;
 
-  /* Monograma (iniciais) — cinza neutro como no app Contatos;
-     branco sobre o tom mais claro: 3,3:1 (texto em negrito ≥ 3:1). */
-  --avatar-topo: #8A90A3;
-  --avatar-base: #6E7489;
+  /* Monograma cinza, como no app Contatos. Branco sobre o tom mais claro:
+     3,3:1 (iniciais grandes em negrito pedem 3:1). */
+  --avatar-topo: #8E8E93;
+  --avatar-base: #6E6E73;
 
-  /* Luz ambiente da marca no fundo (camada de conteúdo), para o
-     vidro da barra lateral ter cor para refletir (HIG › Branding). */
-  --lavagem:
-    radial-gradient(70rem 48rem at -12% -18%, rgb(60 239 162 / 0.18), transparent 58%),
-    radial-gradient(60rem 42rem at 112% 118%, rgb(39 34 89 / 0.07), transparent 60%);
-  --lavagem-auth:
-    radial-gradient(52rem 40rem at 8% 0%, rgb(60 239 162 / 0.26), transparent 62%),
-    radial-gradient(48rem 38rem at 100% 100%, rgb(39 34 89 / 0.14), transparent 60%);
-
-  /* Vidro (camada funcional: barra lateral, controles da barra, menus) */
-  --vidro: rgb(255 255 255 / 0.62);
-  --vidro-forte: rgb(255 255 255 / 0.76);
+  /* Vidro (camada funcional: barra lateral, controles, menus) */
+  --vidro: rgb(255 255 255 / 0.72);
+  --vidro-forte: rgb(255 255 255 / 0.86);
+  --vidro-menu: rgb(255 255 255 / 0.94);
   --vidro-brilho: inset 0 1px 0 rgb(255 255 255 / 0.9);
-  --vidro-contorno: rgb(39 34 89 / 0.09);
+  --vidro-contorno: rgb(0 0 0 / 0.08);
   --vidro-desfoque: blur(24px) saturate(1.8);
-  --sombra-controle: 0 1px 2px rgb(39 34 89 / 0.06), 0 2px 8px rgb(39 34 89 / 0.05);
-  --sombra-painel: 0 2px 6px rgb(39 34 89 / 0.05), 0 16px 44px rgb(39 34 89 / 0.12);
 
-  --sombra-cartao: 0 1px 2px rgb(39 34 89 / 0.05), 0 4px 16px rgb(39 34 89 / 0.05);
-  --sombra-cartao-hover: 0 2px 4px rgb(39 34 89 / 0.06), 0 12px 30px rgb(39 34 89 / 0.10);
+  --sombra-controle: 0 1px 2px rgb(0 0 0 / 0.05), 0 2px 8px rgb(0 0 0 / 0.04);
+  --sombra-painel: 0 2px 8px rgb(0 0 0 / 0.04), 0 18px 48px rgb(0 0 0 / 0.10);
+  --sombra-menu: 0 2px 8px rgb(0 0 0 / 0.06), 0 14px 44px rgb(0 0 0 / 0.16);
+  --sombra-cartao: 0 1px 2px rgb(0 0 0 / 0.04), 0 4px 16px rgb(0 0 0 / 0.04);
+  --sombra-cartao-hover: 0 2px 6px rgb(0 0 0 / 0.06), 0 12px 32px rgb(0 0 0 / 0.08);
 
   /* ---------- Tipografia ----------
      Fonte do sistema: SF Pro no Mac, Segoe UI Variable no Windows.
@@ -115,86 +106,26 @@
   --medio: 320ms;
 }
 
-/* ---------- Escuro ----------
-   Fundo marinho profundo (a mesma tinta da marca) em vez de cinza
-   neutro; acento no verde-menta do próprio logo escuro (#71BE92). */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --janela: #100F26;
-    --superficie: #1A1935;
-    --superficie-elevada: #232145;
-
-    --rotulo: #F1F0F8;       /* 15,0:1 no cartão */
-    --rotulo-2: #A9A7C4;     /*  7,3:1 no cartão */
-    --rotulo-3: #6F6D8E;     /*  3,5:1 — só bordas de controle */
-    --placeholder: #8B89A8;  /*  5,1:1 */
-
-    --separador: rgb(255 255 255 / 0.10);
-    --preenchimento: rgb(255 255 255 / 0.07);
-    --preenchimento-2: rgb(255 255 255 / 0.12);
-    --contorno: rgb(255 255 255 / 0.07);
-    --contorno-campo: rgb(255 255 255 / 0.14);
-
-    --acento: #74C69A;       /* 8,3:1 no cartão · texto marinho sobre ele: 9,2:1 */
-    --acento-suave: rgb(116 198 154 / 0.14);
-    --sobre-acento: #100F26;
-    --anel-foco-suave: rgb(116 198 154 / 0.30);
-
-    --perigo: #FF8A80;       /* 7,6:1 no cartão */
-    --perigo-suave: rgb(255 138 128 / 0.12);
-
-    --curso-elas: #7AA7FF;
-    --curso-master: #F5B544;
-    --curso-evolution: #4ED1A0;
-    --curso-clube: #B69CFF;
-    --curso-outro: #6F6D8E;
-
-    --avatar-topo: #6B7088;
-    --avatar-base: #50546A;
-
-    --lavagem:
-      radial-gradient(70rem 48rem at -12% -18%, rgb(113 190 146 / 0.13), transparent 58%),
-      radial-gradient(60rem 42rem at 112% 118%, rgb(92 84 200 / 0.12), transparent 60%);
-    --lavagem-auth:
-      radial-gradient(52rem 40rem at 8% 0%, rgb(113 190 146 / 0.20), transparent 62%),
-      radial-gradient(48rem 38rem at 100% 100%, rgb(92 84 200 / 0.20), transparent 60%);
-
-    --vidro: rgb(38 36 76 / 0.55);
-    --vidro-forte: rgb(32 30 66 / 0.74);
-    --vidro-brilho: inset 0 1px 0 rgb(255 255 255 / 0.07);
-    --vidro-contorno: rgb(255 255 255 / 0.09);
-    --sombra-controle: 0 1px 2px rgb(0 0 0 / 0.30);
-    --sombra-painel: 0 2px 6px rgb(0 0 0 / 0.30), 0 16px 44px rgb(0 0 0 / 0.45);
-
-    --sombra-cartao: none;
-    --sombra-cartao-hover: 0 12px 30px rgb(0 0 0 / 0.35);
-  }
-}
+/* Cor de curso por atributo — usada em etiquetas, menus e botões */
+[data-cor="elas"] { --cor-curso: var(--curso-elas); }
+[data-cor="master"] { --cor-curso: var(--curso-master); }
+[data-cor="evolution"] { --cor-curso: var(--curso-evolution); }
+[data-cor="clube"] { --cor-curso: var(--curso-clube); }
 
 /* Contraste aumentado: rótulos secundários e bordas mais fortes,
    vidro vira superfície opaca (HIG › Accessibility › Vision). */
 @media (prefers-contrast: more) {
   :root {
-    --rotulo-2: #3F3D5C;
-    --rotulo-3: #5C5A7A;
-    --placeholder: #4E4C6C;
-    --separador: rgb(39 34 89 / 0.30);
-    --contorno: rgb(39 34 89 / 0.35);
-    --contorno-campo: rgb(39 34 89 / 0.55);
-    --vidro-contorno: rgb(39 34 89 / 0.40);
+    --rotulo-2: #48484A;
+    --rotulo-3: #6E6E73;
+    --placeholder: #48484A;
+    --separador: rgb(0 0 0 / 0.30);
+    --contorno: rgb(0 0 0 / 0.30);
+    --contorno-campo: rgb(0 0 0 / 0.55);
+    --vidro-contorno: rgb(0 0 0 / 0.40);
     --vidro: var(--superficie);
     --vidro-forte: var(--superficie);
-  }
-}
-@media (prefers-contrast: more) and (prefers-color-scheme: dark) {
-  :root {
-    --rotulo-2: #D2D0E8;
-    --rotulo-3: #9D9BBB;
-    --placeholder: #B4B2CF;
-    --separador: rgb(255 255 255 / 0.30);
-    --contorno: rgb(255 255 255 / 0.30);
-    --contorno-campo: rgb(255 255 255 / 0.50);
-    --vidro-contorno: rgb(255 255 255 / 0.35);
+    --vidro-menu: var(--superficie);
   }
 }
 
@@ -202,7 +133,8 @@
 @media (prefers-reduced-transparency: reduce) {
   :root {
     --vidro: var(--superficie);
-    --vidro-forte: var(--superficie-elevada);
+    --vidro-forte: var(--superficie);
+    --vidro-menu: var(--superficie);
     --vidro-desfoque: none;
   }
 }
