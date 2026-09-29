@@ -140,11 +140,11 @@
   position: absolute;
   inset: 0 0 -28px;
   z-index: -1;
-  background: linear-gradient(to bottom, color-mix(in srgb, var(--janela) 78%, transparent) 55%, transparent);
-  -webkit-backdrop-filter: blur(14px);
-  backdrop-filter: blur(14px);
-  -webkit-mask-image: linear-gradient(to bottom, #000 62%, transparent);
-  mask-image: linear-gradient(to bottom, #000 62%, transparent);
+  background: linear-gradient(to bottom, color-mix(in srgb, var(--janela) 90%, transparent) 70%, transparent);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  -webkit-mask-image: linear-gradient(to bottom, #000 72%, transparent);
+  mask-image: linear-gradient(to bottom, #000 72%, transparent);
   opacity: 0;
   pointer-events: none;
   transition: opacity var(--rapido) ease;
@@ -209,7 +209,7 @@
   position: fixed;
   inset: auto;
   margin: 0;
-  width: 17rem;
+  width: min(20rem, calc(100vw - 16px));
   padding: 6px;
   border: 1px solid var(--vidro-contorno);
   border-radius: 16px;
@@ -230,6 +230,7 @@
   padding: 10px 10px 12px;
 }
 .menu-conta__perfil > div { min-width: 0; }
+.menu-conta__perfil .avatar { width: 40px; height: 40px; font-size: 0.9375rem; }
 .menu-conta__nome {
   font-weight: 600;
   overflow: hidden;

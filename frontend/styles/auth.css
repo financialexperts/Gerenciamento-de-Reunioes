@@ -90,7 +90,7 @@
 
 .form-auth__descricao {
   color: var(--rotulo-2);
-  text-wrap: pretty;
+  text-wrap: balance;
 }
 
 .form-auth__acoes {

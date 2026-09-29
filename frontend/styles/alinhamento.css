@@ -159,22 +159,22 @@
 }
 
 /* Cartão = um professor. Quadrado grande (cresce se o conteúdo pedir),
-   iniciais no topo, nome/e-mail/cursos embaixo, marcador de seleção
-   no canto como na seleção de itens do Fotos. */
+   conteúdo centralizado como um cartão de contato — monograma, nome,
+   e-mail e cursos — e o marcador de seleção no canto, como no Fotos. */
 .cartao {
   position: relative;
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  grid-template-rows: auto 1fr;
-  grid-template-areas:
-    "avatar . marcador"
-    "info   info info";
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
   aspect-ratio: 1;
-  padding: var(--e-5);
+  padding: var(--e-8) var(--e-5) var(--e-6);
   border: 1px solid var(--contorno);
   border-radius: var(--raio-cartao);
   background: var(--superficie);
   box-shadow: var(--sombra-cartao);
+  text-align: center;
   cursor: pointer;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
@@ -184,7 +184,7 @@
     border-color var(--rapido) ease,
     transform var(--rapido) ease;
 }
-.cartao > .avatar { grid-area: avatar; }
+.cartao > .avatar { width: 64px; height: 64px; font-size: 1.375rem; }
 
 .cartao:hover { box-shadow: var(--sombra-cartao-hover); }
 @media (prefers-color-scheme: dark) {
@@ -202,7 +202,9 @@
 /* Marcador: círculo vazio → círculo preenchido com ✓ (forma + cor,
    nunca só cor) */
 .cartao__marcador {
-  grid-area: marcador;
+  position: absolute;
+  top: 14px;
+  right: 14px;
   display: grid;
   place-items: center;
   width: 24px;
@@ -228,14 +230,15 @@
 .cartao[aria-selected="true"] .cartao__marcador .icone { opacity: 1; transform: none; }
 
 .cartao__info {
-  grid-area: info;
-  align-self: end;
   display: grid;
+  justify-items: center;
   gap: 2px;
+  width: 100%;
   min-width: 0;
 }
 
 .cartao__nome {
+  max-width: 100%;
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
@@ -247,6 +250,7 @@
 }
 
 .cartao__email {
+  max-width: 100%;
   overflow: hidden;
   font: var(--t-chamada);
   color: var(--rotulo-2);
@@ -257,7 +261,9 @@
 .cartao__cursos {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 6px;
+  max-width: 100%;
   margin-top: var(--e-3);
 }
 
@@ -300,14 +306,17 @@
 @media (max-width: 519px) {
   .grade { grid-template-columns: minmax(0, 1fr); gap: var(--e-3); }
   .cartao {
-    grid-template-rows: auto;
-    grid-template-areas: "avatar info marcador";
-    align-items: center;
-    column-gap: var(--e-3);
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: var(--e-3);
     aspect-ratio: auto;
-    padding: var(--e-4);
+    padding: var(--e-4) 52px var(--e-4) var(--e-4);
+    text-align: left;
   }
-  .cartao__info { align-self: center; }
+  .cartao > .avatar { width: 48px; height: 48px; font-size: 1.0625rem; }
+  .cartao__marcador { top: 50%; right: var(--e-4); translate: 0 -50%; }
+  .cartao__info { justify-items: start; }
+  .cartao__cursos { justify-content: flex-start; }
   .cartao__cursos, .cartao__sem-cursos { margin-top: var(--e-2); }
 }
 
