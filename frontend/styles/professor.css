@@ -1,0 +1,112 @@
+/* ============================================================
+   PÁGINA DO PROFESSOR — cabeçalho com voltar, nome, e-mail e
+   cursos; as categorias de reunião na mesma grade de quadrados
+   do Alinhamento; e a janela "Nova categoria".
+   ============================================================ */
+
+/* Voltar: o chevron padrão, um pouco mais grosso que os outros ícones
+   da barra para pesar como o do Safari/Finder. */
+.botao-voltar .icone { stroke-width: 2.1; }
+
+/* Cursos do professor, alinhados ao nome (depois dos botões da barra
+   lateral e de voltar) */
+.cabecalho__cursos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: calc(var(--e-2) - var(--e-4));
+  padding-left: calc(2 * (var(--altura-controle) + var(--e-3)));
+}
+.cabecalho__cursos:empty { display: none; }
+.cabecalho__sem-cursos {
+  font: var(--t-chamada);
+  color: var(--rotulo-2);
+}
+
+@media (max-width: 599px) {
+  .cabecalho__cursos { padding-left: 0; }
+}
+
+/* ---------- Seção de categorias ---------- */
+
+.secao {
+  display: grid;
+  gap: 2px;
+  margin: var(--e-1) 0 var(--e-4);
+}
+.secao__titulo { font: var(--t-titulo-2); letter-spacing: -0.012em; }
+.secao__descricao { font: var(--t-chamada); color: var(--rotulo-2); }
+
+/* Ícone da categoria: quadrado arredondado (como um ícone de app) no
+   mesmo cinza do monograma dos professores — pessoa é círculo, categoria
+   é quadrado. */
+.cartao__icone {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  background: linear-gradient(180deg, var(--avatar-topo), var(--avatar-base));
+  color: #FFFFFF;
+}
+.cartao__icone .icone { width: 32px; height: 32px; stroke-width: 1.6; }
+.cartao--esqueleto .cartao__icone { background: var(--preenchimento-2); }
+
+@media (max-width: 519px) {
+  .cartao__icone { width: 48px; height: 48px; border-radius: 12px; }
+  .cartao__icone .icone { width: 26px; height: 26px; }
+}
+
+/* ---------- Nova categoria: escolha do ícone ----------
+   Rádios nativos por baixo (setas do teclado e leitor de tela
+   funcionam); o escolhido ganha o fundo do cartão e o anel azul de
+   seleção, como na escolha de ícone de lista do Lembretes. */
+.escolha-icone {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: var(--e-2);
+}
+
+.escolha-icone__opcao {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+.escolha-icone__opcao input {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.escolha-icone__desenho {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  max-width: 44px;
+  aspect-ratio: 1;
+  border-radius: 12px;
+  background: var(--preenchimento);
+  color: var(--rotulo);
+  transition: background-color var(--rapido) ease, box-shadow var(--rapido) ease, color var(--rapido) ease;
+}
+.escolha-icone__desenho .icone { width: 22px; height: 22px; }
+
+.escolha-icone__opcao:hover .escolha-icone__desenho { background: var(--preenchimento-2); }
+.escolha-icone__opcao input:checked + .escolha-icone__desenho {
+  background: linear-gradient(180deg, var(--avatar-topo), var(--avatar-base));
+  color: #FFFFFF;
+  box-shadow: 0 0 0 2px var(--superficie), 0 0 0 4px var(--acento);
+}
+.escolha-icone__opcao input:focus-visible + .escolha-icone__desenho {
+  outline: 2px solid var(--anel-foco);
+  outline-offset: 5px;
+}
+
+@media (forced-colors: active) {
+  .escolha-icone__desenho { border: 1px solid ButtonText; }
+  .escolha-icone__opcao input:checked + .escolha-icone__desenho { outline: 3px solid Highlight; outline-offset: 2px; }
+}

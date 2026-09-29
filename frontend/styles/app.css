@@ -57,12 +57,13 @@
 }
 .menu__item .icone { color: var(--rotulo-2); }
 .menu__item:hover { background: var(--preenchimento); }
-/* Item atual: realce cinza com ícone no azul, como na barra lateral do Finder */
-.menu__item[aria-current="page"] {
+/* Item atual: realce cinza com ícone no azul, como na barra lateral do
+   Finder. Continua marcado dentro de um professor (aria-current="true"). */
+.menu__item[aria-current] {
   background: var(--preenchimento-2);
   font-weight: 600;
 }
-.menu__item[aria-current="page"] .icone { color: var(--acento); }
+.menu__item[aria-current] .icone { color: var(--acento); }
 
 /* Barra oculta pelo botão (janela larga): a coluna encolhe */
 .app[data-barra-oculta] { grid-template-columns: 0 minmax(0, 1fr); }
@@ -171,11 +172,26 @@
   min-height: 44px;
 }
 
+/* O pedaço do cabeçalho que muda com a tela: título e ação principal */
+.cabecalho__tela {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: var(--e-3);
+  min-width: 0;
+}
+
 .cabecalho__titulos { flex: 1; min-width: 0; }
 
 .titulo-grande {
   font: var(--t-titulo-grande);
   letter-spacing: 0.006em;
+}
+.titulo-grande:focus { outline: none; } /* recebe foco só para o leitor de tela anunciar a tela */
+.titulo-grande--uma-linha {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .subtitulo {
@@ -269,5 +285,5 @@
 
 @media (forced-colors: active) {
   .barra-lateral, .menu-conta { border: 1px solid CanvasText; }
-  .menu__item[aria-current="page"] { outline: 2px solid Highlight; }
+  .menu__item[aria-current] { outline: 2px solid Highlight; }
 }
