@@ -1,0 +1,233 @@
+/* ============================================================
+   BASE — reset, texto, foco e componentes genéricos (botões,
+   campos, avatar) reaproveitados pelas telas.
+   ============================================================ */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  overflow: hidden; /* quem rola é cada tela (login ou área principal) */
+  font: var(--t-corpo);
+  color: var(--rotulo);
+  background: var(--lavagem), var(--janela);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+[hidden] { display: none !important; }
+
+h1, h2, h3, p, ul { margin: 0; }
+ul { padding: 0; list-style: none; }
+img, svg { display: block; }
+button, input, select { font: inherit; color: inherit; letter-spacing: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor: default; }
+a { color: inherit; }
+
+::selection { background: var(--anel-foco-suave); }
+
+.vh {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0; border: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* Sprite de ícones: os símbolos existem, o SVG em si não ocupa espaço */
+.sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
+
+.icone {
+  width: 20px; height: 20px;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Foco por teclado sempre visível, no acento (HIG › Accessibility:
+   uso só pelo teclado precisa funcionar no desktop). */
+:focus-visible {
+  outline: 2px solid var(--anel-foco);
+  outline-offset: 2px;
+}
+
+/* ---------- Botões ---------- */
+
+.botao-primario {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--e-2);
+  min-height: 44px;
+  padding: 0 var(--e-5);
+  border: 0;
+  border-radius: 999px;
+  background: var(--acento);
+  color: var(--sobre-acento);
+  font-weight: 600;
+  transition: filter var(--rapido) ease, transform var(--rapido) ease, opacity var(--rapido) ease;
+}
+.botao-primario:hover:not(:disabled) { filter: brightness(1.08); }
+.botao-primario:active:not(:disabled) { transform: scale(0.98); }
+.botao-primario:disabled { opacity: 0.72; }
+
+/* Ação secundária: só texto no acento, sem fundo (como "Esqueceu a senha?") */
+.botao-texto {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 var(--e-2);
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--acento);
+  font-weight: 500;
+}
+.botao-texto:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+.botao-secundario {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--altura-controle);
+  padding: 0 var(--e-4);
+  border: 1px solid var(--contorno-campo);
+  border-radius: 999px;
+  background: var(--superficie);
+  color: var(--rotulo);
+  font-weight: 600;
+  transition: background-color var(--rapido) ease;
+}
+.botao-secundario:hover { background: var(--preenchimento); }
+
+/* Botão de ícone "de vidro" da barra de ferramentas (36 × 36 px,
+   acima do padrão de 28 pt do macOS). */
+.botao-icone {
+  display: inline-grid;
+  place-items: center;
+  width: var(--altura-controle);
+  height: var(--altura-controle);
+  flex: none;
+  padding: 0;
+  border: 1px solid var(--vidro-contorno);
+  border-radius: 999px;
+  background: var(--vidro);
+  -webkit-backdrop-filter: var(--vidro-desfoque);
+  backdrop-filter: var(--vidro-desfoque);
+  box-shadow: var(--vidro-brilho), var(--sombra-controle);
+  color: var(--rotulo);
+  transition: background-color var(--rapido) ease, transform var(--rapido) ease;
+}
+.botao-icone:hover { background: var(--vidro-forte); }
+.botao-icone:active { transform: scale(0.95); }
+
+/* ---------- Campos de texto ---------- */
+
+.campo { display: grid; gap: 6px; }
+
+.campo__rotulo {
+  font-weight: 600;
+  font-size: 0.8125rem;
+  color: var(--rotulo);
+}
+
+.campo__ajuda {
+  font: var(--t-chamada);
+  color: var(--rotulo-2);
+}
+
+.entrada {
+  width: 100%;
+  height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--contorno-campo);
+  border-radius: 12px;
+  background: var(--superficie);
+  color: var(--rotulo);
+  transition: border-color var(--rapido) ease, box-shadow var(--rapido) ease;
+}
+.entrada::placeholder { color: var(--placeholder); opacity: 1; }
+.entrada:focus-visible {
+  outline: none;
+  border-color: var(--acento);
+  box-shadow: 0 0 0 4px var(--anel-foco-suave);
+}
+.entrada[aria-invalid="true"] { border-color: var(--perigo); }
+.entrada[aria-invalid="true"]:focus-visible { box-shadow: 0 0 0 4px var(--perigo-suave); }
+
+/* Campo de senha com o botão mostrar/ocultar dentro, à direita */
+.campo-senha { position: relative; }
+.campo-senha .entrada { padding-right: 48px; }
+.alternar-senha {
+  position: absolute;
+  top: 50%;
+  right: 4px;
+  translate: 0 -50%;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 10px;
+  background: none;
+  color: var(--rotulo-2);
+}
+.alternar-senha:hover { color: var(--rotulo); background: var(--preenchimento); }
+.alternar-senha .icone-ocultar { display: none; }
+.alternar-senha[aria-pressed="true"] .icone-mostrar { display: none; }
+.alternar-senha[aria-pressed="true"] .icone-ocultar { display: block; }
+
+.mensagem {
+  display: flex;
+  gap: var(--e-2);
+  align-items: flex-start;
+  padding: 10px 12px;
+  border-radius: 12px;
+  font: var(--t-chamada);
+}
+.mensagem .icone { width: 18px; height: 18px; margin-top: 0; }
+.mensagem--erro { background: var(--perigo-suave); color: var(--perigo); }
+.mensagem--sucesso { background: var(--acento-suave); color: var(--acento); }
+
+/* ---------- Avatar (monograma) ---------- */
+
+.avatar {
+  display: inline-grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  flex: none;
+  border-radius: 50%;
+  background: linear-gradient(180deg, var(--avatar-topo), var(--avatar-base));
+  color: #FFFFFF;
+  font: 600 1.0625rem/1 var(--fonte);
+  letter-spacing: 0.01em;
+  user-select: none;
+}
+.avatar--p { width: 32px; height: 32px; font-size: 0.8125rem; }
+
+/* ---------- Movimento reduzido ----------
+   Sem escala, deslizes e brilhos animados (HIG › Accessibility ›
+   Cognitive). As mudanças de estado continuam visíveis por cor/forma. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Alto contraste do Windows: cores do sistema, bordas sempre visíveis */
+@media (forced-colors: active) {
+  .botao-icone, .botao-secundario, .entrada { border: 1px solid ButtonText; }
+  .botao-primario { border: 1px solid ButtonText; }
+}

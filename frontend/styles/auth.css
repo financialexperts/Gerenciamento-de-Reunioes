@@ -1,0 +1,131 @@
+/* ============================================================
+   TELA DE ACESSO — entrar, pedir link de senha, criar senha nova.
+   Um painel de vidro sobre a luz ambiente da marca; formulário em
+   coluna única, rótulo sempre visível acima do campo.
+   ============================================================ */
+
+.tela-auth {
+  position: fixed;
+  inset: 0;
+  overflow-y: auto;
+  display: grid;
+  place-items: center;
+  padding: var(--e-8) var(--e-4);
+  background: var(--lavagem-auth), var(--janela);
+}
+
+.cartao-auth {
+  width: min(100%, 24.5rem);
+  padding: 36px 32px 28px;
+  border: 1px solid var(--vidro-contorno);
+  border-radius: 28px;
+  background: var(--vidro-forte);
+  -webkit-backdrop-filter: var(--vidro-desfoque);
+  backdrop-filter: var(--vidro-desfoque);
+  box-shadow: var(--vidro-brilho), var(--sombra-painel);
+}
+
+@media (max-width: 479px) {
+  .cartao-auth { padding: 28px 20px 20px; border-radius: 24px; }
+}
+
+/* ---------- Marca: as barras do logo ----------
+   Desencontradas em repouso, como no logo. Enquanto o acesso é
+   verificado elas se ALINHAM — o indicador de espera é o próprio nome
+   da página inicial. Com "reduzir movimento" nada se move. */
+
+.marca {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  margin-bottom: var(--e-6);
+}
+
+.marca-barras {
+  --cor-barras: var(--marca-menta);
+  width: 52px;
+  height: 40px;
+  overflow: visible;
+}
+@media (prefers-color-scheme: dark) {
+  .marca-barras { --cor-barras: var(--marca-menta-suave); }
+}
+
+/* 420 ms + 4 × 30 ms de escalonamento = 540 ms (DURACAO_ALINHAR em auth.js) */
+.marca-barras rect {
+  fill: var(--cor-barras);
+  transition: transform 420ms var(--mola);
+}
+.marca-barras rect:nth-child(2) { transition-delay: 30ms; }
+.marca-barras rect:nth-child(3) { transition-delay: 60ms; }
+.marca-barras rect:nth-child(4) { transition-delay: 90ms; }
+.marca-barras rect:nth-child(5) { transition-delay: 120ms; }
+
+.alinhando .marca-barras .barra-esq { transform: translateX(95px); }
+.alinhando .marca-barras .barra-dir { transform: translateX(-95px); }
+
+.marca__nome {
+  font: 600 0.6875rem/1 var(--fonte);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--rotulo-2);
+}
+
+/* ---------- Formulários ---------- */
+
+.form-auth { display: grid; gap: var(--e-4); }
+
+.form-auth__cabecalho {
+  display: grid;
+  gap: 6px;
+  margin-bottom: var(--e-1);
+  text-align: center;
+}
+
+.form-auth__titulo {
+  font: var(--t-titulo-2);
+  letter-spacing: -0.012em;
+  text-wrap: balance;
+}
+
+.form-auth__descricao {
+  color: var(--rotulo-2);
+  text-wrap: pretty;
+}
+
+.form-auth__acoes {
+  display: grid;
+  justify-items: center;
+  gap: var(--e-2);
+  margin-top: var(--e-1);
+}
+.form-auth__acoes .botao-primario { width: 100%; }
+
+/* Indicador de progresso dentro do botão enquanto espera */
+.giro {
+  width: 16px;
+  height: 16px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: girar 0.8s linear infinite;
+}
+@keyframes girar { to { rotate: 360deg; } }
+
+.botao-primario:not([aria-busy="true"]) .giro { display: none; }
+
+/* Confirmação depois de pedir o link: substitui os campos */
+.confirmacao {
+  display: grid;
+  justify-items: center;
+  gap: var(--e-3);
+  text-align: center;
+}
+.confirmacao .icone {
+  width: 40px;
+  height: 40px;
+  color: var(--acento);
+  stroke-width: 1.5;
+}
+.confirmacao p { color: var(--rotulo-2); text-wrap: pretty; }
+.confirmacao strong { color: var(--rotulo); font-weight: 600; word-break: break-all; }

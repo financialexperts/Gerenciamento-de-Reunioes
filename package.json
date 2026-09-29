@@ -1,0 +1,11 @@
+{
+  "name": "gerenciamento-de-reunioes",
+  "private": true,
+  "description": "Gestão de Reuniões (Financial Experts) — alinhamento com professores, usando o banco do Sistema de Presença.",
+  "scripts": {
+    "start": "node servidor.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

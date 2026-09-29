@@ -1,0 +1,12 @@
+# Outro sistema, com repositório próprio — está nesta pasta só como
+# referência do banco de dados, não faz parte deste projeto
+Sistema de presença/
+
+# Dependências e arquivos locais
+node_modules/
+.env
+.claude/
+
+# Arquivos de sistema/editor
+.DS_Store
+Thumbs.db

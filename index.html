@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#F4F5F9" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#100F26" media="(prefers-color-scheme: dark)">
+  <title>Gestão de Reuniões</title>
+  <link rel="icon" type="image/png" href="frontend/img/favicon.png">
+  <!-- SDK do Supabase por CDN: mesma versão e mesmo hash de integridade do Sistema de Presença -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.4/dist/umd/supabase.min.js" integrity="sha384-yiVMs0R/Jyz7OhoXa/DsEMUSBLjEhr/QJta2ONO+zB6I8/GmNg/7AUFrZmAJV7KV" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="frontend/styles/tokens.css">
+  <link rel="stylesheet" href="frontend/styles/base.css">
+  <link rel="stylesheet" href="frontend/styles/auth.css">
+  <link rel="stylesheet" href="frontend/styles/app.css">
+  <link rel="stylesheet" href="frontend/styles/alinhamento.css">
+</head>
+<body>
+
+<!-- Ícones no estilo SF Symbols, traço único de 1,7 px (combina com o texto) -->
+<svg class="sprite" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="i-alinhamento" viewBox="0 0 20 20">
+      <path d="M3.5 2.75v14.5"/>
+      <rect x="6.5" y="4.25" width="10.5" height="4" rx="1.25" fill="currentColor" stroke="none"/>
+      <rect x="6.5" y="11.75" width="7" height="4" rx="1.25" fill="currentColor" stroke="none"/>
+    </symbol>
+    <symbol id="i-barra-lateral" viewBox="0 0 20 20">
+      <rect x="2.5" y="3.75" width="15" height="12.5" rx="3"/>
+      <path d="M7.75 3.75v12.5"/>
+      <path d="M4.6 6.9h1.2M4.6 9.4h1.2"/>
+    </symbol>
+    <symbol id="i-lupa" viewBox="0 0 20 20">
+      <circle cx="8.75" cy="8.75" r="5.5"/>
+      <path d="m12.9 12.9 4.1 4.1"/>
+    </symbol>
+    <symbol id="i-limpar" viewBox="0 0 20 20">
+      <circle cx="10" cy="10" r="8" fill="currentColor" stroke="none"/>
+      <path d="m7.4 7.4 5.2 5.2m0-5.2-5.2 5.2" style="stroke: var(--cor-x, #FFFFFF); stroke-width: 1.8"/>
+    </symbol>
+    <symbol id="i-setas" viewBox="0 0 10 16">
+      <path d="m2 6 3-3 3 3M2 10l3 3 3-3"/>
+    </symbol>
+    <symbol id="i-check" viewBox="0 0 20 20">
+      <path d="m4.5 10.5 3.6 3.6 7.4-8.2"/>
+    </symbol>
+    <symbol id="i-olho" viewBox="0 0 20 20">
+      <path d="M1.9 10S4.8 4.6 10 4.6 18.1 10 18.1 10 15.2 15.4 10 15.4 1.9 10 1.9 10Z"/>
+      <circle cx="10" cy="10" r="2.6"/>
+    </symbol>
+    <symbol id="i-olho-cortado" viewBox="0 0 20 20">
+      <path d="M8.2 4.8A8.4 8.4 0 0 1 10 4.6c5.2 0 8.1 5.4 8.1 5.4a14 14 0 0 1-2.2 2.9M5.4 6.1A14 14 0 0 0 1.9 10s2.9 5.4 8.1 5.4a7.8 7.8 0 0 0 3.8-1"/>
+      <path d="M8.2 8.2a2.6 2.6 0 0 0 3.6 3.6"/>
+      <path d="m3 3 14 14"/>
+    </symbol>
+    <symbol id="i-sair" viewBox="0 0 20 20">
+      <path d="M8 3.5H5.5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2H8"/>
+      <path d="m12.5 6.5 3.5 3.5-3.5 3.5M16 10H7.5"/>
+    </symbol>
+    <symbol id="i-alerta" viewBox="0 0 20 20">
+      <circle cx="10" cy="10" r="7.75"/>
+      <path d="M10 6.2v4.6"/>
+      <circle cx="10" cy="13.7" r="0.4" fill="currentColor"/>
+    </symbol>
+    <symbol id="i-envelope" viewBox="0 0 20 20">
+      <rect x="2.5" y="4.25" width="15" height="11.5" rx="2.5"/>
+      <path d="m3.2 5.4 6.8 5.1 6.8-5.1"/>
+    </symbol>
+    <symbol id="i-pessoas" viewBox="0 0 20 20">
+      <circle cx="7.5" cy="7" r="2.9"/>
+      <path d="M2.4 16.2c.6-2.7 2.6-4.3 5.1-4.3s4.5 1.6 5.1 4.3"/>
+      <circle cx="13.9" cy="7.9" r="2.3"/>
+      <path d="M14.3 12.1c1.8.2 3 1.5 3.4 3.4"/>
+    </symbol>
+    <symbol id="i-sem-conexao" viewBox="0 0 20 20">
+      <path d="M2.2 7.6a11.3 11.3 0 0 1 15.6 0M4.8 10.6a7.5 7.5 0 0 1 10.4 0M7.4 13.5a3.7 3.7 0 0 1 5.2 0"/>
+      <path d="m3 3 14 14"/>
+    </symbol>
+  </defs>
+</svg>
+
+<noscript>
+  <p style="padding:24px;text-align:center">Ative o JavaScript do navegador para usar a Gestão de Reuniões.</p>
+</noscript>
+
+<!-- ============ ACESSO ============ -->
+<div class="tela-auth" id="tela-auth" hidden>
+  <div class="cartao-auth" id="cartao-auth">
+
+    <div class="marca">
+      <!-- As barras do logo Financial Experts, redesenhadas em SVG para poderem se alinhar -->
+      <svg class="marca-barras" viewBox="0 0 380 290" aria-hidden="true" focusable="false">
+        <rect class="barra-dir" x="190" y="0" width="190" height="52"/>
+        <rect class="barra-esq" x="0" y="59.5" width="190" height="52"/>
+        <rect class="barra-dir" x="190" y="119" width="190" height="52"/>
+        <rect class="barra-esq" x="0" y="178.5" width="190" height="52"/>
+        <rect class="barra-dir" x="190" y="238" width="190" height="52"/>
+      </svg>
+      <span class="marca__nome">Financial Experts</span>
+    </div>
+
+    <!-- Entrar -->
+    <form class="form-auth" id="form-login" novalidate hidden>
+      <div class="form-auth__cabecalho">
+        <h1 class="form-auth__titulo">Gestão de Reuniões</h1>
+        <p class="form-auth__descricao">Entre com o mesmo e-mail e senha do Sistema de Presença.</p>
+      </div>
+      <div class="campo">
+        <label class="campo__rotulo" for="login-email">E-mail</label>
+        <input class="entrada" id="login-email" name="email" type="email" inputmode="email" autocomplete="username" autocapitalize="off" spellcheck="false" placeholder="nome@exemplo.com" required aria-describedby="login-erro">
+      </div>
+      <div class="campo">
+        <label class="campo__rotulo" for="login-senha">Senha</label>
+        <div class="campo-senha">
+          <input class="entrada" id="login-senha" name="senha" type="password" autocomplete="current-password" required aria-describedby="login-erro">
+          <button type="button" class="alternar-senha" data-alvo="login-senha" aria-pressed="false" aria-label="Mostrar senha" title="Mostrar senha">
+            <svg class="icone icone-mostrar"><use href="#i-olho"/></svg>
+            <svg class="icone icone-ocultar"><use href="#i-olho-cortado"/></svg>
+          </button>
+        </div>
+      </div>
+      <p class="mensagem mensagem--erro" id="login-erro" role="alert" hidden></p>
+      <p class="mensagem mensagem--sucesso" id="login-aviso" role="status" hidden></p>
+      <div class="form-auth__acoes">
+        <button type="submit" class="botao-primario" id="btn-entrar"><span class="giro" aria-hidden="true"></span><span class="rotulo-botao">Entrar</span></button>
+        <button type="button" class="botao-texto" data-ir-para="recuperar">Esqueci minha senha</button>
+      </div>
+    </form>
+
+    <!-- Pedir link de redefinição -->
+    <form class="form-auth" id="form-recuperar" novalidate hidden>
+      <div class="form-auth__cabecalho">
+        <h1 class="form-auth__titulo">Redefinir senha</h1>
+        <p class="form-auth__descricao">Informe seu e-mail para receber um link e criar uma senha nova.</p>
+      </div>
+      <div class="campo">
+        <label class="campo__rotulo" for="recuperar-email">E-mail</label>
+        <input class="entrada" id="recuperar-email" name="email" type="email" inputmode="email" autocomplete="email" autocapitalize="off" spellcheck="false" placeholder="nome@exemplo.com" required aria-describedby="recuperar-erro">
+      </div>
+      <p class="mensagem mensagem--erro" id="recuperar-erro" role="alert" hidden></p>
+      <div class="form-auth__acoes">
+        <button type="submit" class="botao-primario" id="btn-enviar-link"><span class="giro" aria-hidden="true"></span><span class="rotulo-botao">Enviar link</span></button>
+        <button type="button" class="botao-texto" data-ir-para="login">Voltar para o login</button>
+      </div>
+    </form>
+
+    <!-- Link enviado -->
+    <div class="form-auth" id="painel-link-enviado" hidden>
+      <div class="confirmacao" role="status">
+        <svg class="icone" aria-hidden="true"><use href="#i-envelope"/></svg>
+        <h1 class="form-auth__titulo">Confira seu e-mail</h1>
+        <p>Se houver uma conta para <strong id="link-enviado-email"></strong>, o link chega em alguns minutos. Procure também na caixa de spam.</p>
+      </div>
+      <div class="form-auth__acoes">
+        <button type="button" class="botao-primario" data-ir-para="login">Voltar para o login</button>
+      </div>
+    </div>
+
+    <!-- Criar senha nova (aberto pelo link do e-mail) -->
+    <form class="form-auth" id="form-nova-senha" novalidate hidden>
+      <div class="form-auth__cabecalho">
+        <h1 class="form-auth__titulo">Criar senha nova</h1>
+        <p class="form-auth__descricao">Depois de salvar, entre com a senha nova.</p>
+      </div>
+      <div class="campo">
+        <label class="campo__rotulo" for="nova-senha">Senha nova</label>
+        <div class="campo-senha">
+          <input class="entrada" id="nova-senha" name="nova-senha" type="password" autocomplete="new-password" minlength="6" required aria-describedby="nova-senha-ajuda nova-senha-erro">
+          <button type="button" class="alternar-senha" data-alvo="nova-senha" aria-pressed="false" aria-label="Mostrar senha" title="Mostrar senha">
+            <svg class="icone icone-mostrar"><use href="#i-olho"/></svg>
+            <svg class="icone icone-ocultar"><use href="#i-olho-cortado"/></svg>
+          </button>
+        </div>
+        <p class="campo__ajuda" id="nova-senha-ajuda">Use pelo menos 6 caracteres.</p>
+      </div>
+      <div class="campo">
+        <label class="campo__rotulo" for="confirmar-senha">Confirmar senha nova</label>
+        <div class="campo-senha">
+          <input class="entrada" id="confirmar-senha" name="confirmar-senha" type="password" autocomplete="new-password" required aria-describedby="nova-senha-erro">
+          <button type="button" class="alternar-senha" data-alvo="confirmar-senha" aria-pressed="false" aria-label="Mostrar senha" title="Mostrar senha">
+            <svg class="icone icone-mostrar"><use href="#i-olho"/></svg>
+            <svg class="icone icone-ocultar"><use href="#i-olho-cortado"/></svg>
+          </button>
+        </div>
+      </div>
+      <p class="mensagem mensagem--erro" id="nova-senha-erro" role="alert" hidden></p>
+      <div class="form-auth__acoes">
+        <button type="submit" class="botao-primario" id="btn-salvar-senha"><span class="giro" aria-hidden="true"></span><span class="rotulo-botao">Salvar senha nova</span></button>
+        <button type="button" class="botao-texto" id="btn-cancelar-nova-senha">Voltar para o login</button>
+      </div>
+    </form>
+
+  </div>
+</div>
+
+<!-- ============ APLICATIVO ============ -->
+<div class="app" id="app" hidden>
+
+  <aside class="barra-lateral" id="barra-lateral" aria-label="Menu principal">
+    <div class="barra-lateral__marca">
+      <picture>
+        <source srcset="frontend/img/financial-experts%20branco.png" media="(prefers-color-scheme: dark)">
+        <img src="frontend/img/finexperts_pos%20preto.png" alt="Financial Experts" width="202" height="62">
+      </picture>
+    </div>
+    <nav aria-label="Seções">
+      <ul class="menu">
+        <li>
+          <a class="menu__item" href="#alinhamento" aria-current="page">
+            <svg class="icone" aria-hidden="true"><use href="#i-alinhamento"/></svg>
+            Alinhamento
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </aside>
+
+  <div class="veu" id="veu" aria-hidden="true"></div>
+
+  <main class="principal" id="alinhamento" tabindex="-1">
+    <header class="cabecalho" id="cabecalho">
+      <div class="cabecalho__barra">
+        <button type="button" class="botao-icone" id="btn-barra-lateral" aria-controls="barra-lateral" aria-expanded="true" aria-label="Barra lateral" title="Ocultar barra lateral">
+          <svg class="icone" aria-hidden="true"><use href="#i-barra-lateral"/></svg>
+        </button>
+        <div class="cabecalho__titulos">
+          <h1 class="titulo-grande">Alinhamento</h1>
+          <p class="subtitulo" id="contagem">Carregando professores…</p>
+          <p class="vh" id="aviso-lista" aria-live="polite"></p>
+        </div>
+        <button type="button" class="botao-conta" id="btn-conta" popovertarget="menu-conta" aria-label="Conta" title="Conta">
+          <span class="avatar" id="conta-avatar" aria-hidden="true"></span>
+        </button>
+      </div>
+
+      <div class="cabecalho__controles" role="search" aria-label="Buscar e filtrar professores">
+        <div class="busca">
+          <svg class="icone busca__lupa" aria-hidden="true"><use href="#i-lupa"/></svg>
+          <input class="busca__campo" id="busca-professor" type="search" placeholder="Professor" aria-label="Buscar professor por nome ou e-mail" aria-keyshortcuts="/" autocomplete="off" spellcheck="false" enterkeyhint="search">
+          <button type="button" class="busca__limpar" id="btn-limpar-busca" aria-label="Limpar busca" title="Limpar busca" hidden>
+            <svg class="icone" aria-hidden="true"><use href="#i-limpar"/></svg>
+          </button>
+        </div>
+        <div class="popup">
+          <label class="popup__rotulo" for="filtro-curso">Curso</label>
+          <select class="popup__seletor" id="filtro-curso">
+            <option value="">Todos</option>
+          </select>
+          <svg class="icone popup__setas" aria-hidden="true"><use href="#i-setas"/></svg>
+        </div>
+        <div class="popup">
+          <label class="popup__rotulo" for="filtro-turma">Turma</label>
+          <select class="popup__seletor" id="filtro-turma">
+            <option value="">Todas</option>
+          </select>
+          <svg class="icone popup__setas" aria-hidden="true"><use href="#i-setas"/></svg>
+        </div>
+        <button type="button" class="botao-texto" id="btn-limpar-filtros" hidden>Limpar filtros</button>
+      </div>
+    </header>
+
+    <section class="conteudo" aria-labelledby="rotulo-lista">
+      <h2 class="vh" id="rotulo-lista">Professores</h2>
+      <div class="grade" id="lista-professores" role="listbox" aria-labelledby="rotulo-lista"></div>
+      <div class="estado" id="estado-lista" hidden></div>
+    </section>
+  </main>
+
+  <div class="menu-conta" id="menu-conta" popover>
+    <div class="menu-conta__perfil">
+      <span class="avatar" id="menu-conta-avatar" aria-hidden="true"></span>
+      <div>
+        <p class="menu-conta__nome" id="menu-conta-nome"></p>
+        <p class="menu-conta__email" id="menu-conta-email"></p>
+      </div>
+    </div>
+    <hr class="separador">
+    <button type="button" class="menu-conta__item" id="btn-sair">
+      <svg class="icone" aria-hidden="true"><use href="#i-sair"/></svg>
+      Sair
+    </button>
+  </div>
+</div>
+
+<script type="module" src="frontend/main.js"></script>
+</body>
+</html>

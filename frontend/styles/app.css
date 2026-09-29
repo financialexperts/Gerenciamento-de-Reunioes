@@ -1,0 +1,274 @@
+/* ============================================================
+   ESTRUTURA DO APLICATIVO — barra lateral + área principal.
+   A barra lateral flutua em vidro sobre a janela (camada funcional);
+   o conteúdo rola por baixo do cabeçalho, que ganha o "efeito de
+   borda de rolagem" em vez de um fundo sólido (HIG › Layout).
+   ============================================================ */
+
+.app {
+  display: grid;
+  grid-template-columns: var(--largura-barra) minmax(0, 1fr);
+  height: 100dvh;
+  transition: grid-template-columns var(--medio) var(--mola);
+}
+.app.entrando { animation: surgir 280ms ease both; }
+@keyframes surgir { from { opacity: 0; } }
+
+/* ---------- Barra lateral ---------- */
+
+.barra-lateral {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  margin: 10px 0 10px 10px;
+  padding: var(--e-4) var(--e-3);
+  overflow: hidden;
+  border: 1px solid var(--vidro-contorno);
+  border-radius: var(--raio-painel);
+  background: var(--vidro-forte);
+  -webkit-backdrop-filter: var(--vidro-desfoque);
+  backdrop-filter: var(--vidro-desfoque);
+  box-shadow: var(--vidro-brilho), var(--sombra-painel);
+}
+
+.barra-lateral__marca {
+  display: flex;
+  align-items: center;
+  height: var(--altura-controle);
+  padding: 0 var(--e-2);
+  margin-bottom: var(--e-5);
+}
+.barra-lateral__marca img { height: 26px; width: auto; }
+
+.menu { display: grid; gap: 2px; }
+
+.menu__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 36px;
+  padding: 0 10px;
+  border-radius: 10px;
+  color: var(--rotulo);
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color var(--rapido) ease;
+}
+.menu__item .icone { color: var(--rotulo-2); }
+.menu__item:hover { background: var(--preenchimento); }
+.menu__item[aria-current="page"] {
+  background: var(--acento-suave);
+  font-weight: 600;
+}
+.menu__item[aria-current="page"] .icone { color: var(--acento); }
+
+/* Barra oculta pelo botão (janela larga): a coluna encolhe */
+.app[data-barra-oculta] { grid-template-columns: 0 minmax(0, 1fr); }
+.app[data-barra-oculta] .barra-lateral {
+  visibility: hidden;
+  transition: visibility 0s var(--medio);
+}
+
+/* Véu atrás da barra em janelas estreitas */
+.veu { display: none; }
+
+/* Janela estreita: a barra vira um painel sobreposto que desliza da
+   esquerda e some sozinha (HIG › Sidebars: esconder a barra quando a
+   janela diminui). */
+@media (max-width: 899px) {
+  .app,
+  .app[data-barra-oculta] { grid-template-columns: minmax(0, 1fr); }
+
+  .barra-lateral,
+  .app[data-barra-oculta] .barra-lateral {
+    position: fixed;
+    top: 10px;
+    bottom: 10px;
+    left: 10px;
+    z-index: 40;
+    width: min(18rem, calc(100vw - 56px));
+    margin: 0;
+    visibility: hidden;
+    transform: translateX(calc(-100% - 20px));
+    transition: transform var(--medio) var(--mola), visibility 0s var(--medio);
+  }
+  .app[data-barra-aberta] .barra-lateral {
+    visibility: visible;
+    transform: none;
+    transition: transform var(--medio) var(--mola), visibility 0s;
+  }
+
+  .veu {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 35;
+    background: rgb(16 15 38 / 0.28);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--medio) ease;
+  }
+  .app[data-barra-aberta] .veu { opacity: 1; pointer-events: auto; }
+}
+
+/* ---------- Área principal ---------- */
+
+.principal {
+  position: relative;
+  height: 100dvh;
+  min-width: 0;
+  overflow-y: auto;
+  scroll-padding-top: calc(var(--altura-cabecalho, 140px) + var(--e-3));
+}
+.principal:focus { outline: none; } /* recebe foco só como destino do menu */
+
+.cabecalho {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  isolation: isolate;
+  display: grid;
+  gap: var(--e-4);
+  padding: var(--e-4) var(--margem) var(--e-5);
+}
+
+/* Efeito de borda de rolagem: só aparece quando há conteúdo passando
+   por baixo; desfoca e esmaece em vez de pintar uma faixa sólida. */
+.cabecalho::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 -28px;
+  z-index: -1;
+  background: linear-gradient(to bottom, color-mix(in srgb, var(--janela) 78%, transparent) 55%, transparent);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  -webkit-mask-image: linear-gradient(to bottom, #000 62%, transparent);
+  mask-image: linear-gradient(to bottom, #000 62%, transparent);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--rapido) ease;
+}
+.cabecalho.rolado::before { opacity: 1; }
+
+@media (prefers-reduced-transparency: reduce) {
+  .cabecalho::before {
+    background: var(--janela);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    -webkit-mask-image: none;
+    mask-image: none;
+    inset: 0;
+    border-bottom: 1px solid var(--separador);
+  }
+}
+
+.cabecalho__barra {
+  display: flex;
+  align-items: center;
+  gap: var(--e-3);
+  min-height: 44px;
+}
+
+.cabecalho__titulos { flex: 1; min-width: 0; }
+
+.titulo-grande {
+  font: var(--t-titulo-grande);
+  letter-spacing: 0.006em;
+}
+
+.subtitulo {
+  font: var(--t-chamada);
+  color: var(--rotulo-2);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 599px) {
+  .titulo-grande { font-size: 1.375rem; line-height: 1.75rem; }
+}
+
+/* ---------- Conta (canto superior direito) ----------
+   A conta fica na barra de ferramentas, não no pé da barra lateral:
+   HIG › Sidebars pede para não pôr ações importantes lá embaixo. */
+
+.botao-conta {
+  flex: none;
+  padding: 2px;
+  border: 1px solid var(--vidro-contorno);
+  border-radius: 50%;
+  background: var(--vidro);
+  -webkit-backdrop-filter: var(--vidro-desfoque);
+  backdrop-filter: var(--vidro-desfoque);
+  box-shadow: var(--vidro-brilho), var(--sombra-controle);
+  transition: transform var(--rapido) ease;
+}
+.botao-conta:active { transform: scale(0.95); }
+.botao-conta .avatar { width: 32px; height: 32px; font-size: 0.8125rem; }
+
+.menu-conta {
+  position: fixed;
+  inset: auto;
+  margin: 0;
+  width: 17rem;
+  padding: 6px;
+  border: 1px solid var(--vidro-contorno);
+  border-radius: 16px;
+  background: var(--vidro-forte);
+  -webkit-backdrop-filter: var(--vidro-desfoque);
+  backdrop-filter: var(--vidro-desfoque);
+  box-shadow: var(--vidro-brilho), var(--sombra-painel);
+  color: var(--rotulo);
+}
+@media (prefers-color-scheme: dark) {
+  .menu-conta { background: color-mix(in srgb, var(--superficie-elevada) 88%, transparent); }
+}
+
+.menu-conta__perfil {
+  display: flex;
+  align-items: center;
+  gap: var(--e-3);
+  padding: 10px 10px 12px;
+}
+.menu-conta__perfil > div { min-width: 0; }
+.menu-conta__nome {
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.menu-conta__email {
+  font: var(--t-chamada);
+  color: var(--rotulo-2);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.separador {
+  height: 1px;
+  margin: 0 6px 6px;
+  border: 0;
+  background: var(--separador);
+}
+
+.menu-conta__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 36px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 10px;
+  background: none;
+  text-align: left;
+  font-weight: 500;
+}
+.menu-conta__item .icone { width: 18px; height: 18px; color: var(--rotulo-2); }
+.menu-conta__item:hover,
+.menu-conta__item:focus-visible { background: var(--preenchimento-2); outline: none; }
+
+@media (forced-colors: active) {
+  .barra-lateral, .menu-conta { border: 1px solid CanvasText; }
+  .menu__item[aria-current="page"] { outline: 2px solid Highlight; }
+}
