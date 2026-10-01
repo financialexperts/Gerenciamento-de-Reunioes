@@ -23,7 +23,7 @@ body {
 h1, h2, h3, p, ul { margin: 0; }
 ul { padding: 0; list-style: none; }
 img, svg { display: block; }
-button, input, select { font: inherit; color: inherit; letter-spacing: inherit; }
+button, input { font: inherit; color: inherit; letter-spacing: inherit; }
 button { cursor: pointer; }
 button:disabled { cursor: default; }
 a { color: inherit; }
@@ -193,7 +193,6 @@ a { color: inherit; }
   border-radius: 12px;
   font: var(--t-chamada);
 }
-.mensagem .icone { width: 18px; height: 18px; margin-top: 0; }
 .mensagem--erro { background: var(--perigo-suave); color: var(--perigo); }
 .mensagem--sucesso { background: var(--sucesso-suave); color: var(--sucesso); }
 
@@ -338,7 +337,6 @@ a { color: inherit; }
   letter-spacing: 0.01em;
   user-select: none;
 }
-.avatar--p { width: 32px; height: 32px; font-size: 0.8125rem; }
 
 /* ---------- Movimento reduzido ----------
    Sem escala, deslizes e brilhos animados (HIG › Accessibility ›

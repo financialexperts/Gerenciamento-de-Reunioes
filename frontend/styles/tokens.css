@@ -15,7 +15,6 @@
   /* Superfícies */
   --janela: #F5F5F7;
   --superficie: #FFFFFF;
-  --superficie-elevada: #FFFFFF;
 
   /* Texto */
   --rotulo: #1D1D1F;        /* 16,8:1 no branco · 15,5:1 na janela */
@@ -96,7 +95,6 @@
   --margem: 28px;
 
   --altura-controle: 36px;
-  --raio-controle: 10px;
   --raio-cartao: 20px;
   --raio-painel: 18px;
 
