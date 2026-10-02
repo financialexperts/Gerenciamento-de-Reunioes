@@ -23,7 +23,7 @@ body {
 h1, h2, h3, p, ul { margin: 0; }
 ul { padding: 0; list-style: none; }
 img, svg { display: block; }
-button, input { font: inherit; color: inherit; letter-spacing: inherit; }
+button, input, select, textarea { font: inherit; color: inherit; letter-spacing: inherit; }
 button { cursor: pointer; }
 button:disabled { cursor: default; }
 a { color: inherit; }
@@ -163,6 +163,44 @@ a { color: inherit; }
 .entrada[aria-invalid="true"] { border-color: var(--perigo); }
 .entrada[aria-invalid="true"]:focus-visible { box-shadow: 0 0 0 4px var(--perigo-suave); }
 
+/* Texto de várias linhas: cresce para baixo, se a pessoa quiser */
+textarea.entrada {
+  height: auto;
+  min-height: 5.5rem;
+  padding: 10px 14px;
+  resize: vertical;
+}
+
+/* Lista de opções com as setas ↕ dos menus do macOS, no lugar da seta
+   do Windows */
+.campo-select { position: relative; }
+.campo-select .entrada {
+  appearance: none;
+  padding-right: 34px;
+  cursor: pointer;
+}
+.campo-select .icone {
+  position: absolute;
+  top: 50%;
+  right: 14px;
+  translate: 0 -50%;
+  width: 9px;
+  height: 14px;
+  color: var(--rotulo-2);
+  stroke-width: 1.8;
+  pointer-events: none;
+}
+
+.campo__opcional { font-weight: 400; color: var(--rotulo-2); }
+
+/* Campos curtos lado a lado (dia, início, duração); quebram de linha
+   quando a janela estreita */
+.campos-linha {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr));
+  gap: var(--e-3);
+}
+
 /* Campo de senha com o botão mostrar/ocultar dentro, à direita */
 .campo-senha { position: relative; }
 .campo-senha .entrada { padding-right: 48px; }
@@ -244,6 +282,7 @@ a { color: inherit; }
   box-shadow: var(--sombra-menu);
   color: var(--rotulo);
 }
+.dialogo--largo { width: min(34rem, calc(100vw - 32px)); }
 .dialogo::backdrop { background: rgb(0 0 0 / 0.28); }
 .dialogo[open] { animation: surgir-dialogo 240ms var(--mola); }
 @keyframes surgir-dialogo {

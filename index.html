@@ -16,6 +16,7 @@
   <link rel="stylesheet" href="frontend/styles/cartoes.css">
   <link rel="stylesheet" href="frontend/styles/alinhamento.css">
   <link rel="stylesheet" href="frontend/styles/professor.css">
+  <link rel="stylesheet" href="frontend/styles/reunioes.css">
 </head>
 <body>
 
@@ -96,6 +97,14 @@
       <rect x="11.25" y="3" width="5.75" height="5.75" rx="1.5"/>
       <rect x="3" y="11.25" width="5.75" height="5.75" rx="1.5"/>
       <rect x="11.25" y="11.25" width="5.75" height="5.75" rx="1.5"/>
+    </symbol>
+    <symbol id="i-pino" viewBox="0 0 20 20">
+      <path d="M10 17.5s-5.25-4.9-5.25-9.1a5.25 5.25 0 0 1 10.5 0c0 4.2-5.25 9.1-5.25 9.1Z"/>
+      <circle cx="10" cy="8.4" r="1.9"/>
+    </symbol>
+    <symbol id="i-video" viewBox="0 0 20 20">
+      <rect x="2.5" y="5.25" width="10.5" height="9.5" rx="2.25"/>
+      <path d="m13 8.6 4.5-2.35v7.5L13 11.4"/>
     </symbol>
 
     <!-- Ícones das categorias de reunião (chaves em features/categorias/icones.js) -->
@@ -326,6 +335,20 @@
           </button>
         </div>
 
+        <div class="cabecalho__tela" data-tela="categoria" hidden>
+          <button type="button" class="botao-icone botao-voltar" id="btn-voltar-professor" aria-label="Voltar para o professor" title="Voltar para o professor">
+            <svg class="icone" aria-hidden="true"><use href="#i-voltar"/></svg>
+          </button>
+          <div class="cabecalho__titulos">
+            <h1 class="titulo-grande titulo-grande--uma-linha" id="titulo-categoria" tabindex="-1">Categoria</h1>
+            <p class="subtitulo" id="subtitulo-categoria"></p>
+          </div>
+          <button type="button" class="botao-destaque" id="btn-nova-reuniao" hidden>
+            <svg class="icone" aria-hidden="true"><use href="#i-mais"/></svg>
+            <span class="botao-destaque__texto">Nova reunião</span>
+          </button>
+        </div>
+
         <button type="button" class="botao-conta" id="btn-conta" popovertarget="menu-conta" aria-label="Conta" title="Conta">
           <span class="avatar" id="conta-avatar" aria-hidden="true"></span>
         </button>
@@ -368,11 +391,18 @@
     <section class="conteudo" data-tela="professor" aria-labelledby="rotulo-categorias" hidden>
       <div class="secao" id="secao-categorias">
         <h2 class="secao__titulo" id="rotulo-categorias">Categorias de reunião</h2>
-        <p class="secao__descricao">As mesmas para todos os professores.</p>
+        <p class="secao__descricao">As mesmas para todos os professores. Abra uma para ver as reuniões.</p>
       </div>
-      <div class="grade" id="lista-categorias" role="listbox" aria-labelledby="rotulo-categorias"></div>
+      <ul class="grade" id="lista-categorias" role="list" aria-labelledby="rotulo-categorias"></ul>
       <div class="estado" id="estado-categorias" hidden></div>
       <p class="vh" id="aviso-categorias" aria-live="polite"></p>
+    </section>
+
+    <!-- Página de uma categoria de um professor: as reuniões, com o dia em destaque -->
+    <section class="conteudo" data-tela="categoria" aria-labelledby="titulo-categoria" hidden>
+      <div id="lista-reunioes"></div>
+      <div class="estado" id="estado-reunioes" hidden></div>
+      <p class="vh" id="aviso-reunioes" aria-live="polite"></p>
     </section>
   </main>
 
@@ -461,6 +491,71 @@
       <div class="dialogo__acoes">
         <button type="button" class="botao-secundario" id="btn-cancelar-nova-categoria">Cancelar</button>
         <button type="submit" class="botao-primario" id="btn-salvar-nova-categoria"><span class="giro" aria-hidden="true"></span><span class="rotulo-botao">Criar categoria</span></button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Nova reunião: o dia em destaque, para frente ou no passado (reunião que já aconteceu) -->
+  <dialog class="dialogo dialogo--largo" id="dialogo-nova-reuniao" aria-labelledby="nova-reuniao-titulo" aria-describedby="nova-reuniao-descricao">
+    <form class="dialogo__corpo" id="form-nova-reuniao" novalidate>
+      <div class="dialogo__cabecalho">
+        <h2 class="dialogo__titulo" id="nova-reuniao-titulo">Nova reunião</h2>
+        <p class="dialogo__descricao" id="nova-reuniao-descricao"></p>
+      </div>
+
+      <div class="dia-reuniao" id="dia-reuniao">
+        <span class="folha-data" aria-hidden="true">
+          <span class="folha-data__mes" id="dia-reuniao-mes"></span>
+          <span class="folha-data__dia" id="dia-reuniao-dia"></span>
+          <span class="folha-data__semana" id="dia-reuniao-semana-curta"></span>
+        </span>
+        <div class="dia-reuniao__texto">
+          <p class="dia-reuniao__semana" id="dia-reuniao-semana"></p>
+          <p class="dia-reuniao__data" id="dia-reuniao-data"></p>
+          <p class="dia-reuniao__quando" id="dia-reuniao-quando"></p>
+        </div>
+      </div>
+
+      <div class="campos-linha">
+        <div class="campo">
+          <label class="campo__rotulo" for="reuniao-data">Dia</label>
+          <input class="entrada" id="reuniao-data" name="data" type="date" min="2000-01-01" max="2100-12-31" required aria-describedby="nova-reuniao-erro">
+        </div>
+        <div class="campo">
+          <label class="campo__rotulo" for="reuniao-hora">Início</label>
+          <input class="entrada" id="reuniao-hora" name="hora" type="time" required aria-describedby="nova-reuniao-erro">
+        </div>
+        <div class="campo">
+          <label class="campo__rotulo" for="reuniao-duracao">Duração</label>
+          <div class="campo-select">
+            <select class="entrada" id="reuniao-duracao" name="duracao"></select>
+            <svg class="icone" aria-hidden="true"><use href="#i-setas"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <fieldset class="grupo-escolha">
+        <legend class="campo__rotulo">Formato</legend>
+        <div class="segmentado">
+          <label><input type="radio" name="formato" value="presencial" checked><span>Presencial</span></label>
+          <label><input type="radio" name="formato" value="online"><span>Online</span></label>
+        </div>
+      </fieldset>
+
+      <div class="campo">
+        <label class="campo__rotulo" for="reuniao-local"><span id="reuniao-local-rotulo">Local</span> <span class="campo__opcional">(opcional)</span></label>
+        <input class="entrada" id="reuniao-local" name="local" type="text" maxlength="500" autocomplete="off" autocapitalize="off" spellcheck="false">
+      </div>
+
+      <div class="campo">
+        <label class="campo__rotulo" for="reuniao-pauta">Pauta <span class="campo__opcional">(opcional)</span></label>
+        <textarea class="entrada" id="reuniao-pauta" name="pauta" rows="3" maxlength="2000" placeholder="O que vai ser conversado"></textarea>
+      </div>
+
+      <p class="mensagem mensagem--erro" id="nova-reuniao-erro" role="alert" hidden></p>
+      <div class="dialogo__acoes">
+        <button type="button" class="botao-secundario" id="btn-cancelar-nova-reuniao">Cancelar</button>
+        <button type="submit" class="botao-primario" id="btn-salvar-nova-reuniao"><span class="giro" aria-hidden="true"></span><span class="rotulo-botao">Criar reunião</span></button>
       </div>
     </form>
   </dialog>

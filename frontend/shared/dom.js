@@ -35,6 +35,15 @@ export function movimentoReduzido() {
   return matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
+// Realce azul-claro que se apaga sozinho (cartoes.css › .cartao--realce):
+// "você veio daqui" ao voltar para uma grade.
+export function realcar(cartao) {
+  cartao.classList.remove('cartao--realce');
+  void cartao.offsetWidth; // recomeça a animação se já estava rodando
+  cartao.classList.add('cartao--realce');
+  cartao.addEventListener('animationend', () => cartao.classList.remove('cartao--realce'), { once: true });
+}
+
 export function esperar(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }

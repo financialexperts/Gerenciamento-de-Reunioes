@@ -1,17 +1,18 @@
 import { state } from '../../state/store.js';
 import { buscarCategorias, faltaTabelaDeCategorias } from '../../../backend/api/categoriasRepo.js';
 import { chaveCorCurso } from '../../../backend/domain/turmas.js';
-import { escapeHtml, movimentoReduzido, normalizar } from '../../shared/dom.js';
+import { escapeHtml, movimentoReduzido, normalizar, realcar } from '../../shared/dom.js';
 import { estadoHtml } from '../../shared/estado.js';
 import { criarTecladoDaGrade } from '../../shared/grade.js';
 import { carregarAlinhamento, esperarAlinhamento, professorPorId } from '../alinhamento/alinhamentoView.js';
+import { enderecoDaCategoria } from '../app/rotas.js';
 import { simboloDoIcone } from '../categorias/icones.js';
 import { abrirNovaCategoria, fecharNovaCategoria } from '../categorias/novaCategoria.js';
 
 // Página de um professor: quem é (nome, e-mail e cursos) e as categorias de
 // reunião em quadrados, como os cartões do Alinhamento. As categorias são
-// uma lista só, igual para todos os professores. Por enquanto, clicar numa
-// categoria só a seleciona.
+// uma lista só, igual para todos os professores; cada quadrado abre a
+// página da categoria, com as reuniões do professor nela.
 
 const els = {};
 let professorId = null;
@@ -20,9 +21,6 @@ let abertura = 0;             // muda a cada abertura: descarta o que chegar de 
 let geracao = 0;              // muda ao sair: descarta categorias de uma carga antiga
 let cargaCategorias = null;   // carga em andamento (evita duas em paralelo)
 let podeCriar = false;
-let selecionadaId = null;
-let focoId = null;            // cartão que recebe o Tab (roving tabindex)
-let teclado = null;
 
 const ESTADOS = {
   naoEncontrado: {
@@ -61,7 +59,7 @@ function estadoSemCategorias() {
   };
 }
 
-export function iniciarProfessor({ aoVoltar }) {
+export function iniciarProfessor({ aoVoltar, aoAbrirCategoria }) {
   els.nome = document.getElementById('professor-nome');
   els.email = document.getElementById('professor-email');
   els.cursos = document.getElementById('professor-cursos');
@@ -74,19 +72,24 @@ export function iniciarProfessor({ aoVoltar }) {
   document.getElementById('btn-voltar').addEventListener('click', aoVoltar);
   els.novaCategoria.addEventListener('click', () => abrirNovaCategoria(professor?.nome));
 
+  // Cada quadrado é um link para a categoria. Clique simples abre aqui
+  // mesmo; Ctrl/⌘ ou o botão do meio abrem em outra aba, como qualquer link.
   els.grade.addEventListener('click', evento => {
     const cartao = evento.target.closest('.cartao[data-id]');
-    if (cartao) alternarSelecao(cartao.dataset.id);
+    if (!cartao || evento.button !== 0 || evento.metaKey || evento.ctrlKey || evento.shiftKey || evento.altKey) return;
+    evento.preventDefault();
+    aoAbrirCategoria(professorId, cartao.dataset.id);
   });
-  teclado = criarTecladoDaGrade({
+  const teclado = criarTecladoDaGrade({
     grade: els.grade,
     seletor: '.cartao[data-id]',
     nomeDe: cartao => normalizar(cartao.textContent),
   });
-  els.grade.addEventListener('keydown', aoTeclar);
-  els.grade.addEventListener('focusin', evento => {
-    const cartao = evento.target.closest('.cartao[data-id]');
-    if (cartao) marcarFoco(cartao);
+  els.grade.addEventListener('keydown', evento => {
+    const alvo = teclado.destino(evento);
+    if (!alvo) return;
+    alvo.focus({ preventScroll: true });
+    alvo.scrollIntoView({ block: 'nearest' });
   });
 
   els.estado.addEventListener('click', evento => {
@@ -102,9 +105,10 @@ export function iniciarProfessor({ aoVoltar }) {
 
 // Chamada a cada vez que a página aparece (clique na lista, Voltar/Avançar
 // do navegador ou endereço aberto direto). O foco vai para o nome, que o
-// leitor de tela anuncia como o título da página nova.
-export function abrirProfessor(id) {
-  return abrir(id, { focarTitulo: true });
+// leitor de tela anuncia como o título da página nova. Voltando de uma
+// categoria (deCategoria), o foco volta para o quadrado dela.
+export function abrirProfessor(id, { deCategoria = null } = {}) {
+  return abrir(id, { focarTitulo: true, deCategoria });
 }
 
 // Admin cria categorias, como quem cadastra professor no Sistema de Presença.
@@ -116,13 +120,11 @@ export function permitirNovaCategoria(permitido) {
   if (professor && state.categorias?.length === 0) mostrarEstado(estadoSemCategorias());
 }
 
-// Categoria recém-criada: entra no fim da lista, selecionada e com foco.
+// Categoria recém-criada: entra no fim da lista, com foco.
 export function adicionarCategoria(categoria) {
   state.categorias = [...(state.categorias ?? []), categoria];
-  selecionadaId = String(categoria.id);
-  focoId = selecionadaId;
   desenharCategorias();
-  const cartao = document.getElementById(`categoria-${selecionadaId}`);
+  const cartao = document.getElementById(`categoria-${categoria.id}`);
   if (!cartao) return;
   cartao.classList.add('cartao--novo');
   cartao.addEventListener('animationend', () => cartao.classList.remove('cartao--novo'), { once: true });
@@ -138,8 +140,6 @@ export function limparProfessor() {
   cargaCategorias = null;
   professorId = null;
   professor = null;
-  selecionadaId = null;
-  focoId = null;
   state.categorias = null;
   els.grade.innerHTML = '';
   els.estado.hidden = true;
@@ -150,12 +150,10 @@ export function limparProfessor() {
 
 // ---------- Dados ----------
 
-async function abrir(id, { focarTitulo = false } = {}) {
+async function abrir(id, { focarTitulo = false, deCategoria = null } = {}) {
   const minha = ++abertura;
   professorId = id;
   professor = null;
-  selecionadaId = null;
-  focoId = null;
   els.aviso.textContent = '';
   desenharCabecalho('carregando');
 
@@ -169,7 +167,9 @@ async function abrir(id, { focarTitulo = false } = {}) {
   if (minha !== abertura) return;
   professor = listaOk ? professorPorId(id) : null;
   desenharCabecalho(!listaOk ? 'erro' : professor ? 'pronto' : 'nao-encontrado');
-  if (focarTitulo) els.nome.focus({ preventScroll: true });
+  if (focarTitulo && !(professor && deCategoria && focarCategoria(deCategoria))) {
+    els.nome.focus({ preventScroll: true });
+  }
   if (!listaOk) return mostrarEstado(ESTADOS.erroProfessor, { semSecao: true });
   if (!professor) return mostrarEstado(ESTADOS.naoEncontrado, { semSecao: true });
 
@@ -183,8 +183,9 @@ async function abrir(id, { focarTitulo = false } = {}) {
   }
 }
 
-// Devolve { ok, mudou } ou { ok: false, erro }.
-function carregarCategorias() {
+// Devolve { ok, mudou } ou { ok: false, erro }. A página de uma categoria
+// também usa, quando é aberta direto pelo endereço.
+export function carregarCategorias() {
   if (!cargaCategorias) {
     const minhaGeracao = geracao;
     const promessa = buscarCategorias()
@@ -231,25 +232,30 @@ function desenharCategorias() {
   els.grade.removeAttribute('aria-busy');
   if (!lista.length) return mostrarEstado(estadoSemCategorias());
 
-  const focoNaGrade = els.grade.contains(document.activeElement);
+  // Redesenhar não tira o foco de quem estava num quadrado.
+  const focado = els.grade.contains(document.activeElement)
+    ? document.activeElement.closest('.cartao[data-id]')?.dataset.id
+    : null;
   els.estado.hidden = true;
   els.grade.hidden = false;
   els.grade.innerHTML = lista.map(cartaoHtml).join('');
-  ajustarTabulacao();
-  if (focoNaGrade) els.grade.querySelector('[tabindex="0"]')?.focus({ preventScroll: true });
+  if (focado) document.getElementById(`categoria-${focado}`)?.focus({ preventScroll: true });
 }
 
+// A seta (›) só aparece no celular, quando o quadrado vira uma linha: é o
+// indicador de "abre outra página" das listas do iOS.
 function cartaoHtml(categoria) {
   const id = String(categoria.id);
   return `
-    <div class="cartao cartao--categoria" role="option" id="categoria-${escapeHtml(id)}" data-id="${escapeHtml(id)}"
-         tabindex="-1" aria-selected="${id === selecionadaId}">
-      <span class="cartao__icone" aria-hidden="true"><svg class="icone"><use href="#${simboloDoIcone(categoria.icone)}"/></svg></span>
-      <span class="cartao__marcador" aria-hidden="true"><svg class="icone"><use href="#i-check"/></svg></span>
-      <div class="cartao__info">
-        <p class="cartao__nome">${escapeHtml(categoria.nome)}</p>
-      </div>
-    </div>`;
+    <li>
+      <a class="cartao" href="${escapeHtml(enderecoDaCategoria(professorId, id))}" id="categoria-${escapeHtml(id)}" data-id="${escapeHtml(id)}">
+        <span class="cartao__icone" aria-hidden="true"><svg class="icone"><use href="#${simboloDoIcone(categoria.icone)}"/></svg></span>
+        <svg class="icone cartao__seta" aria-hidden="true"><use href="#i-seta-direita"/></svg>
+        <div class="cartao__info">
+          <p class="cartao__nome">${escapeHtml(categoria.nome)}</p>
+        </div>
+      </a>
+    </li>`;
 }
 
 function mostrarEsqueleto() {
@@ -258,10 +264,12 @@ function mostrarEsqueleto() {
   els.grade.hidden = false;
   els.grade.setAttribute('aria-busy', 'true');
   els.grade.innerHTML = `
-    <div class="cartao cartao--esqueleto" aria-hidden="true">
-      <span class="cartao__icone"></span>
-      <div class="cartao__info"><span class="linha-esqueleto l1"></span></div>
-    </div>`.repeat(2);
+    <li aria-hidden="true">
+      <div class="cartao cartao--esqueleto">
+        <span class="cartao__icone"></span>
+        <div class="cartao__info"><span class="linha-esqueleto l1"></span></div>
+      </div>
+    </li>`.repeat(2);
 }
 
 // semSecao: o problema é com o professor, não com as categorias, então o
@@ -275,43 +283,13 @@ function mostrarEstado(estado, { semSecao = false } = {}) {
   els.estado.hidden = false;
 }
 
-// ---------- Seleção e teclado ----------
-
-function alternarSelecao(id) {
-  selecionadaId = selecionadaId === id ? null : id;
-  for (const cartao of els.grade.querySelectorAll('.cartao[data-id]')) {
-    cartao.setAttribute('aria-selected', String(cartao.dataset.id === selecionadaId));
-  }
-}
-
-function aoTeclar(evento) {
-  const alvo = teclado.destino(evento);
-  if (alvo) return focar(alvo);
-
-  const atual = evento.target.closest('.cartao[data-id]');
-  const semAtalho = !(evento.altKey || evento.ctrlKey || evento.metaKey || evento.shiftKey);
-  if (atual && semAtalho && (evento.key === 'Enter' || (evento.key === ' ' && !teclado.digitando()))) {
-    evento.preventDefault();
-    alternarSelecao(atual.dataset.id);
-  }
-}
-
-// Só um cartão fica no Tab: o último focado, senão o selecionado, senão o primeiro.
-function ajustarTabulacao() {
-  const cartoes = [...els.grade.querySelectorAll('.cartao[data-id]')];
-  const alvo = cartoes.find(c => c.dataset.id === focoId)
-    ?? cartoes.find(c => c.dataset.id === selecionadaId)
-    ?? cartoes[0];
-  for (const cartao of cartoes) cartao.tabIndex = cartao === alvo ? 0 : -1;
-}
-
-function marcarFoco(cartao) {
-  focoId = cartao.dataset.id;
-  for (const outro of els.grade.querySelectorAll('.cartao[data-id]')) outro.tabIndex = outro === cartao ? 0 : -1;
-}
-
-function focar(cartao) {
-  marcarFoco(cartao);
+// Ao voltar de uma categoria, o foco (e o olhar) volta para o quadrado de
+// onde a pessoa saiu, com o mesmo realce do Alinhamento.
+function focarCategoria(id) {
+  const cartao = document.getElementById(`categoria-${id}`);
+  if (!cartao) return false;
   cartao.focus({ preventScroll: true });
   cartao.scrollIntoView({ block: 'nearest' });
+  realcar(cartao);
+  return true;
 }

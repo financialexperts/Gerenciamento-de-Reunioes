@@ -1,8 +1,8 @@
 import { iniciais, movimentoReduzido } from '../../shared/dom.js';
 
 // Estrutura do aplicativo: barra lateral (mostrar/ocultar), troca entre as
-// telas (lista e página do professor), efeito de borda de rolagem no
-// cabeçalho e o menu da conta no canto superior direito.
+// telas (lista, página do professor e página de uma categoria), efeito de
+// borda de rolagem no cabeçalho e o menu da conta no canto superior direito.
 
 const app = document.getElementById('app');
 const barra = document.getElementById('barra-lateral');
@@ -86,8 +86,8 @@ export function esconderApp() {
 }
 
 // Mostra só os pedaços da tela pedida (cabeçalho e conteúdo têm
-// data-tela). A lista volta para a rolagem onde estava; a página de um
-// professor sempre abre no topo.
+// data-tela). A lista volta para a rolagem onde estava; as outras
+// páginas sempre abrem no topo.
 export function trocarTela(nome) {
   if (nome === telaAtual) return;
   if (telaAtual === 'alinhamento') rolagemDaLista = principal.scrollTop;

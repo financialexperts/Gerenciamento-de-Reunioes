@@ -1,0 +1,207 @@
+/* ============================================================
+   REUNIÕES — a página de uma categoria (as reuniões com o
+   professor: as próximas e as que já aconteceram) e a janela
+   "Nova reunião". O dia é o destaque: cada reunião tem uma folha
+   de calendário, como o ícone do Calendário — o mês em vermelho,
+   o dia grande e o dia da semana.
+   ============================================================ */
+
+/* ---------- Folha de calendário ---------- */
+
+.folha-data {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  flex: none;
+  width: 64px;
+  min-height: 76px;
+  padding: 8px 0;
+  border: 1px solid var(--contorno);
+  border-radius: 14px;
+  background: var(--superficie);
+  box-shadow: var(--sombra-cartao);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+.folha-data__mes,
+.folha-data__semana {
+  font: 600 0.6875rem/0.875rem var(--fonte);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.folha-data__mes { color: var(--calendario); }
+.folha-data__dia {
+  font: 700 1.75rem/2.125rem var(--fonte-titulo);
+  letter-spacing: -0.02em;
+  color: var(--rotulo);
+}
+.folha-data__semana { color: var(--rotulo-2); }
+
+/* Hoje: a folha inteira em vermelho, como o dia de hoje no Calendário */
+[data-hoje] > .folha-data {
+  border-color: var(--calendario);
+  background: var(--calendario);
+}
+[data-hoje] > .folha-data > span { color: #FFFFFF; }
+
+/* Já aconteceu: o mês perde o vermelho (o dia continua legível) */
+[data-situacao="passada"]:not([data-hoje]) .folha-data__mes { color: var(--rotulo-2); }
+
+/* ---------- Página da categoria: grupos e reuniões ---------- */
+
+.grupo-reunioes + .grupo-reunioes { margin-top: var(--e-8); }
+
+.grupo-reunioes__vazio {
+  padding: var(--e-4) var(--e-5);
+  border: 1px dashed var(--contorno-campo);
+  border-radius: var(--raio-cartao);
+  color: var(--rotulo-2);
+}
+
+.grade-reunioes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr));
+  gap: var(--e-4);
+}
+
+/* Uma reunião: a folha à esquerda, os detalhes à direita */
+.reuniao {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--e-4);
+  min-width: 0;
+  padding: var(--e-4);
+  border: 1px solid var(--contorno);
+  border-radius: var(--raio-cartao);
+  background: var(--superficie);
+  box-shadow: var(--sombra-cartao);
+}
+
+.reuniao__info {
+  display: grid;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+  padding-top: 2px;
+}
+
+.reuniao__topo {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--e-2);
+  margin-bottom: 2px;
+}
+.reuniao__dia {
+  font: var(--t-titulo-cartao);
+  letter-spacing: -0.018em;
+  text-wrap: balance;
+}
+
+/* "Em 6 dias", "Hoje", "Há 3 dias"; em andamento, "Agora" em verde */
+.reuniao__quando {
+  flex: none;
+  margin-top: 1px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--preenchimento);
+  font: var(--t-nota);
+  white-space: nowrap;
+}
+[data-situacao="agora"] .reuniao__quando {
+  background: var(--sucesso-suave);
+  color: var(--sucesso);
+}
+
+.reuniao__linha {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font: var(--t-chamada);
+  color: var(--rotulo-2);
+}
+.reuniao__linha .icone {
+  width: 16px;
+  height: 16px;
+  margin-top: 1px;
+  color: var(--rotulo-3);
+}
+.reuniao__linha > span { min-width: 0; overflow-wrap: anywhere; }
+.reuniao__linha--hora { color: var(--rotulo); font-weight: 500; font-variant-numeric: tabular-nums; }
+.reuniao__linha a { color: var(--link); text-decoration: none; }
+.reuniao__linha a:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+.reuniao__pauta {
+  margin-top: 4px;
+  padding-top: var(--e-2);
+  border-top: 1px solid var(--separador);
+  font: var(--t-chamada);
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+/* Reunião recém-criada: entra e fica azul-claro por um instante (as
+   animações entrar-cartao e realce são do cartoes.css) */
+.reuniao--nova { animation: entrar-cartao 420ms var(--mola) both, realce 1.4s ease-out; }
+
+/* Carregando: mesmo brilho do esqueleto dos cartões */
+.reuniao--esqueleto { overflow: hidden; box-shadow: none; }
+.reuniao--esqueleto .folha-data {
+  border-color: transparent;
+  background: var(--preenchimento-2);
+  box-shadow: none;
+}
+.reuniao--esqueleto .reuniao__info { gap: 10px; padding-top: var(--e-2); }
+.reuniao--esqueleto::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent 30%, rgb(255 255 255 / 0.55) 50%, transparent 70%);
+  background-size: 250% 100%;
+  animation: brilho 1.6s ease-in-out infinite;
+}
+
+@media (max-width: 519px) {
+  .reuniao { gap: var(--e-3); padding: var(--e-3); }
+  .folha-data { width: 56px; min-height: 68px; }
+  .folha-data__dia { font-size: 1.5rem; line-height: 1.875rem; }
+}
+
+/* ---------- Nova reunião: o dia em destaque no topo ----------
+   Acompanha os campos: a folha muda com o dia, e a linha de baixo diz
+   quando é ("Em 6 dias · 14:00 às 14:30" ou "Há 3 dias · já aconteceu"). */
+
+.dia-reuniao {
+  display: flex;
+  align-items: center;
+  gap: var(--e-4);
+  padding: var(--e-4);
+  border-radius: 16px;
+  background: var(--janela);
+}
+.dia-reuniao .folha-data { width: 80px; min-height: 92px; }
+.dia-reuniao .folha-data__dia { font-size: 2.375rem; line-height: 2.75rem; }
+.dia-reuniao[data-situacao="vazia"] .folha-data {
+  border: 1.5px dashed var(--contorno-campo);
+  box-shadow: none;
+}
+.dia-reuniao[data-situacao="vazia"] .folha-data__dia { color: var(--rotulo-3); }
+
+.dia-reuniao__texto { display: grid; gap: 2px; min-width: 0; }
+.dia-reuniao__semana { font: 600 0.8125rem/1.125rem var(--fonte); color: var(--rotulo-2); }
+.dia-reuniao__data { font: var(--t-titulo-2); letter-spacing: -0.012em; }
+.dia-reuniao__quando { font: var(--t-chamada); color: var(--rotulo-2); font-variant-numeric: tabular-nums; }
+[data-situacao="agora"] .dia-reuniao__quando { color: var(--sucesso); }
+
+@media (max-width: 519px) {
+  .dia-reuniao { gap: var(--e-3); padding: var(--e-3); }
+  .dia-reuniao .folha-data { width: 68px; min-height: 80px; }
+  .dia-reuniao .folha-data__dia { font-size: 2rem; line-height: 2.375rem; }
+  .dia-reuniao__data { font-size: 1.125rem; line-height: 1.5rem; }
+}
+
+@media (forced-colors: active) {
+  .folha-data, .reuniao, .dia-reuniao { border: 1px solid CanvasText; }
+  [data-hoje] > .folha-data { forced-color-adjust: none; }
+}

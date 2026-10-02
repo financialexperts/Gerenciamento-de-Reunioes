@@ -42,6 +42,11 @@
   --sucesso: #1E7B34;       /* 5,3:1 no branco · 4,9:1 no fundo de sucesso */
   --sucesso-suave: #EDF7EF;
 
+  /* Vermelho do ícone do Calendário: só nas datas das reuniões (mês da
+     folha de calendário e a folha de hoje). 5,4:1 no branco; branco
+     sobre ele 5,4:1. */
+  --calendario: #D70015;
+
   /* Cor de identidade por curso (cores do sistema da Apple), sempre ao
      lado do nome do curso. Elas usa o verde-água do próprio logo do curso,
      para não se confundir com o azul de ação. */

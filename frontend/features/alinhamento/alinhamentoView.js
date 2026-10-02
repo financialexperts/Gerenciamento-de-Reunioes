@@ -2,7 +2,7 @@ import { state } from '../../state/store.js';
 import { buscarProfessores } from '../../../backend/api/professoresRepo.js';
 import { buscarTurmas } from '../../../backend/api/turmasRepo.js';
 import { chaveCorCurso, compararTurmas, turmaAtiva } from '../../../backend/domain/turmas.js';
-import { escapeHtml, iniciais, listaPorExtenso, movimentoReduzido, normalizar } from '../../shared/dom.js';
+import { escapeHtml, iniciais, listaPorExtenso, movimentoReduzido, normalizar, realcar } from '../../shared/dom.js';
 import { estadoHtml } from '../../shared/estado.js';
 import { criarTecladoDaGrade } from '../../shared/grade.js';
 import { criarMenuFiltro } from '../../shared/menuFiltro.js';
@@ -480,12 +480,4 @@ function anunciarContagem(visiveis, filtrando) {
   avisoTimer = setTimeout(() => {
     els.aviso.textContent = filtrando && !visiveis ? 'Nenhum professor encontrado' : texto;
   }, 500);
-}
-
-// Realce azul-claro que se apaga sozinho (cartoes.css › .cartao--realce).
-function realcar(cartao) {
-  cartao.classList.remove('cartao--realce');
-  void cartao.offsetWidth; // recomeça a animação se já estava rodando
-  cartao.classList.add('cartao--realce');
-  cartao.addEventListener('animationend', () => cartao.classList.remove('cartao--realce'), { once: true });
 }
