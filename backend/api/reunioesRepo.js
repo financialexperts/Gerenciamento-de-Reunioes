@@ -17,6 +17,14 @@ export async function buscarReunioes(professorId, categoriaId) {
   return data ?? [];
 }
 
+// Uma reunião só (a página de anotações aberta pelo endereço). null = não
+// existe ou o RLS não deixa ver.
+export async function buscarReuniao(id) {
+  const { data, error } = await sb.from('reunioes').select(COLUNAS).eq('id', id).maybeSingle();
+  if (error) throw error;
+  return data;
+}
+
 // `criado_por` fica de fora: o banco preenche com quem está logado.
 export async function criarReuniao({ professor_id, categoria_id, inicio, duracao_min, formato, local, pauta }) {
   return sb

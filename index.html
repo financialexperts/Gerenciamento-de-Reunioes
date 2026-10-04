@@ -17,6 +17,7 @@
   <link rel="stylesheet" href="frontend/styles/alinhamento.css">
   <link rel="stylesheet" href="frontend/styles/professor.css">
   <link rel="stylesheet" href="frontend/styles/reunioes.css">
+  <link rel="stylesheet" href="frontend/styles/anotacoes.css">
 </head>
 <body>
 
@@ -105,6 +106,93 @@
     <symbol id="i-video" viewBox="0 0 20 20">
       <rect x="2.5" y="5.25" width="10.5" height="9.5" rx="2.25"/>
       <path d="m13 8.6 4.5-2.35v7.5L13 11.4"/>
+    </symbol>
+    <symbol id="i-documento" viewBox="0 0 20 20">
+      <path d="M5.75 2.75h5.5l4 4v9a1.5 1.5 0 0 1-1.5 1.5h-8a1.5 1.5 0 0 1-1.5-1.5v-11.5a1.5 1.5 0 0 1 1.5-1.5Z"/>
+      <path d="M11 2.75v4.25h4.25M7.25 10.5h5.5M7.25 13.5h3.5"/>
+    </symbol>
+
+    <!-- Anotações: salvamento e barra de formatação -->
+    <symbol id="i-nuvem-check" viewBox="0 0 20 20">
+      <path d="M6.25 15.75h7.75a3.5 3.5 0 0 0 .55-6.96 4.75 4.75 0 0 0-9.2-.6 3.75 3.75 0 0 0 .9 7.56Z"/>
+      <path d="m7.9 11.6 1.6 1.6 2.9-3.1"/>
+    </symbol>
+    <symbol id="i-nuvem-alerta" viewBox="0 0 20 20">
+      <path d="M6.25 15.75h7.75a3.5 3.5 0 0 0 .55-6.96 4.75 4.75 0 0 0-9.2-.6 3.75 3.75 0 0 0 .9 7.56Z"/>
+      <path d="M10 9.25v2.5"/>
+      <circle cx="10" cy="13.9" r="0.4" fill="currentColor"/>
+    </symbol>
+    <symbol id="i-sincronizar" viewBox="0 0 20 20">
+      <path d="M15.6 8.4A5.85 5.85 0 0 0 4.9 6.6M4.4 11.6a5.85 5.85 0 0 0 10.7 1.8"/>
+      <path d="M4.6 3.6v3.25h3.25M15.4 16.4v-3.25h-3.25"/>
+    </symbol>
+    <symbol id="i-desfazer" viewBox="0 0 20 20">
+      <path d="M7.75 4.75 4.5 8l3.25 3.25"/>
+      <path d="M4.75 8h7.5a4 4 0 0 1 0 8H9.5"/>
+    </symbol>
+    <symbol id="i-refazer" viewBox="0 0 20 20">
+      <path d="M12.25 4.75 15.5 8l-3.25 3.25"/>
+      <path d="M15.25 8h-7.5a4 4 0 0 0 0 8h2.75"/>
+    </symbol>
+    <symbol id="i-menos" viewBox="0 0 20 20">
+      <path d="M4.25 10h11.5"/>
+    </symbol>
+    <symbol id="i-chevron-baixo" viewBox="0 0 12 12">
+      <path d="m3 4.75 3 3 3-3"/>
+    </symbol>
+    <symbol id="i-marcador" viewBox="0 0 20 20">
+      <path d="m11.9 3.4 4.2 4.2-6.6 6.6H5.3v-4.2Z"/>
+      <path d="m9.6 5.7 4.2 4.2"/>
+    </symbol>
+    <symbol id="i-link" viewBox="0 0 20 20">
+      <path d="M8.6 11.4a3.1 3.1 0 0 0 4.4 0l2.7-2.7a3.1 3.1 0 0 0-4.4-4.4l-.95.95"/>
+      <path d="M11.4 8.6a3.1 3.1 0 0 0-4.4 0l-2.7 2.7a3.1 3.1 0 0 0 4.4 4.4l.95-.95"/>
+    </symbol>
+    <symbol id="i-abrir-externo" viewBox="0 0 20 20">
+      <path d="M11.75 3.75h4.5v4.5M16.25 3.75 9.5 10.5"/>
+      <path d="M14.25 11.5v3.25a1.5 1.5 0 0 1-1.5 1.5h-7.5a1.5 1.5 0 0 1-1.5-1.5v-7.5a1.5 1.5 0 0 1 1.5-1.5H8.5"/>
+    </symbol>
+    <symbol id="i-alinhar-left" viewBox="0 0 20 20">
+      <path d="M3.5 4.75h13M3.5 8.25h8.5M3.5 11.75h13M3.5 15.25h8.5"/>
+    </symbol>
+    <symbol id="i-alinhar-center" viewBox="0 0 20 20">
+      <path d="M3.5 4.75h13M5.75 8.25h8.5M3.5 11.75h13M5.75 15.25h8.5"/>
+    </symbol>
+    <symbol id="i-alinhar-right" viewBox="0 0 20 20">
+      <path d="M3.5 4.75h13M8 8.25h8.5M3.5 11.75h13M8 15.25h8.5"/>
+    </symbol>
+    <symbol id="i-alinhar-justify" viewBox="0 0 20 20">
+      <path d="M3.5 4.75h13M3.5 8.25h13M3.5 11.75h13M3.5 15.25h13"/>
+    </symbol>
+    <symbol id="i-lista-marcadores" viewBox="0 0 20 20">
+      <circle cx="4.4" cy="5.25" r="1.15" fill="currentColor" stroke="none"/>
+      <circle cx="4.4" cy="10" r="1.15" fill="currentColor" stroke="none"/>
+      <circle cx="4.4" cy="14.75" r="1.15" fill="currentColor" stroke="none"/>
+      <path d="M8 5.25h8.5M8 10h8.5M8 14.75h8.5"/>
+    </symbol>
+    <symbol id="i-lista-numeros" viewBox="0 0 20 20">
+      <path d="M8.5 5.25h8M8.5 10h8M8.5 14.75h8"/>
+      <path d="M3.4 4.1 4.6 3.4v4.1" style="stroke-width: 1.3"/>
+      <path d="M3.3 9c.2-.55.65-.85 1.2-.85.6 0 1.05.4 1.05.95 0 .95-2.2 1.45-2.2 2.75h2.3" style="stroke-width: 1.3"/>
+      <path d="M3.35 13.45c.25-.4.7-.6 1.15-.6.6 0 1 .35 1 .85s-.45.8-1.05.8c.65 0 1.15.35 1.15.95s-.5.95-1.15.95c-.5 0-.95-.2-1.2-.6" style="stroke-width: 1.3"/>
+    </symbol>
+    <symbol id="i-lista-tarefas" viewBox="0 0 20 20">
+      <rect x="2.75" y="3.25" width="4.5" height="4.5" rx="1.2"/>
+      <path d="m3.85 5.55 1 1 1.5-1.75" style="stroke-width: 1.4"/>
+      <rect x="2.75" y="12.25" width="4.5" height="4.5" rx="1.2"/>
+      <path d="M10 5.5h6.5M10 14.5h6.5"/>
+    </symbol>
+    <symbol id="i-recuo-mais" viewBox="0 0 20 20">
+      <path d="M3.5 4.25h13M9.5 8.25h7M9.5 11.75h7M3.5 15.75h13"/>
+      <path d="m3.75 7.5 2.5 2.5-2.5 2.5"/>
+    </symbol>
+    <symbol id="i-recuo-menos" viewBox="0 0 20 20">
+      <path d="M3.5 4.25h13M9.5 8.25h7M9.5 11.75h7M3.5 15.75h13"/>
+      <path d="M6.25 7.5 3.75 10l2.5 2.5"/>
+    </symbol>
+    <symbol id="i-limpar-formatacao" viewBox="0 0 20 20">
+      <path d="M4.5 4.25h9M9.75 4.25 7.25 15.75"/>
+      <path d="m12.25 11.75 4 4m0-4-4 4"/>
     </symbol>
 
     <!-- Ícones das categorias de reunião (chaves em features/categorias/icones.js) -->
@@ -340,12 +428,36 @@
           </button>
         </div>
 
+        <div class="cabecalho__tela" data-tela="anotacoes" hidden>
+          <button type="button" class="botao-icone botao-voltar" id="btn-voltar-categoria" aria-label="Voltar para as reuniões" title="Voltar para as reuniões">
+            <svg class="icone" aria-hidden="true"><use href="#i-voltar"/></svg>
+          </button>
+          <div class="cabecalho__titulos">
+            <h1 class="titulo-grande titulo-grande--uma-linha" id="titulo-anotacoes" tabindex="-1">Anotações</h1>
+            <p class="subtitulo subtitulo--uma-linha" id="subtitulo-anotacoes"></p>
+          </div>
+          <!-- Salvamento automático: "Salvo", "Salvando…" ou o problema -->
+          <div class="salvamento" id="salvamento" hidden>
+            <svg class="icone salvamento__icone" aria-hidden="true"><use href="#i-nuvem-check"/></svg>
+            <span class="salvamento__texto" id="salvamento-texto">Salvo</span>
+            <button type="button" class="salvamento__tentar" id="btn-tentar-salvar" title="Tentar salvar de novo" hidden>
+              <svg class="icone" aria-hidden="true"><use href="#i-sincronizar"/></svg>
+              <span class="salvamento__tentar-texto">Tentar de novo</span>
+            </button>
+          </div>
+        </div>
+
         <button type="button" class="botao-conta" id="btn-conta" popovertarget="menu-conta" aria-label="Conta" title="Conta">
           <span class="avatar" id="conta-avatar" aria-hidden="true"></span>
         </button>
       </div>
 
       <ul class="cabecalho__cursos" id="professor-cursos" data-tela="professor" role="list" aria-label="Cursos em que dá aula" hidden></ul>
+
+      <!-- Barra de formatação das anotações (no celular, presa acima do teclado) -->
+      <div class="cabecalho__ferramentas" data-tela="anotacoes" hidden>
+        <div class="ferramentas" id="ferramentas" role="toolbar" aria-label="Formatação do texto" aria-controls="editor-anotacoes"></div>
+      </div>
 
       <div class="cabecalho__controles" id="controles-alinhamento" data-tela="alinhamento" role="search" aria-label="Buscar e filtrar professores">
         <div class="busca">
@@ -395,6 +507,21 @@
       <div class="estado" id="estado-reunioes" hidden></div>
       <p class="vh" id="aviso-reunioes" aria-live="polite"></p>
     </section>
+
+    <!-- Anotações de uma reunião: uma folha em branco, como no Google Docs -->
+    <section class="conteudo conteudo--anotacoes" data-tela="anotacoes" aria-labelledby="titulo-anotacoes" hidden>
+      <div class="folha" id="folha-anotacoes">
+        <div class="folha__esqueleto" id="esqueleto-anotacoes" aria-hidden="true">
+          <span class="linha-esqueleto l1"></span>
+          <span class="linha-esqueleto l2"></span>
+          <span class="linha-esqueleto l2"></span>
+          <span class="linha-esqueleto"></span>
+        </div>
+        <div class="editor" id="editor-anotacoes" role="textbox" aria-multiline="true" aria-label="Anotações da reunião" spellcheck="true" lang="pt-BR" autocapitalize="sentences" translate="no" data-placeholder="Escreva as anotações da reunião…" hidden></div>
+      </div>
+      <div class="estado" id="estado-anotacoes" hidden></div>
+      <p class="vh" id="aviso-anotacoes" aria-live="polite"></p>
+    </section>
   </main>
 
   <div class="menu-conta" id="menu-conta" popover>
@@ -411,6 +538,9 @@
       Sair
     </button>
   </div>
+
+  <!-- Menus da barra de formatação (estilo, fonte, tamanho, cores, alinhamento, link) -->
+  <div id="menus-formatacao"></div>
 
   <!-- Novo professor: mesma tabela e mesmo login do Sistema de Presença -->
   <dialog class="dialogo" id="dialogo-novo-professor" aria-labelledby="novo-professor-titulo">

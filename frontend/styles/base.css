@@ -201,6 +201,25 @@ textarea.entrada {
   gap: var(--e-3);
 }
 
+/* Celular e tablet: texto dos campos em 16 px. Menor que isso, o iPhone
+   dá zoom na página ao tocar no campo (e ela parece "quebrada"). */
+@media (max-width: 599px), (pointer: coarse) {
+  .entrada, .busca__campo { font-size: 1rem; }
+}
+
+/* iPhone/iPad: os campos de dia e hora do Safari têm largura mínima
+   própria e vazam da coluna; sem a aparência nativa, obedecem. */
+@supports (-webkit-touch-callout: none) {
+  .entrada[type="date"],
+  .entrada[type="time"] {
+    -webkit-appearance: none;
+    appearance: none;
+    min-width: 0;
+    text-align: left;
+  }
+  .entrada::-webkit-date-and-time-value { text-align: left; }
+}
+
 /* Campo de senha com o botão mostrar/ocultar dentro, à direita */
 .campo-senha { position: relative; }
 .campo-senha .entrada { padding-right: 48px; }
@@ -302,12 +321,52 @@ textarea.entrada {
 .dialogo__acoes .botao-primario,
 .dialogo__acoes .botao-secundario { min-height: 40px; padding: 0 var(--e-5); }
 
+/* Celular: a janela vira uma folha que sobe do pé da tela (como as
+   folhas do iOS), na largura toda. Os botões ficam presos no rodapé
+   dela, sempre à vista enquanto o formulário rola. */
+@media (max-width: 599px) {
+  .dialogo,
+  .dialogo--largo {
+    width: 100%;
+    max-width: 100%;
+    max-height: calc(100dvh - max(12px, env(safe-area-inset-top)));
+    margin: auto 0 0;
+    border-width: 1px 0 0;
+    border-radius: 22px 22px 0 0;
+    overscroll-behavior: contain;
+  }
+  .dialogo[open] { animation: subir-folha 420ms var(--mola); }
+  .dialogo__corpo { gap: 14px; padding: 22px var(--margem) 0; }
+  .dialogo__titulo { font-size: 1.1875rem; line-height: 1.5rem; }
+  .dialogo__acoes {
+    position: sticky;
+    bottom: 0;
+    z-index: 1;
+    margin: 2px calc(-1 * var(--margem)) 0;
+    padding: 12px var(--margem) calc(12px + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--separador);
+    background: var(--superficie);
+  }
+  .dialogo__acoes .botao-primario,
+  .dialogo__acoes .botao-secundario { flex: 1; min-height: 46px; }
+  /* Dia na linha de cima, inteiro; início e duração lado a lado embaixo */
+  .campos-linha { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .campos-linha > :first-child:nth-last-child(3) { grid-column: 1 / -1; }
+  .dialogo__concluido { padding-top: 28px; }
+}
+@keyframes subir-folha {
+  from { transform: translateY(100%); }
+}
+
 .dialogo__concluido { justify-items: center; text-align: center; }
 .dialogo__concluido > .icone { width: 48px; height: 48px; color: var(--sucesso); stroke-width: 1.5; }
 .dialogo__concluido p { color: var(--rotulo-2); text-wrap: pretty; }
 .dialogo__concluido strong { color: var(--rotulo); font-weight: 600; }
 .dialogo__concluido .dialogo__acoes { width: 100%; }
 .dialogo__concluido .dialogo__acoes .botao-primario { flex: 1; }
+@media (max-width: 599px) {
+  .dialogo__concluido .dialogo__acoes { width: auto; justify-self: stretch; }
+}
 
 /* Dados de acesso para repassar ao professor (selecionáveis de uma vez) */
 .credenciais {

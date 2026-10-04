@@ -3,7 +3,8 @@
    professor: as próximas e as que já aconteceram) e a janela
    "Nova reunião". O dia é o destaque: cada reunião tem uma folha
    de calendário, como o ícone do Calendário — o mês em vermelho,
-   o dia grande e o dia da semana.
+   o dia grande e o dia da semana. Para admin, o cartão abre as
+   anotações da reunião (anotacoes.css).
    ============================================================ */
 
 /* ---------- Folha de calendário ---------- */
@@ -140,6 +141,70 @@
   white-space: pre-line;
   overflow-wrap: anywhere;
 }
+
+/* Reunião que abre as anotações (admin): o link do dia se estica por
+   cima do cartão inteiro; o link da chamada continua clicável por cima. */
+.reuniao--abre {
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: box-shadow var(--rapido) ease, transform var(--rapido) ease;
+}
+.reuniao--abre:hover { box-shadow: var(--sombra-cartao-hover); }
+.reuniao--abre:has(.reuniao__abrir:active) { transform: scale(0.985); }
+.reuniao__abrir { color: inherit; text-decoration: none; }
+.reuniao__abrir::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: var(--raio-cartao);
+}
+.reuniao__abrir:focus-visible { outline: none; }
+.reuniao__abrir:focus-visible::after { outline: 2px solid var(--anel-foco); outline-offset: 3px; }
+.reuniao__linha a { position: relative; z-index: 1; }
+
+/* Começo das anotações, ou o convite para escrever */
+.reuniao__anotacoes {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin-top: 4px;
+  padding-top: var(--e-2);
+  border-top: 1px solid var(--separador);
+  font: var(--t-chamada);
+  color: var(--rotulo);
+}
+.reuniao__anotacoes .icone {
+  width: 16px;
+  height: 16px;
+  margin-top: 1px;
+  color: var(--rotulo-3);
+}
+.reuniao__anotacoes-texto {
+  flex: 1;
+  min-width: 0;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+.reuniao__anotacoes--com-texto .icone:first-child { color: var(--acento); }
+.reuniao__anotacoes--vazia,
+.reuniao__anotacoes--sem-resumo { color: var(--link); font-weight: 500; }
+.reuniao__anotacoes--vazia .icone:first-child,
+.reuniao__anotacoes--sem-resumo .icone:first-child { color: var(--link); }
+.reuniao__anotacoes .reuniao__seta {
+  flex: none;
+  align-self: center;
+  width: 14px;
+  height: 14px;
+  margin: 0 -2px 0 0;
+  stroke-width: 2.2;
+  transition: translate var(--rapido) ease;
+}
+.reuniao--abre:hover .reuniao__seta { translate: 2px 0; }
 
 /* Reunião recém-criada: entra e fica azul-claro por um instante (as
    animações entrar-cartao e realce são do cartoes.css) */

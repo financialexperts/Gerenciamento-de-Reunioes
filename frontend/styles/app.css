@@ -14,11 +14,16 @@
 .app.entrando { animation: surgir 280ms ease both; }
 @keyframes surgir { from { opacity: 0; } }
 
-/* ---------- Barra lateral ---------- */
+/* ---------- Barra lateral ----------
+   Ao ocultar, a coluna encolhe e a barra desliza para fora inteira, na
+   mesma curva e no mesmo tempo: a borda direita dela acompanha o
+   conteúdo, sem nunca ser espremida (largura fixa) — só transform, que
+   a placa de vídeo anima sem recalcular a página. */
 
 .barra-lateral {
   display: flex;
   flex-direction: column;
+  width: calc(var(--largura-barra) - 10px);
   min-width: 0;
   margin: 10px 0 10px 10px;
   padding: var(--e-4) var(--e-3);
@@ -26,9 +31,8 @@
   border: 1px solid var(--vidro-contorno);
   border-radius: var(--raio-painel);
   background: var(--vidro-forte);
-  -webkit-backdrop-filter: var(--vidro-desfoque);
-  backdrop-filter: var(--vidro-desfoque);
   box-shadow: var(--vidro-brilho), var(--sombra-painel);
+  transition: transform var(--medio) var(--mola), visibility 0s;
 }
 
 .barra-lateral__marca {
@@ -65,11 +69,13 @@
 }
 .menu__item[aria-current] .icone { color: var(--acento); }
 
-/* Barra oculta pelo botão (janela larga): a coluna encolhe */
+/* Barra oculta pelo botão (janela larga): a coluna encolhe e a barra sai
+   pela esquerda; some de vez (visibility) só no fim do deslize. */
 .app[data-barra-oculta] { grid-template-columns: 0 minmax(0, 1fr); }
 .app[data-barra-oculta] .barra-lateral {
   visibility: hidden;
-  transition: visibility 0s var(--medio);
+  transform: translateX(calc(-100% - 10px));
+  transition: transform var(--medio) var(--mola), visibility 0s var(--medio);
 }
 
 /* Véu atrás da barra em janelas estreitas */
@@ -91,6 +97,9 @@
     z-index: 40;
     width: min(18rem, calc(100vw - 56px));
     margin: 0;
+    /* Aqui ela fica por cima do conteúdo: o vidro desfoca o que passa atrás */
+    -webkit-backdrop-filter: var(--vidro-desfoque);
+    backdrop-filter: var(--vidro-desfoque);
     visibility: hidden;
     transform: translateX(calc(-100% - 20px));
     transition: transform var(--medio) var(--mola), visibility 0s var(--medio);
@@ -131,6 +140,9 @@
   z-index: 10;
   isolation: isolate;
   display: grid;
+  /* A coluna pode encolher: título ou subtítulo longo corta com "…"
+     em vez de alargar a página (no celular, empurrava a conta para fora). */
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--e-4);
   padding: var(--e-4) var(--margem) var(--e-5);
 }

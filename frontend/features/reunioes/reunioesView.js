@@ -1,9 +1,11 @@
 import { state } from '../../state/store.js';
 import { buscarReunioes, faltaTabelaDeReunioes } from '../../../backend/api/reunioesRepo.js';
+import { buscarResumos } from '../../../backend/api/anotacoesRepo.js';
 import { fimDaReuniao, linkDaChamada, separarReunioes, situacaoDaReuniao } from '../../../backend/domain/reunioes.js';
-import { escapeHtml, movimentoReduzido } from '../../shared/dom.js';
+import { escapeHtml, esperar, movimentoReduzido, realcar } from '../../shared/dom.js';
 import { estadoHtml } from '../../shared/estado.js';
 import { carregarAlinhamento, esperarAlinhamento, professorPorId } from '../alinhamento/alinhamentoView.js';
+import { enderecoDaReuniao } from '../app/rotas.js';
 import { carregarCategorias } from '../professores/professorView.js';
 import { abrirNovaReuniao } from './novaReuniao.js';
 import { diaDaSemana, diaPorExtenso, diasAte, duracaoPorExtenso, folhaDaData, hora, quandoPorExtenso } from './datas.js';
@@ -11,7 +13,8 @@ import { diaDaSemana, diaPorExtenso, diasAte, duracaoPorExtenso, folhaDaData, ho
 // Página de uma categoria de um professor ("?professor=<id>&categoria=<id>"):
 // as reuniões dele nessa categoria, cada uma com o dia em destaque numa
 // folha de calendário — primeiro as próximas, depois as que já aconteceram.
-// Admin cria reuniões em "Nova reunião".
+// Admin cria reuniões em "Nova reunião" e, clicando numa reunião, abre a
+// página de anotações dela (o cartão mostra o começo do que foi anotado).
 
 const els = {};
 let professorId = null;
@@ -19,8 +22,10 @@ let categoriaId = null;
 let professor = null;   // item da lista de professores (nome, e-mail)
 let categoria = null;   // { id, nome, icone }
 let reunioes = null;    // null = ainda não chegaram (ou não deu para carregar)
+let resumos = null;     // Map id da reunião → começo das anotações; null = não deu para saber
 let abertura = 0;       // muda a cada abertura: descarta o que chegar de uma anterior
 let podeCriar = false;
+let podeAnotar = false;
 
 const ESTADOS = {
   professorNaoEncontrado: {
@@ -66,7 +71,7 @@ function estadoSemReunioes() {
   };
 }
 
-export function iniciarReunioes({ aoVoltar, aoVoltarParaLista }) {
+export function iniciarReunioes({ aoVoltar, aoVoltarParaLista, aoAbrirReuniao }) {
   els.titulo = document.getElementById('titulo-categoria');
   els.subtitulo = document.getElementById('subtitulo-categoria');
   els.voltar = document.getElementById('btn-voltar-professor');
@@ -77,6 +82,14 @@ export function iniciarReunioes({ aoVoltar, aoVoltarParaLista }) {
 
   els.voltar.addEventListener('click', aoVoltar);
   els.novaReuniao.addEventListener('click', abrirDialogo);
+  // O cartão de cada reunião é um link para as anotações dela. Clique
+  // simples abre aqui mesmo; Ctrl/⌘ ou o botão do meio abrem em outra aba.
+  els.lista.addEventListener('click', evento => {
+    const link = evento.target.closest('.reuniao__abrir');
+    if (!link || evento.button !== 0 || evento.metaKey || evento.ctrlKey || evento.shiftKey || evento.altKey) return;
+    evento.preventDefault();
+    aoAbrirReuniao(professorId, categoriaId, link.dataset.id);
+  });
   els.estado.addEventListener('click', evento => {
     const acao = evento.target.closest('[data-acao]')?.dataset.acao;
     if (acao === 'voltar') aoVoltar();
@@ -93,8 +106,10 @@ export function iniciarReunioes({ aoVoltar, aoVoltarParaLista }) {
 // Chamada a cada vez que a página aparece (clique numa categoria,
 // Voltar/Avançar do navegador ou endereço aberto direto). O foco vai para o
 // nome da categoria, que o leitor de tela anuncia como o título da página.
-export function abrirReunioes(idProfessor, idCategoria) {
-  return abrir(idProfessor, idCategoria, { focarTitulo: true });
+// Voltando das anotações (deReuniao), o foco volta para aquela reunião, e
+// o resumo espera o salvamento delas (salvando) para já vir atualizado.
+export function abrirReunioes(idProfessor, idCategoria, { deReuniao = null, salvando = null } = {}) {
+  return abrir(idProfessor, idCategoria, { focarTitulo: true, deReuniao, salvando });
 }
 
 // Criar reunião é coisa de admin, como criar categoria.
@@ -103,6 +118,13 @@ export function permitirNovaReuniao(permitido) {
   atualizarBotao();
   // O texto da tela vazia depende de quem pode criar.
   if (reunioes?.length === 0) mostrarEstado(estadoSemReunioes());
+}
+
+// Anotações também: só admin vê o resumo e abre a página delas.
+export function permitirAnotacoes(permitido) {
+  if (podeAnotar === permitido) return;
+  podeAnotar = permitido;
+  if (reunioes?.length) desenharReunioes();
 }
 
 // Reunião recém-criada: entra no grupo certo (próximas ou já aconteceram),
@@ -135,6 +157,7 @@ export function limparReunioes() {
   professor = null;
   categoria = null;
   reunioes = null;
+  resumos = null;
   els.lista.innerHTML = '';
   els.estado.hidden = true;
   els.aviso.textContent = '';
@@ -143,12 +166,13 @@ export function limparReunioes() {
 
 // ---------- Dados ----------
 
-async function abrir(idProfessor, idCategoria, { focarTitulo = false } = {}) {
+async function abrir(idProfessor, idCategoria, { focarTitulo = false, deReuniao = null, salvando = null } = {}) {
   const minha = ++abertura;
   professorId = idProfessor;
   categoriaId = idCategoria;
   professor = null;
   reunioes = null;
+  resumos = null;
   // Com as categorias na memória (vindo da página do professor), o nome
   // aparece na hora.
   categoria = acharCategoria();
@@ -160,6 +184,14 @@ async function abrir(idProfessor, idCategoria, { focarTitulo = false } = {}) {
   // antes de mostrar as reuniões.
   const cargaReunioes = buscarReunioes(idProfessor, idCategoria)
     .then(lista => ({ ok: true, lista }), erro => ({ ok: false, erro }));
+  // O resumo das anotações é um extra: se não vier (tabela ainda não
+  // criada, sem conexão), os cartões só não mostram o começo do texto.
+  const cargaResumos = Promise.race([salvando, esperar(3000)])
+    .then(() => buscarResumos(idProfessor, idCategoria))
+    .catch(erro => {
+      console.warn('Resumo das anotações indisponível:', erro);
+      return null;
+    });
   const cargaCategorias = state.categorias ? null : carregarCategorias();
 
   const listaOk = await esperarAlinhamento();
@@ -181,9 +213,23 @@ async function abrir(idProfessor, idCategoria, { focarTitulo = false } = {}) {
     console.error('Erro ao carregar as reuniões:', resultado.erro);
     return mostrarEstado(faltaTabelaDeReunioes(resultado.erro) ? ESTADOS.semTabela : ESTADOS.erroReunioes);
   }
+  const listaDeResumos = await cargaResumos;
+  if (minha !== abertura) return;
   reunioes = resultado.lista;
+  resumos = listaDeResumos;
   atualizarBotao();
   desenharReunioes();
+  if (deReuniao) focarReuniao(deReuniao);
+}
+
+// Ao voltar das anotações, o foco (e o olhar) volta para a reunião de onde
+// a pessoa saiu, com o mesmo realce das outras grades.
+function focarReuniao(id) {
+  const item = document.getElementById(`reuniao-${id}`);
+  if (!item) return;
+  item.querySelector('.reuniao__abrir')?.focus({ preventScroll: true });
+  item.scrollIntoView({ block: 'nearest' });
+  realcar(item);
 }
 
 function acharCategoria() {
@@ -268,13 +314,17 @@ function reuniaoHtml(reuniao, agora) {
   const dia = `${diaDaSemana(inicio)}, ${diaPorExtenso(inicio, { agora })}`;
   const horario = `${hora(inicio)} às ${hora(fimDaReuniao(reuniao))} · ${duracaoPorExtenso(reuniao.duracao_min)}`;
   const online = reuniao.formato === 'online';
+  // Para admin, o dia é o link das anotações e cobre o cartão inteiro.
+  const titulo = podeAnotar
+    ? `<a class="reuniao__abrir" href="${escapeHtml(enderecoDaReuniao(professorId, categoriaId, reuniao.id))}" data-id="${escapeHtml(reuniao.id)}">${escapeHtml(dia)}<span class="vh">: anotações</span></a>`
+    : escapeHtml(dia);
 
   return `
-    <li class="reuniao" id="reuniao-${escapeHtml(reuniao.id)}" data-situacao="${situacao}"${hoje ? ' data-hoje' : ''}>
+    <li class="reuniao${podeAnotar ? ' reuniao--abre' : ''}" id="reuniao-${escapeHtml(reuniao.id)}" data-situacao="${situacao}"${hoje ? ' data-hoje' : ''}>
       ${folhaHtml(inicio)}
       <div class="reuniao__info">
         <div class="reuniao__topo">
-          <h3 class="reuniao__dia">${escapeHtml(dia)}</h3>
+          <h3 class="reuniao__dia">${titulo}</h3>
           <span class="reuniao__quando">${escapeHtml(quando)}</span>
         </div>
         <p class="reuniao__linha reuniao__linha--hora">
@@ -286,8 +336,23 @@ function reuniaoHtml(reuniao, agora) {
           <span>${online ? 'Online' : 'Presencial'}${localHtml(reuniao.local, online)}</span>
         </p>
         ${reuniao.pauta ? `<p class="reuniao__pauta">${escapeHtml(reuniao.pauta)}</p>` : ''}
+        ${podeAnotar ? anotacoesHtml(reuniao) : ''}
       </div>
     </li>`;
+}
+
+// O começo das anotações (uma linha por parágrafo, até duas) ou o convite
+// para escrever; a seta é o "abre outra página" das listas do iOS.
+function anotacoesHtml(reuniao) {
+  const resumo = resumos?.get(String(reuniao.id))?.trim();
+  const tipo = resumo ? 'com-texto' : resumos ? 'vazia' : 'sem-resumo';
+  const texto = resumo || (resumos ? 'Escrever anotações' : 'Anotações');
+  return `
+        <p class="reuniao__anotacoes reuniao__anotacoes--${tipo}">
+          <svg class="icone" aria-hidden="true"><use href="#i-documento"/></svg>
+          <span class="reuniao__anotacoes-texto">${escapeHtml(texto)}</span>
+          <svg class="icone reuniao__seta" aria-hidden="true"><use href="#i-seta-direita"/></svg>
+        </p>`;
 }
 
 // A folha de calendário: mês em vermelho, o dia grande e o dia da semana.

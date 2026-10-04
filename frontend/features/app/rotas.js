@@ -1,8 +1,10 @@
 // Endereço de cada tela. A lista de professores é a página inicial, a
-// página de um professor é "?professor=<id>" e a de uma categoria dele,
-// "?professor=<id>&categoria=<id>": o Voltar do navegador, recarregar a
-// página e abrir em outra aba funcionam como num site comum. É parâmetro de
-// busca, não "#", porque o "#" é do link de redefinição de senha do Supabase.
+// página de um professor é "?professor=<id>", a de uma categoria dele,
+// "?professor=<id>&categoria=<id>", e as anotações de uma reunião,
+// "?professor=<id>&categoria=<id>&reuniao=<id>": o Voltar do navegador,
+// recarregar a página e abrir em outra aba funcionam como num site comum. É
+// parâmetro de busca, não "#", porque o "#" é do link de redefinição de
+// senha do Supabase.
 
 let aoMudar = () => {};
 
@@ -15,6 +17,8 @@ export function rotaAtual() {
   const parametros = new URLSearchParams(location.search);
   const professorId = parametros.get('professor');
   const categoriaId = parametros.get('categoria');
+  const reuniaoId = parametros.get('reuniao');
+  if (professorId && categoriaId && reuniaoId) return { tela: 'anotacoes', professorId, categoriaId, reuniaoId };
   if (professorId && categoriaId) return { tela: 'categoria', professorId, categoriaId };
   return professorId ? { tela: 'professor', professorId } : { tela: 'alinhamento' };
 }
@@ -25,6 +29,10 @@ export function enderecoDoProfessor(id) {
 
 export function enderecoDaCategoria(professorId, categoriaId) {
   return `${enderecoDoProfessor(professorId)}&categoria=${encodeURIComponent(categoriaId)}`;
+}
+
+export function enderecoDaReuniao(professorId, categoriaId, reuniaoId) {
+  return `${enderecoDaCategoria(professorId, categoriaId)}&reuniao=${encodeURIComponent(reuniaoId)}`;
 }
 
 export function irParaProfessor(id) {
@@ -40,13 +48,20 @@ export function irParaCategoria(professorId, categoriaId) {
   aoMudar(rotaAtual());
 }
 
+// As anotações continuam o caminho da categoria de onde vieram.
+export function irParaReuniao(professorId, categoriaId, reuniaoId) {
+  const { daProfessor = false, daLista = false } = history.state ?? {};
+  history.pushState({ daCategoria: true, daProfessor, daLista }, '', enderecoDaReuniao(professorId, categoriaId, reuniaoId));
+  aoMudar(rotaAtual());
+}
+
 // Quem veio da lista volta pelo histórico, então o Voltar do app e o do
 // navegador levam ao mesmo lugar. Quem abriu o link direto vai para a
 // lista sem sair do sistema.
 export function voltarParaLista() {
-  const { daLista, daProfessor } = history.state ?? {};
+  const { daLista, daProfessor, daCategoria } = history.state ?? {};
   if (daLista) {
-    history.go(daProfessor ? -2 : -1);
+    history.go(-1 - Number(Boolean(daProfessor)) - Number(Boolean(daCategoria)));
     return;
   }
   history.replaceState(null, '', location.pathname);
@@ -60,6 +75,17 @@ export function voltarParaProfessor() {
     return;
   }
   history.replaceState(null, '', enderecoDoProfessor(rotaAtual().professorId));
+  aoMudar(rotaAtual());
+}
+
+// E das anotações para a categoria.
+export function voltarParaCategoria() {
+  if (history.state?.daCategoria) {
+    history.back();
+    return;
+  }
+  const { professorId, categoriaId } = rotaAtual();
+  history.replaceState(null, '', enderecoDaCategoria(professorId, categoriaId));
   aoMudar(rotaAtual());
 }
 

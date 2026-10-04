@@ -1,26 +1,44 @@
 import { state } from './state/store.js';
+import { esperar } from './shared/dom.js';
 import { iniciarAutenticacao, sair } from './features/auth/auth.js';
 import { atualizarConta, esconderApp, iniciarShell, mostrarApp, trocarTela } from './features/app/shell.js';
 import {
-  iniciarRotas, irParaCategoria, irParaProfessor, limparRota, rotaAtual, voltarParaLista, voltarParaProfessor,
+  iniciarRotas, irParaCategoria, irParaProfessor, irParaReuniao, limparRota, rotaAtual, voltarParaCategoria, voltarParaLista,
+  voltarParaProfessor,
 } from './features/app/rotas.js';
 import { adicionarProfessor, carregarAlinhamento, focarProfessor, iniciarAlinhamento, limparAlinhamento } from './features/alinhamento/alinhamentoView.js';
 import { abrirProfessor, adicionarCategoria, iniciarProfessor, limparProfessor, permitirNovaCategoria } from './features/professores/professorView.js';
 import { iniciarNovoProfessor, permitirCadastro } from './features/professores/novoProfessor.js';
 import { iniciarNovaCategoria } from './features/categorias/novaCategoria.js';
-import { abrirReunioes, adicionarReuniao, iniciarReunioes, limparReunioes, permitirNovaReuniao } from './features/reunioes/reunioesView.js';
+import {
+  abrirReunioes, adicionarReuniao, iniciarReunioes, limparReunioes, permitirAnotacoes, permitirNovaReuniao,
+} from './features/reunioes/reunioesView.js';
 import { fecharNovaReuniao, iniciarNovaReuniao } from './features/reunioes/novaReuniao.js';
+import {
+  abrirAnotacoes, iniciarAnotacoes, limparAnotacoes, sairDasAnotacoes, salvarAnotacoesPendentes,
+} from './features/anotacoes/anotacoesView.js';
 
 // Ponto de partida: liga as telas, decide pela sessão entre o login e o
 // aplicativo e, dentro dele, mostra a tela do endereço (lista de
-// professores, a página de um professor ou a de uma categoria dele).
+// professores, a página de um professor, a de uma categoria dele ou as
+// anotações de uma reunião).
 
 let rotaMostrada = null;
 
-iniciarShell({ aoSair: sair, aoAbrirAlinhamento: voltarParaLista });
+// Antes de sair da conta, as anotações que faltam são salvas (sem prender
+// a saída por mais de alguns segundos se a internet caiu: o rascunho fica
+// no aparelho).
+iniciarShell({
+  async aoSair() {
+    await Promise.race([salvarAnotacoesPendentes(), esperar(4000)]);
+    sair();
+  },
+  aoAbrirAlinhamento: voltarParaLista,
+});
 iniciarAlinhamento({ aoAbrirProfessor: irParaProfessor });
 iniciarProfessor({ aoVoltar: voltarParaLista, aoAbrirCategoria: irParaCategoria });
-iniciarReunioes({ aoVoltar: voltarParaProfessor, aoVoltarParaLista: voltarParaLista });
+iniciarReunioes({ aoVoltar: voltarParaProfessor, aoVoltarParaLista: voltarParaLista, aoAbrirReuniao: irParaReuniao });
+iniciarAnotacoes({ aoVoltar: voltarParaCategoria });
 iniciarNovoProfessor({ aoCadastrar: adicionarProfessor });
 iniciarNovaCategoria({ aoCriar: adicionarCategoria });
 iniciarNovaReuniao({ aoCriar: adicionarReuniao });
@@ -40,22 +58,25 @@ iniciarAutenticacao({
     if (state.usuario?.id !== usuario.id) return; // saiu enquanto carregava
     state.perfil = state.professores.find(p => p.user_id === usuario.id) ?? null;
     atualizarConta({ nome: state.perfil?.nome?.trim() || null, email: usuario.email });
-    // Cadastrar professor e criar categoria ou reunião é coisa de admin,
-    // como no Sistema de Presença.
+    // Cadastrar professor, criar categoria ou reunião e fazer anotações é
+    // coisa de admin, como no Sistema de Presença.
     const admin = state.perfil?.papel === 'admin';
     permitirCadastro(admin);
     permitirNovaCategoria(admin);
     permitirNovaReuniao(admin);
+    permitirAnotacoes(admin);
   },
   aoSair() {
     permitirCadastro(false);
     permitirNovaCategoria(false);
     permitirNovaReuniao(false);
+    permitirAnotacoes(false);
     state.usuario = null;
     state.perfil = null;
     limparAlinhamento();
     limparProfessor();
     limparReunioes();
+    limparAnotacoes();
     limparRota();
     rotaMostrada = null;
     document.title = 'Gestão de Reuniões';
@@ -63,18 +84,27 @@ iniciarAutenticacao({
   },
 });
 
-// Mostra a tela do endereço atual. Roda ao entrar, ao clicar num professor
-// ou numa categoria e no Voltar/Avançar do navegador.
+// Mostra a tela do endereço atual. Roda ao entrar, ao clicar num
+// professor, numa categoria ou numa reunião e no Voltar/Avançar do
+// navegador.
 function mostrarRota(rota) {
   if (!state.usuario) return; // na tela de login o endereço espera o login
   const anterior = rotaMostrada;
   rotaMostrada = rota;
   // Voltar do navegador com a janela aberta: ela não fica sobre outra tela.
   fecharNovaReuniao();
+  // Saindo das anotações, o que falta é salvo na hora.
+  const salvando = anterior?.tela === 'anotacoes' ? sairDasAnotacoes() : null;
   trocarTela(rota.tela);
 
+  if (rota.tela === 'anotacoes') {
+    abrirAnotacoes(rota);
+    return;
+  }
   if (rota.tela === 'categoria') {
-    abrirReunioes(rota.professorId, rota.categoriaId);
+    const voltandoDaReuniao = anterior?.tela === 'anotacoes'
+      && anterior.professorId === rota.professorId && anterior.categoriaId === rota.categoriaId;
+    abrirReunioes(rota.professorId, rota.categoriaId, { deReuniao: voltandoDaReuniao ? anterior.reuniaoId : null, salvando });
     return;
   }
   if (rota.tela === 'professor') {
@@ -83,5 +113,5 @@ function mostrarRota(rota) {
     return;
   }
   document.title = 'Gestão de Reuniões';
-  if (anterior?.tela === 'professor' || anterior?.tela === 'categoria') focarProfessor(anterior.professorId);
+  if (anterior?.tela && anterior.tela !== 'alinhamento') focarProfessor(anterior.professorId);
 }
