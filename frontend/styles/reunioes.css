@@ -365,6 +365,84 @@
   }
 }
 
+/* ---------- Página da reunião: o cartão e as categorias ---------- */
+
+/* O cartão da reunião no topo, na largura de leitura */
+.detalhes-reuniao {
+  max-width: 40rem;
+  margin-bottom: var(--e-8);
+}
+
+/* O quadrado de uma categoria mostra o começo das anotações dela: ícone
+   e nome no topo e o texto embaixo, alinhado à esquerda como uma nota. */
+.cartao--anotacoes {
+  align-items: stretch;
+  justify-content: flex-start;
+  gap: var(--e-3);
+  padding: var(--e-5);
+  text-align: left;
+}
+
+.cartao__topo {
+  display: flex;
+  align-items: center;
+  gap: var(--e-3);
+  min-width: 0;
+}
+
+.cartao--anotacoes .cartao__icone {
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+}
+
+.cartao--anotacoes .cartao__icone .icone {
+  width: 22px;
+  height: 22px;
+}
+
+.cartao--anotacoes .cartao__nome {
+  flex: 1;
+  min-width: 0;
+}
+
+.cartao__previa {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 8;
+  line-clamp: 8;
+  overflow: hidden;
+  font: var(--t-chamada);
+  color: var(--rotulo-2);
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+/* Sem nada escrito: o convite para escrever, no azul das ações */
+.cartao__previa--vazia {
+  color: var(--link);
+  font-weight: 500;
+}
+
+.cartao--anotacoes.cartao--esqueleto .linha-esqueleto.l1 {
+  margin-bottom: 0;
+}
+
+/* Celular: o quadrado vira uma linha, com o texto embaixo do nome e a
+   seta › à direita (cartoes.css) */
+@media (max-width: 519px) {
+  .cartao--anotacoes {
+    flex-direction: column;
+    gap: var(--e-2);
+    padding: var(--e-4) 44px var(--e-4) var(--e-4);
+  }
+
+  .cartao--anotacoes .cartao__previa {
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+  }
+}
+
 /* ---------- Nova reunião: o dia em destaque no topo ----------
    Acompanha os campos: a folha muda com o dia, e a linha de baixo diz
    quando é ("Em 6 dias · 14:00 às 14:30" ou "Há 3 dias · já aconteceu"). */
@@ -449,7 +527,8 @@
 
   .folha-data,
   .reuniao,
-  .dia-reuniao {
+  .dia-reuniao,
+  .previa__icone {
     border: 1px solid CanvasText;
   }
 
