@@ -6,11 +6,12 @@ import {
   quandoPorExtenso, valorDeData, valorDeHora,
 } from './datas.js';
 
-// "Nova reunião": marca uma reunião de uma categoria com um professor. O dia
-// é o destaque da janela — a folha de calendário e o "quando" por extenso
-// acompanham o que se escolhe — e pode ser no passado, para registrar uma
-// reunião que já aconteceu. O botão só aparece para admin; quem garante a
-// regra de verdade é o RLS (sql/reunioes.sql).
+// "Nova reunião": marca uma reunião com um professor; as categorias de
+// anotações (Feedback…) já vêm todas dentro dela. O dia é o destaque da
+// janela — a folha de calendário e o "quando" por extenso acompanham o que
+// se escolhe — e pode ser no passado, para registrar uma reunião que já
+// aconteceu. O botão só aparece para admin; quem garante a regra de verdade
+// é o RLS (sql/reunioes.sql).
 
 const DURACOES = [15, 30, 45, 60, 90, 120]; // o banco aceita de 5 a 480 min
 const DURACAO_PADRAO = 30;
@@ -29,7 +30,7 @@ const botaoSalvar = document.getElementById('btn-salvar-nova-reuniao');
 const campo = id => document.getElementById(id);
 
 let aoCriar = () => {};
-let contexto = null; // { professorId, professorNome, categoria, reunioes }
+let contexto = null; // { professorId, professorNome, reunioes }
 let criada = null;   // entregue à página quando a janela fecha
 let salvando = false;
 
@@ -59,13 +60,13 @@ export function iniciarNovaReuniao(opcoes) {
   dialogo.addEventListener('close', entregar);
 }
 
-// Aberta de dentro de uma categoria de um professor: os dois já vêm
-// escolhidos, falta dizer quando e como.
+// Aberta de dentro da página de um professor: ele já vem escolhido, falta
+// dizer quando e como.
 export function abrirNovaReuniao(dados) {
   contexto = dados;
   form.reset();
   esconderErro();
-  descricao.textContent = `${dados.categoria.nome} com ${dados.professorNome}.`;
+  descricao.textContent = `Com ${dados.professorNome}. As anotações de cada categoria ficam dentro da reunião.`;
 
   // Começa na próxima hora cheia: o mais comum é marcar para frente.
   const inicio = new Date();
@@ -174,10 +175,9 @@ async function criar(evento) {
   if (ano < 2000 || ano > 2100) return mostrarErro(`Confira o ano da reunião: ${ano} parece erro de digitação.`, 'reuniao-data');
   if (!inicio) return mostrarErro('Escolha o horário de início.', 'reuniao-hora');
 
-  const { categoria, professorNome } = contexto;
   const repetida = contexto.reunioes.some(r => new Date(r.inicio).getTime() === inicio.getTime());
   if (repetida) {
-    return mostrarErro(`Já existe uma reunião de ${categoria.nome} com ${professorNome} nesse dia e horário.`, 'reuniao-hora');
+    return mostrarErro(`Já existe uma reunião com ${contexto.professorNome} nesse dia e horário.`, 'reuniao-hora');
   }
 
   const formato = form.elements.formato.value;
@@ -189,7 +189,6 @@ async function criar(evento) {
   try {
     const { data, error } = await criarReuniao({
       professor_id: contexto.professorId,
-      categoria_id: categoria.id,
       inicio: inicio.toISOString(),
       duracao_min: lerDuracao(),
       formato,
@@ -216,8 +215,12 @@ function problemaAoCriar(falha) {
   if (falha.code === '42501') {
     return 'Só administradores podem criar reuniões, e o banco não reconheceu sua conta como administrador.';
   }
-  if (falha.code === '23503') return 'Este professor ou esta categoria não existe mais no banco. Volte e abra de novo.';
+  if (falha.code === '23503') return 'Este professor não existe mais no banco. Volte e abra de novo.';
   if (falha.code === '23514') return 'O banco recusou algum dos valores. Encurte o local ou a pauta e tente de novo.';
+  // A reunião ainda pede uma categoria: o banco está na estrutura antiga.
+  if (falha.code === '23502') {
+    return 'O banco de dados ainda está na estrutura antiga, com uma categoria por reunião. Rode no Supabase o SQL que separa as anotações por categoria e tente de novo.';
+  }
   if (faltaTabelaDeReunioes(falha)) {
     return 'As reuniões ainda não foram configuradas no banco de dados. Rode o arquivo sql/reunioes.sql no Supabase e tente de novo.';
   }

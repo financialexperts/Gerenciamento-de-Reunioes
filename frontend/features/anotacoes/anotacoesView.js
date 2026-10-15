@@ -1,22 +1,27 @@
 import { state } from '../../state/store.js';
-import { buscarAnotacoes, faltaTabelaDeAnotacoes, salvarAnotacoes } from '../../../backend/api/anotacoesRepo.js';
+import {
+  buscarAnotacoes, faltaAtualizarBanco, faltaTabelaDeAnotacoes, salvarAnotacoes,
+} from '../../../backend/api/anotacoesRepo.js';
+import { faltaTabelaDeCategorias } from '../../../backend/api/categoriasRepo.js';
 import { buscarReuniao, faltaTabelaDeReunioes } from '../../../backend/api/reunioesRepo.js';
 import { fimDaReuniao } from '../../../backend/domain/reunioes.js';
 import { estadoHtml } from '../../shared/estado.js';
 import { carregarAlinhamento, esperarAlinhamento, professorPorId } from '../alinhamento/alinhamentoView.js';
-import { carregarCategorias } from '../professores/professorView.js';
+import { carregarCategorias, categoriaPorId } from '../categorias/categorias.js';
 import { diaDaSemana, diaPorExtenso, hora } from '../reunioes/datas.js';
 import { conteudo, definirConteudo, editavel, focarNoComeco, iniciarEditor, resumo } from './editor.js';
 import {
   abrirPainelLink, atualizarBarra, fecharMenus, iniciarBarra, mostrarBarra, mostrarCursor, prepararFontes,
 } from './barraFormatacao.js';
 
-// Página de anotações de uma reunião ("?professor=…&categoria=…&reuniao=…"):
-// uma folha em branco, como no Google Docs, com a barra de formatação.
-// Salva sozinha logo depois de cada pausa na escrita. Enquanto não salva
-// (sem internet, por exemplo), o texto fica guardado neste aparelho e é
-// recuperado ao abrir a reunião de novo. Só administradores fazem
-// anotações (o RLS de sql/anotacoes_reuniao.sql garante).
+// Página de anotações de uma categoria dentro de uma reunião
+// ("?professor=…&reuniao=…&categoria=…"): uma folha em branco, como no
+// Google Docs, com a barra de formatação. Cada categoria de cada reunião
+// tem a sua folha. Salva sozinha logo depois de cada pausa na escrita.
+// Enquanto não salva (sem internet, por exemplo), o texto fica guardado
+// neste aparelho e é recuperado ao abrir a mesma folha de novo. Só
+// administradores fazem anotações (o RLS de sql/anotacoes_reuniao.sql
+// garante).
 
 const PAUSA_SALVAR = 900;      // ms depois da última mudança
 const PAUSA_RASCUNHO = 400;
@@ -36,13 +41,37 @@ const ESTADOS = {
     icone: 'i-documento',
     titulo: 'Anotações só para administradores',
     texto: 'As anotações das reuniões são de quem as conduz. Sua conta não tem acesso a elas.',
-    acao: ['voltar', 'Voltar para as reuniões'],
+    acao: ['voltar', 'Voltar para a reunião'],
   },
   reuniaoNaoEncontrada: {
     icone: 'c-calendario',
     titulo: 'Reunião não encontrada',
     texto: 'Ela pode ter sido removida do banco de dados.',
-    acao: ['voltar', 'Voltar para as reuniões'],
+    acao: ['voltar', 'Voltar para a reunião'],
+  },
+  categoriaNaoEncontrada: {
+    icone: 'i-grade',
+    titulo: 'Categoria não encontrada',
+    texto: 'Ela pode ter sido removida do banco de dados.',
+    acao: ['voltar', 'Voltar para a reunião'],
+  },
+  erroCategorias: {
+    icone: 'i-sem-conexao',
+    titulo: 'Não foi possível carregar a categoria',
+    texto: 'Verifique a conexão com a internet e tente de novo.',
+    acao: ['recarregar', 'Tentar de novo'],
+  },
+  semTabelaCategorias: {
+    icone: 'i-alerta',
+    titulo: 'Categorias ainda não configuradas',
+    texto: 'Falta criar a tabela de categorias no banco de dados: rode o arquivo sql/categorias_reuniao.sql no SQL Editor do Supabase.',
+    acao: ['recarregar', 'Tentar de novo'],
+  },
+  bancoDesatualizado: {
+    icone: 'i-alerta',
+    titulo: 'Banco de dados desatualizado',
+    texto: 'As anotações ainda estão na estrutura antiga, com uma categoria por reunião. Rode no SQL Editor do Supabase o SQL que separa as anotações por categoria dentro de cada reunião.',
+    acao: ['recarregar', 'Tentar de novo'],
   },
   erroProfessor: {
     icone: 'i-sem-conexao',
@@ -77,15 +106,15 @@ const ESTADOS = {
 };
 
 const els = {};
-let rota = null;            // { professorId, categoriaId, reuniaoId } da página aberta
+let rota = null;            // { professorId, reuniaoId, categoriaId } da página aberta
 let abertura = 0;           // muda a cada abertura: descarta o que chegar de uma anterior
-let sessao = null;          // a reunião aberta no editor (ver novaSessao)
+let sessao = null;          // a folha (reunião + categoria) aberta no editor (ver novaSessao)
 const sessoes = new Set();  // todas com algo ainda por salvar (inclusive de páginas já fechadas)
 
 export function iniciarAnotacoes({ aoVoltar }) {
   els.titulo = document.getElementById('titulo-anotacoes');
   els.subtitulo = document.getElementById('subtitulo-anotacoes');
-  els.voltar = document.getElementById('btn-voltar-categoria');
+  els.voltar = document.getElementById('btn-voltar-reuniao');
   els.salvamento = document.getElementById('salvamento');
   els.salvamentoTexto = document.getElementById('salvamento-texto');
   els.salvamentoIcone = els.salvamento.querySelector('use');
@@ -149,7 +178,7 @@ export function abrirAnotacoes(dados) {
 
 // Ao sair da página: o que falta salvar é salvo agora (e continua salvando
 // em segundo plano). Devolve a promessa do salvamento, para a página da
-// categoria mostrar o resumo atualizado.
+// reunião mostrar o resumo atualizado.
 export function sairDasAnotacoes() {
   abertura++;
   fecharMenus();
@@ -193,24 +222,30 @@ export function limparAnotacoes() {
 
 // ---------- Abertura ----------
 
-async function abrir({ professorId, categoriaId, reuniaoId }, { focar = false } = {}) {
+async function abrir({ professorId, reuniaoId, categoriaId }, { focar = false } = {}) {
   const minha = ++abertura;
-  rota = { professorId, categoriaId, reuniaoId };
+  rota = { professorId, reuniaoId, categoriaId };
   sessao = null;
   prepararFontes();
   els.aviso.textContent = '';
-  desenharCabecalho({ carregando: true });
+  // Com as categorias na memória (vindo da página da reunião), o nome
+  // aparece na hora.
+  desenharCabecalho({ carregando: true, categoria: categoriaPorId(categoriaId) });
   mostrarCarregando();
 
   const cargaReuniao = buscarReuniao(reuniaoId).then(reuniao => ({ ok: true, reuniao }), erro => ({ ok: false, erro }));
-  const cargaAnotacoes = buscarAnotacoes(reuniaoId).then(anotacoes => ({ ok: true, anotacoes }), erro => ({ ok: false, erro }));
+  const cargaAnotacoes = buscarAnotacoes(reuniaoId, categoriaId)
+    .then(anotacoes => ({ ok: true, anotacoes }), erro => ({ ok: false, erro }));
   const cargaCategorias = state.categorias ? null : carregarCategorias();
 
   const listaOk = await esperarAlinhamento();
-  if (cargaCategorias) await cargaCategorias;
+  const c = cargaCategorias ? await cargaCategorias : { ok: true };
   if (minha !== abertura) return;
   if (!listaOk) return mostrarEstado(ESTADOS.erroProfessor);
   if (!ehAdmin()) return mostrarEstado(ESTADOS.semAcesso);
+  if (!c.ok && !state.categorias) {
+    return mostrarEstado(faltaTabelaDeCategorias(c.erro) ? ESTADOS.semTabelaCategorias : ESTADOS.erroCategorias);
+  }
 
   const r = await cargaReuniao;
   if (minha !== abertura) return;
@@ -219,25 +254,22 @@ async function abrir({ professorId, categoriaId, reuniaoId }, { focar = false } 
     return mostrarEstado(faltaTabelaDeReunioes(r.erro) ? ESTADOS.semTabelaReunioes : ESTADOS.erroReuniao);
   }
   const { reuniao } = r;
-  if (!reuniao || String(reuniao.professor_id) !== professorId || String(reuniao.categoria_id) !== categoriaId) {
-    return mostrarEstado(ESTADOS.reuniaoNaoEncontrada);
-  }
-  desenharCabecalho({
-    reuniao,
-    professor: professorPorId(reuniao.professor_id),
-    categoria: state.categorias?.find(c => String(c.id) === categoriaId) ?? null,
-  });
+  if (!reuniao || String(reuniao.professor_id) !== professorId) return mostrarEstado(ESTADOS.reuniaoNaoEncontrada);
+  const categoria = categoriaPorId(categoriaId);
+  if (!categoria) return mostrarEstado(ESTADOS.categoriaNaoEncontrada);
+  desenharCabecalho({ reuniao, professor: professorPorId(reuniao.professor_id), categoria });
 
   const a = await cargaAnotacoes;
   if (minha !== abertura) return;
   if (!a.ok) {
     console.error('Erro ao carregar as anotações:', a.erro);
+    if (faltaAtualizarBanco(a.erro)) return mostrarEstado(ESTADOS.bancoDesatualizado);
     return mostrarEstado(faltaTabelaDeAnotacoes(a.erro) ? ESTADOS.semTabela : ESTADOS.erroAnotacoes);
   }
 
   // O texto do banco; se este aparelho guardou uma versão que não chegou a
   // ser salva, ela volta.
-  const chave = chaveDoRascunho(reuniaoId);
+  const chave = chaveDoRascunho(reuniaoId, categoriaId);
   definirConteudo(a.anotacoes?.conteudo ?? '');
   const doBanco = conteudo();
   const rascunho = lerRascunho(chave);
@@ -248,7 +280,8 @@ async function abrir({ professorId, categoriaId, reuniaoId }, { focar = false } 
     if (!recuperado) apagarRascunho({ chave });
   }
 
-  sessao = novaSessao(reuniao.id, doBanco, chave); // o id como veio do banco (número)
+  // Os ids como vieram do banco (números), para gravar com o mesmo tipo.
+  sessao = novaSessao({ reuniaoId: reuniao.id, categoriaId: categoria.id }, doBanco, chave);
   mostrarEditor();
   if (recuperado) {
     sessao.edicao++;

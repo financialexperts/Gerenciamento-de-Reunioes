@@ -4,14 +4,13 @@ import { escapeHtml, normalizar, ocupado } from '../../shared/dom.js';
 import { ICONES_CATEGORIA, ICONE_PADRAO } from './icones.js';
 
 // "Nova categoria": a categoria entra na lista única de categorias de
-// reunião e passa a aparecer para todos os professores. O botão só aparece
-// para admin; quem garante a regra de verdade é o RLS
-// (sql/categorias_reuniao.sql).
+// anotações e passa a aparecer dentro de todas as reuniões, de todos os
+// professores. O botão só aparece para admin; quem garante a regra de
+// verdade é o RLS (sql/categorias_reuniao.sql).
 
 const dialogo = document.getElementById('dialogo-nova-categoria');
 const form = document.getElementById('form-nova-categoria');
 const campoNome = document.getElementById('categoria-nome');
-const descricao = document.getElementById('nova-categoria-descricao');
 const erro = document.getElementById('nova-categoria-erro');
 const botaoSalvar = document.getElementById('btn-salvar-nova-categoria');
 
@@ -43,14 +42,11 @@ export function iniciarNovaCategoria(opcoes) {
   campoNome.addEventListener('input', esconderErro);
 }
 
-// Aberta de dentro da página de um professor: a descrição deixa claro que a
-// categoria não é só dele.
-export function abrirNovaCategoria(nomeProfessor) {
+// Aberta de dentro da página de uma reunião; a descrição da janela deixa
+// claro que a categoria não é só daquela reunião.
+export function abrirNovaCategoria() {
   form.reset();
   esconderErro();
-  descricao.textContent = nomeProfessor
-    ? `Ela aparece para todos os professores, não só para ${nomeProfessor}.`
-    : 'Ela aparece para todos os professores.';
   dialogo.showModal();
   campoNome.focus();
 }
