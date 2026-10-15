@@ -11,8 +11,16 @@
   height: 100dvh;
   transition: grid-template-columns var(--medio) var(--mola);
 }
-.app.entrando { animation: surgir 280ms ease both; }
-@keyframes surgir { from { opacity: 0; } }
+
+.app.entrando {
+  animation: surgir 280ms ease both;
+}
+
+@keyframes surgir {
+  from {
+    opacity: 0;
+  }
+}
 
 /* ---------- Barra lateral ----------
    Ao ocultar, a coluna encolhe e a barra desliza para fora inteira, na
@@ -42,9 +50,16 @@
   padding: 0 var(--e-2);
   margin-bottom: var(--e-5);
 }
-.barra-lateral__marca img { height: 26px; width: auto; }
 
-.menu { display: grid; gap: 2px; }
+.barra-lateral__marca img {
+  height: 26px;
+  width: auto;
+}
+
+.menu {
+  display: grid;
+  gap: 2px;
+}
 
 .menu__item {
   display: flex;
@@ -59,19 +74,32 @@
   white-space: nowrap;
   transition: background-color var(--rapido) ease;
 }
-.menu__item .icone { color: var(--rotulo-2); }
-.menu__item:hover { background: var(--preenchimento); }
+
+.menu__item .icone {
+  color: var(--rotulo-2);
+}
+
+.menu__item:hover {
+  background: var(--preenchimento);
+}
+
 /* Item atual: realce cinza com ícone no azul, como na barra lateral do
    Finder. Continua marcado dentro de um professor (aria-current="true"). */
 .menu__item[aria-current] {
   background: var(--preenchimento-2);
   font-weight: 600;
 }
-.menu__item[aria-current] .icone { color: var(--acento); }
+
+.menu__item[aria-current] .icone {
+  color: var(--acento);
+}
 
 /* Barra oculta pelo botão (janela larga): a coluna encolhe e a barra sai
    pela esquerda; some de vez (visibility) só no fim do deslize. */
-.app[data-barra-oculta] { grid-template-columns: 0 minmax(0, 1fr); }
+.app[data-barra-oculta] {
+  grid-template-columns: 0 minmax(0, 1fr);
+}
+
 .app[data-barra-oculta] .barra-lateral {
   visibility: hidden;
   transform: translateX(calc(-100% - 10px));
@@ -79,14 +107,19 @@
 }
 
 /* Véu atrás da barra em janelas estreitas */
-.veu { display: none; }
+.veu {
+  display: none;
+}
 
 /* Janela estreita: a barra vira um painel sobreposto que desliza da
    esquerda e some sozinha (HIG › Sidebars: esconder a barra quando a
    janela diminui). */
 @media (max-width: 899px) {
+
   .app,
-  .app[data-barra-oculta] { grid-template-columns: minmax(0, 1fr); }
+  .app[data-barra-oculta] {
+    grid-template-columns: minmax(0, 1fr);
+  }
 
   .barra-lateral,
   .app[data-barra-oculta] .barra-lateral {
@@ -104,6 +137,7 @@
     transform: translateX(calc(-100% - 20px));
     transition: transform var(--medio) var(--mola), visibility 0s var(--medio);
   }
+
   .app[data-barra-aberta] .barra-lateral {
     visibility: visible;
     transform: none;
@@ -120,7 +154,11 @@
     pointer-events: none;
     transition: opacity var(--medio) ease;
   }
-  .app[data-barra-aberta] .veu { opacity: 1; pointer-events: auto; }
+
+  .app[data-barra-aberta] .veu {
+    opacity: 1;
+    pointer-events: auto;
+  }
 }
 
 /* ---------- Área principal ---------- */
@@ -132,7 +170,12 @@
   overflow-y: auto;
   scroll-padding-top: calc(var(--altura-cabecalho, 140px) + var(--e-3));
 }
-.principal:focus { outline: none; } /* recebe foco só como destino do menu */
+
+.principal:focus {
+  outline: none;
+}
+
+/* recebe foco só como destino do menu */
 
 .cabecalho {
   position: sticky;
@@ -163,7 +206,10 @@
   pointer-events: none;
   transition: opacity var(--rapido) ease;
 }
-.cabecalho.rolado::before { opacity: 1; }
+
+.cabecalho.rolado::before {
+  opacity: 1;
+}
 
 @media (prefers-reduced-transparency: reduce) {
   .cabecalho::before {
@@ -193,13 +239,21 @@
   min-width: 0;
 }
 
-.cabecalho__titulos { flex: 1; min-width: 0; }
+.cabecalho__titulos {
+  flex: 1;
+  min-width: 0;
+}
 
 .titulo-grande {
   font: var(--t-titulo-grande);
   letter-spacing: 0.006em;
 }
-.titulo-grande:focus { outline: none; } /* recebe foco só para o leitor de tela anunciar a tela */
+
+.titulo-grande:focus {
+  outline: none;
+}
+
+/* recebe foco só para o leitor de tela anunciar a tela */
 .titulo-grande--uma-linha {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -213,7 +267,10 @@
 }
 
 @media (max-width: 599px) {
-  .titulo-grande { font-size: 1.375rem; line-height: 1.75rem; }
+  .titulo-grande {
+    font-size: 1.375rem;
+    line-height: 1.75rem;
+  }
 }
 
 /* ---------- Conta (canto superior direito) ----------
@@ -231,8 +288,16 @@
   box-shadow: var(--vidro-brilho), var(--sombra-controle);
   transition: transform var(--rapido) ease;
 }
-.botao-conta:active { transform: scale(0.95); }
-.botao-conta .avatar { width: 32px; height: 32px; font-size: 0.8125rem; }
+
+.botao-conta:active {
+  transform: scale(0.95);
+}
+
+.botao-conta .avatar {
+  width: 32px;
+  height: 32px;
+  font-size: 0.8125rem;
+}
 
 .menu-conta {
   position: fixed;
@@ -255,14 +320,24 @@
   gap: var(--e-3);
   padding: 10px 10px 12px;
 }
-.menu-conta__perfil > div { min-width: 0; }
-.menu-conta__perfil .avatar { width: 40px; height: 40px; font-size: 0.9375rem; }
+
+.menu-conta__perfil>div {
+  min-width: 0;
+}
+
+.menu-conta__perfil .avatar {
+  width: 40px;
+  height: 40px;
+  font-size: 0.9375rem;
+}
+
 .menu-conta__nome {
   font-weight: 600;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
 .menu-conta__email {
   font: var(--t-chamada);
   color: var(--rotulo-2);
@@ -291,11 +366,27 @@
   text-align: left;
   font-weight: 500;
 }
-.menu-conta__item .icone { width: 18px; height: 18px; color: var(--rotulo-2); }
+
+.menu-conta__item .icone {
+  width: 18px;
+  height: 18px;
+  color: var(--rotulo-2);
+}
+
 .menu-conta__item:hover,
-.menu-conta__item:focus-visible { background: var(--preenchimento-2); outline: none; }
+.menu-conta__item:focus-visible {
+  background: var(--preenchimento-2);
+  outline: none;
+}
 
 @media (forced-colors: active) {
-  .barra-lateral, .menu-conta { border: 1px solid CanvasText; }
-  .menu__item[aria-current] { outline: 2px solid Highlight; }
+
+  .barra-lateral,
+  .menu-conta {
+    border: 1px solid CanvasText;
+  }
+
+  .menu__item[aria-current] {
+    outline: 2px solid Highlight;
+  }
 }

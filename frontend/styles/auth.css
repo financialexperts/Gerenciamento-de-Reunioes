@@ -24,7 +24,10 @@
 }
 
 @media (max-width: 479px) {
-  .cartao-auth { padding: 28px 20px 20px; border-radius: 24px; }
+  .cartao-auth {
+    padding: 28px 20px 20px;
+    border-radius: 24px;
+  }
 }
 
 /* ---------- Marca: as barras do logo ----------
@@ -50,13 +53,30 @@
   fill: var(--marca-menta);
   transition: transform 420ms var(--mola);
 }
-.marca-barras rect:nth-child(2) { transition-delay: 30ms; }
-.marca-barras rect:nth-child(3) { transition-delay: 60ms; }
-.marca-barras rect:nth-child(4) { transition-delay: 90ms; }
-.marca-barras rect:nth-child(5) { transition-delay: 120ms; }
 
-.alinhando .marca-barras .barra-esq { transform: translateX(95px); }
-.alinhando .marca-barras .barra-dir { transform: translateX(-95px); }
+.marca-barras rect:nth-child(2) {
+  transition-delay: 30ms;
+}
+
+.marca-barras rect:nth-child(3) {
+  transition-delay: 60ms;
+}
+
+.marca-barras rect:nth-child(4) {
+  transition-delay: 90ms;
+}
+
+.marca-barras rect:nth-child(5) {
+  transition-delay: 120ms;
+}
+
+.alinhando .marca-barras .barra-esq {
+  transform: translateX(95px);
+}
+
+.alinhando .marca-barras .barra-dir {
+  transform: translateX(-95px);
+}
 
 .marca__nome {
   font: 600 0.6875rem/1 var(--fonte);
@@ -67,7 +87,10 @@
 
 /* ---------- Formulários ---------- */
 
-.form-auth { display: grid; gap: var(--e-4); }
+.form-auth {
+  display: grid;
+  gap: var(--e-4);
+}
 
 .form-auth__cabecalho {
   display: grid;
@@ -93,7 +116,10 @@
   gap: var(--e-2);
   margin-top: var(--e-1);
 }
-.form-auth__acoes .botao-primario { width: 100%; }
+
+.form-auth__acoes .botao-primario {
+  width: 100%;
+}
 
 /* Indicador de progresso dentro do botão enquanto espera */
 .giro {
@@ -104,9 +130,16 @@
   border-radius: 50%;
   animation: girar 0.8s linear infinite;
 }
-@keyframes girar { to { rotate: 360deg; } }
 
-.botao-primario:not([aria-busy="true"]) .giro { display: none; }
+@keyframes girar {
+  to {
+    rotate: 360deg;
+  }
+}
+
+.botao-primario:not([aria-busy="true"]) .giro {
+  display: none;
+}
 
 /* Confirmação depois de pedir o link: substitui os campos */
 .confirmacao {
@@ -115,11 +148,21 @@
   gap: var(--e-3);
   text-align: center;
 }
+
 .confirmacao .icone {
   width: 40px;
   height: 40px;
   color: var(--acento);
   stroke-width: 1.5;
 }
-.confirmacao p { color: var(--rotulo-2); text-wrap: pretty; }
-.confirmacao strong { color: var(--rotulo); font-weight: 600; word-break: break-all; }
+
+.confirmacao p {
+  color: var(--rotulo-2);
+  text-wrap: pretty;
+}
+
+.confirmacao strong {
+  color: var(--rotulo);
+  font-weight: 600;
+  word-break: break-all;
+}

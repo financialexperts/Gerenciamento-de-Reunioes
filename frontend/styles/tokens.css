@@ -17,10 +17,14 @@
   --superficie: #FFFFFF;
 
   /* Texto */
-  --rotulo: #1D1D1F;        /* 16,8:1 no branco · 15,5:1 na janela */
-  --rotulo-2: #6E6E73;      /*  5,1:1 no branco ·  4,7:1 na janela */
-  --rotulo-3: #8E8E93;      /*  3,3:1 — só bordas de controle e ícones */
-  --placeholder: #6E6E73;   /*  4,5:1 ou mais em todos os campos */
+  --rotulo: #1D1D1F;
+  /* 16,8:1 no branco · 15,5:1 na janela */
+  --rotulo-2: #6E6E73;
+  /*  5,1:1 no branco ·  4,7:1 na janela */
+  --rotulo-3: #8E8E93;
+  /*  3,3:1 — só bordas de controle e ícones */
+  --placeholder: #6E6E73;
+  /*  4,5:1 ou mais em todos os campos */
 
   --separador: rgb(0 0 0 / 0.10);
   --preenchimento: rgb(118 118 128 / 0.12);
@@ -30,16 +34,21 @@
   --contorno-campo: rgb(0 0 0 / 0.14);
 
   /* Azul do sistema: ação principal, seleção e foco — uma cor, um papel */
-  --acento: #0071E3;        /* texto branco sobre ele 4,7:1 · anel no branco 4,7:1 */
-  --link: #0066CC;          /* ações só de texto: 5,6:1 no branco · 5,1:1 na janela */
-  --acento-suave: #EEF5FD;  /* fundo de selecionado (texto secundário sobre ele 4,6:1) */
+  --acento: #0071E3;
+  /* texto branco sobre ele 4,7:1 · anel no branco 4,7:1 */
+  --link: #0066CC;
+  /* ações só de texto: 5,6:1 no branco · 5,1:1 na janela */
+  --acento-suave: #EEF5FD;
+  /* fundo de selecionado (texto secundário sobre ele 4,6:1) */
   --sobre-acento: #FFFFFF;
   --anel-foco: var(--acento);
   --anel-foco-suave: rgb(0 113 227 / 0.25);
 
-  --perigo: #D70015;        /* 5,4:1 no branco · 4,9:1 no fundo de erro */
+  --perigo: #D70015;
+  /* 5,4:1 no branco · 4,9:1 no fundo de erro */
   --perigo-suave: #FFF0F1;
-  --sucesso: #1E7B34;       /* 5,3:1 no branco · 4,9:1 no fundo de sucesso */
+  --sucesso: #1E7B34;
+  /* 5,3:1 no branco · 4,9:1 no fundo de sucesso */
   --sucesso-suave: #EDF7EF;
 
   /* Vermelho do ícone do Calendário: só nas datas das reuniões (mês da
@@ -82,12 +91,18 @@
   --fonte: -apple-system, BlinkMacSystemFont, "Segoe UI Variable Text", "Segoe UI", system-ui, Roboto, "Helvetica Neue", Arial, sans-serif;
   --fonte-titulo: -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", system-ui, Roboto, "Helvetica Neue", Arial, sans-serif;
 
-  --t-titulo-grande: 700 1.625rem/2rem var(--fonte-titulo);   /* 26/32 */
-  --t-titulo-2: 700 1.25rem/1.625rem var(--fonte-titulo);     /* 20/26 */
-  --t-titulo-cartao: 600 1.0625rem/1.375rem var(--fonte);     /* 17/22 */
-  --t-corpo: 400 0.875rem/1.25rem var(--fonte);               /* 14/20 */
-  --t-chamada: 400 0.8125rem/1.125rem var(--fonte);           /* 13/18 */
-  --t-nota: 500 0.75rem/1rem var(--fonte);                    /* 12/16 */
+  --t-titulo-grande: 700 1.625rem/2rem var(--fonte-titulo);
+  /* 26/32 */
+  --t-titulo-2: 700 1.25rem/1.625rem var(--fonte-titulo);
+  /* 20/26 */
+  --t-titulo-cartao: 600 1.0625rem/1.375rem var(--fonte);
+  /* 17/22 */
+  --t-corpo: 400 0.875rem/1.25rem var(--fonte);
+  /* 14/20 */
+  --t-chamada: 400 0.8125rem/1.125rem var(--fonte);
+  /* 13/18 */
+  --t-nota: 500 0.75rem/1rem var(--fonte);
+  /* 12/16 */
 
   /* ---------- Espaço, forma, movimento ---------- */
   --e-1: 4px;
@@ -110,10 +125,21 @@
 }
 
 /* Cor de curso por atributo — usada em etiquetas, menus e botões */
-[data-cor="elas"] { --cor-curso: var(--curso-elas); }
-[data-cor="master"] { --cor-curso: var(--curso-master); }
-[data-cor="evolution"] { --cor-curso: var(--curso-evolution); }
-[data-cor="clube"] { --cor-curso: var(--curso-clube); }
+[data-cor="elas"] {
+  --cor-curso: var(--curso-elas);
+}
+
+[data-cor="master"] {
+  --cor-curso: var(--curso-master);
+}
+
+[data-cor="evolution"] {
+  --cor-curso: var(--curso-evolution);
+}
+
+[data-cor="clube"] {
+  --cor-curso: var(--curso-clube);
+}
 
 /* Contraste aumentado: rótulos secundários e bordas mais fortes,
    vidro vira superfície opaca (HIG › Accessibility › Vision). */
@@ -143,5 +169,7 @@
 }
 
 @media (max-width: 599px) {
-  :root { --margem: 16px; }
+  :root {
+    --margem: 16px;
+  }
 }

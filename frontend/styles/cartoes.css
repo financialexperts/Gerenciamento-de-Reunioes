@@ -5,14 +5,20 @@
    uma abre as reuniões). Também o esqueleto e as telas vazias.
    ============================================================ */
 
-.conteudo { padding: 0 var(--margem) var(--e-8); }
+.conteudo {
+  padding: 0 var(--margem) var(--e-8);
+}
 
 .grade {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
   gap: var(--e-4);
 }
-.grade > li { display: grid; min-width: 0; }
+
+.grade>li {
+  display: grid;
+  min-width: 0;
+}
 
 /* Cartão = um professor ou uma categoria. Quadrado grande (cresce se o
    conteúdo pedir), conteúdo centralizado como um cartão de contato. */
@@ -41,15 +47,31 @@
     border-color var(--rapido) ease,
     transform var(--rapido) ease;
 }
-.cartao > .avatar { width: 64px; height: 64px; font-size: 1.375rem; }
 
-.cartao:hover { box-shadow: var(--sombra-cartao-hover); }
-.cartao:active { transform: scale(0.985); }
-.cartao:focus-visible { outline: 2px solid var(--anel-foco); outline-offset: 3px; }
+.cartao>.avatar {
+  width: 64px;
+  height: 64px;
+  font-size: 1.375rem;
+}
+
+.cartao:hover {
+  box-shadow: var(--sombra-cartao-hover);
+}
+
+.cartao:active {
+  transform: scale(0.985);
+}
+
+.cartao:focus-visible {
+  outline: 2px solid var(--anel-foco);
+  outline-offset: 3px;
+}
 
 /* Seta › de "abre outra página": só na linha do celular, como nas listas
    do iOS (HIG › Lists and tables: indicador de detalhe). */
-.cartao__seta { display: none; }
+.cartao__seta {
+  display: none;
+}
 
 .cartao__info {
   display: grid;
@@ -109,6 +131,7 @@
   color: var(--rotulo);
   white-space: nowrap;
 }
+
 .chip::before {
   content: "";
   flex: none;
@@ -117,12 +140,20 @@
   border-radius: 50%;
   background: var(--cor-curso, var(--curso-outro));
 }
-.chip > span { overflow: hidden; text-overflow: ellipsis; }
+
+.chip>span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
 /* Janela de celular: o quadrado vira uma linha (mesmas informações) —
    layout pelo espaço disponível (HIG › Layout). */
 @media (max-width: 519px) {
-  .grade { grid-template-columns: minmax(0, 1fr); gap: var(--e-3); }
+  .grade {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--e-3);
+  }
+
   .cartao {
     flex-direction: row;
     justify-content: flex-start;
@@ -131,7 +162,13 @@
     padding: var(--e-4) 52px var(--e-4) var(--e-4);
     text-align: left;
   }
-  .cartao > .avatar { width: 48px; height: 48px; font-size: 1.0625rem; }
+
+  .cartao>.avatar {
+    width: 48px;
+    height: 48px;
+    font-size: 1.0625rem;
+  }
+
   .cartao__seta {
     display: block;
     position: absolute;
@@ -143,16 +180,31 @@
     color: var(--rotulo-3);
     stroke-width: 2.2;
   }
-  .cartao__info { justify-items: start; }
-  .cartao__cursos { justify-content: flex-start; }
-  .cartao__cursos, .cartao__sem-cursos { margin-top: var(--e-2); }
+
+  .cartao__info {
+    justify-items: start;
+  }
+
+  .cartao__cursos {
+    justify-content: flex-start;
+  }
+
+  .cartao__cursos,
+  .cartao__sem-cursos {
+    margin-top: var(--e-2);
+  }
 }
 
 /* Realce de "você veio daqui" ao voltar de um professor (e no professor
    recém-cadastrado): azul-claro que se apaga, como numa lista do iOS. */
-.cartao--realce { animation: realce 1.4s ease-out; }
+.cartao--realce {
+  animation: realce 1.4s ease-out;
+}
+
 @keyframes realce {
-  0%, 35% {
+
+  0%,
+  35% {
     border-color: rgb(0 113 227 / 0.35);
     background-color: var(--acento-suave);
   }
@@ -160,9 +212,15 @@
 
 /* Categoria recém-criada entra na grade (HIG › Collections: animar o
    que é inserido). */
-.cartao--novo { animation: entrar-cartao 420ms var(--mola) both; }
+.cartao--novo {
+  animation: entrar-cartao 420ms var(--mola) both;
+}
+
 @keyframes entrar-cartao {
-  from { opacity: 0; transform: scale(0.92); }
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
 }
 
 /* ---------- Carregando: esqueleto no formato dos cartões ---------- */
@@ -173,16 +231,34 @@
   box-shadow: none;
   pointer-events: none;
 }
-.cartao--esqueleto .avatar { background: var(--preenchimento-2); }
+
+.cartao--esqueleto .avatar {
+  background: var(--preenchimento-2);
+}
+
 .linha-esqueleto {
   display: block;
   height: 12px;
   border-radius: 6px;
   background: var(--preenchimento-2);
 }
-.linha-esqueleto.l1 { width: 72%; height: 16px; margin-bottom: 6px; }
-.linha-esqueleto.l2 { width: 88%; }
-.linha-esqueleto.l3 { width: 42%; height: 24px; margin-top: 12px; border-radius: 999px; }
+
+.linha-esqueleto.l1 {
+  width: 72%;
+  height: 16px;
+  margin-bottom: 6px;
+}
+
+.linha-esqueleto.l2 {
+  width: 88%;
+}
+
+.linha-esqueleto.l3 {
+  width: 42%;
+  height: 24px;
+  margin-top: 12px;
+  border-radius: 999px;
+}
 
 .cartao--esqueleto::after {
   content: "";
@@ -192,9 +268,15 @@
   background-size: 250% 100%;
   animation: brilho 1.6s ease-in-out infinite;
 }
+
 @keyframes brilho {
-  from { background-position: 120% 0; }
-  to { background-position: -120% 0; }
+  from {
+    background-position: 120% 0;
+  }
+
+  to {
+    background-position: -120% 0;
+  }
 }
 
 /* ---------- Estados: sem resultado, sem cadastro, erro ---------- */
@@ -207,6 +289,7 @@
   margin: 12vh auto 0;
   text-align: center;
 }
+
 .estado .icone {
   width: 44px;
   height: 44px;
@@ -214,11 +297,26 @@
   color: var(--rotulo-3);
   stroke-width: 1.4;
 }
-.estado__titulo { font: 600 1.0625rem/1.375rem var(--fonte); }
-.estado__texto { color: var(--rotulo-2); text-wrap: pretty; }
-.estado .botao-secundario { margin-top: var(--e-3); }
+
+.estado__titulo {
+  font: 600 1.0625rem/1.375rem var(--fonte);
+}
+
+.estado__texto {
+  color: var(--rotulo-2);
+  text-wrap: pretty;
+}
+
+.estado .botao-secundario {
+  margin-top: var(--e-3);
+}
 
 @media (forced-colors: active) {
-  .cartao { border: 1px solid CanvasText; }
-  .chip::before { forced-color-adjust: none; }
+  .cartao {
+    border: 1px solid CanvasText;
+  }
+
+  .chip::before {
+    forced-color-adjust: none;
+  }
 }

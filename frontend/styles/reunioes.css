@@ -24,33 +24,48 @@
   font-variant-numeric: tabular-nums;
   text-align: center;
 }
+
 .folha-data__mes,
 .folha-data__semana {
   font: 600 0.6875rem/0.875rem var(--fonte);
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
-.folha-data__mes { color: var(--calendario); }
+
+.folha-data__mes {
+  color: var(--calendario);
+}
+
 .folha-data__dia {
   font: 700 1.75rem/2.125rem var(--fonte-titulo);
   letter-spacing: -0.02em;
   color: var(--rotulo);
 }
-.folha-data__semana { color: var(--rotulo-2); }
+
+.folha-data__semana {
+  color: var(--rotulo-2);
+}
 
 /* Hoje: a folha inteira em vermelho, como o dia de hoje no Calendário */
-[data-hoje] > .folha-data {
+[data-hoje]>.folha-data {
   border-color: var(--calendario);
   background: var(--calendario);
 }
-[data-hoje] > .folha-data > span { color: #FFFFFF; }
+
+[data-hoje]>.folha-data>span {
+  color: #FFFFFF;
+}
 
 /* Já aconteceu: o mês perde o vermelho (o dia continua legível) */
-[data-situacao="passada"]:not([data-hoje]) .folha-data__mes { color: var(--rotulo-2); }
+[data-situacao="passada"]:not([data-hoje]) .folha-data__mes {
+  color: var(--rotulo-2);
+}
 
 /* ---------- Página da categoria: grupos e reuniões ---------- */
 
-.grupo-reunioes + .grupo-reunioes { margin-top: var(--e-8); }
+.grupo-reunioes+.grupo-reunioes {
+  margin-top: var(--e-8);
+}
 
 .grupo-reunioes__vazio {
   padding: var(--e-4) var(--e-5);
@@ -94,6 +109,7 @@
   gap: var(--e-2);
   margin-bottom: 2px;
 }
+
 .reuniao__dia {
   font: var(--t-titulo-cartao);
   letter-spacing: -0.018em;
@@ -110,6 +126,7 @@
   font: var(--t-nota);
   white-space: nowrap;
 }
+
 [data-situacao="agora"] .reuniao__quando {
   background: var(--sucesso-suave);
   color: var(--sucesso);
@@ -122,16 +139,34 @@
   font: var(--t-chamada);
   color: var(--rotulo-2);
 }
+
 .reuniao__linha .icone {
   width: 16px;
   height: 16px;
   margin-top: 1px;
   color: var(--rotulo-3);
 }
-.reuniao__linha > span { min-width: 0; overflow-wrap: anywhere; }
-.reuniao__linha--hora { color: var(--rotulo); font-weight: 500; font-variant-numeric: tabular-nums; }
-.reuniao__linha a { color: var(--link); text-decoration: none; }
-.reuniao__linha a:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+.reuniao__linha>span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.reuniao__linha--hora {
+  color: var(--rotulo);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.reuniao__linha a {
+  color: var(--link);
+  text-decoration: none;
+}
+
+.reuniao__linha a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
 
 .reuniao__pauta {
   margin-top: 4px;
@@ -149,18 +184,40 @@
   -webkit-tap-highlight-color: transparent;
   transition: box-shadow var(--rapido) ease, transform var(--rapido) ease;
 }
-.reuniao--abre:hover { box-shadow: var(--sombra-cartao-hover); }
-.reuniao--abre:has(.reuniao__abrir:active) { transform: scale(0.985); }
-.reuniao__abrir { color: inherit; text-decoration: none; }
+
+.reuniao--abre:hover {
+  box-shadow: var(--sombra-cartao-hover);
+}
+
+.reuniao--abre:has(.reuniao__abrir:active) {
+  transform: scale(0.985);
+}
+
+.reuniao__abrir {
+  color: inherit;
+  text-decoration: none;
+}
+
 .reuniao__abrir::after {
   content: "";
   position: absolute;
   inset: 0;
   border-radius: var(--raio-cartao);
 }
-.reuniao__abrir:focus-visible { outline: none; }
-.reuniao__abrir:focus-visible::after { outline: 2px solid var(--anel-foco); outline-offset: 3px; }
-.reuniao__linha a { position: relative; z-index: 1; }
+
+.reuniao__abrir:focus-visible {
+  outline: none;
+}
+
+.reuniao__abrir:focus-visible::after {
+  outline: 2px solid var(--anel-foco);
+  outline-offset: 3px;
+}
+
+.reuniao__linha a {
+  position: relative;
+  z-index: 1;
+}
 
 /* Começo das anotações, ou o convite para escrever */
 .reuniao__anotacoes {
@@ -173,12 +230,14 @@
   font: var(--t-chamada);
   color: var(--rotulo);
 }
+
 .reuniao__anotacoes .icone {
   width: 16px;
   height: 16px;
   margin-top: 1px;
   color: var(--rotulo-3);
 }
+
 .reuniao__anotacoes-texto {
   flex: 1;
   min-width: 0;
@@ -190,11 +249,22 @@
   white-space: pre-line;
   overflow-wrap: anywhere;
 }
-.reuniao__anotacoes--com-texto .icone:first-child { color: var(--acento); }
+
+.reuniao__anotacoes--com-texto .icone:first-child {
+  color: var(--acento);
+}
+
 .reuniao__anotacoes--vazia,
-.reuniao__anotacoes--sem-resumo { color: var(--link); font-weight: 500; }
+.reuniao__anotacoes--sem-resumo {
+  color: var(--link);
+  font-weight: 500;
+}
+
 .reuniao__anotacoes--vazia .icone:first-child,
-.reuniao__anotacoes--sem-resumo .icone:first-child { color: var(--link); }
+.reuniao__anotacoes--sem-resumo .icone:first-child {
+  color: var(--link);
+}
+
 .reuniao__anotacoes .reuniao__seta {
   flex: none;
   align-self: center;
@@ -204,20 +274,34 @@
   stroke-width: 2.2;
   transition: translate var(--rapido) ease;
 }
-.reuniao--abre:hover .reuniao__seta { translate: 2px 0; }
+
+.reuniao--abre:hover .reuniao__seta {
+  translate: 2px 0;
+}
 
 /* Reunião recém-criada: entra e fica azul-claro por um instante (as
    animações entrar-cartao e realce são do cartoes.css) */
-.reuniao--nova { animation: entrar-cartao 420ms var(--mola) both, realce 1.4s ease-out; }
+.reuniao--nova {
+  animation: entrar-cartao 420ms var(--mola) both, realce 1.4s ease-out;
+}
 
 /* Carregando: mesmo brilho do esqueleto dos cartões */
-.reuniao--esqueleto { overflow: hidden; box-shadow: none; }
+.reuniao--esqueleto {
+  overflow: hidden;
+  box-shadow: none;
+}
+
 .reuniao--esqueleto .folha-data {
   border-color: transparent;
   background: var(--preenchimento-2);
   box-shadow: none;
 }
-.reuniao--esqueleto .reuniao__info { gap: 10px; padding-top: var(--e-2); }
+
+.reuniao--esqueleto .reuniao__info {
+  gap: 10px;
+  padding-top: var(--e-2);
+}
+
 .reuniao--esqueleto::after {
   content: "";
   position: absolute;
@@ -228,9 +312,20 @@
 }
 
 @media (max-width: 519px) {
-  .reuniao { gap: var(--e-3); padding: var(--e-3); }
-  .folha-data { width: 56px; min-height: 68px; }
-  .folha-data__dia { font-size: 1.5rem; line-height: 1.875rem; }
+  .reuniao {
+    gap: var(--e-3);
+    padding: var(--e-3);
+  }
+
+  .folha-data {
+    width: 56px;
+    min-height: 68px;
+  }
+
+  .folha-data__dia {
+    font-size: 1.5rem;
+    line-height: 1.875rem;
+  }
 }
 
 /* ---------- Nova reunião: o dia em destaque no topo ----------
@@ -245,28 +340,83 @@
   border-radius: 16px;
   background: var(--janela);
 }
-.dia-reuniao .folha-data { width: 80px; min-height: 92px; }
-.dia-reuniao .folha-data__dia { font-size: 2.375rem; line-height: 2.75rem; }
+
+.dia-reuniao .folha-data {
+  width: 80px;
+  min-height: 92px;
+}
+
+.dia-reuniao .folha-data__dia {
+  font-size: 2.375rem;
+  line-height: 2.75rem;
+}
+
 .dia-reuniao[data-situacao="vazia"] .folha-data {
   border: 1.5px dashed var(--contorno-campo);
   box-shadow: none;
 }
-.dia-reuniao[data-situacao="vazia"] .folha-data__dia { color: var(--rotulo-3); }
 
-.dia-reuniao__texto { display: grid; gap: 2px; min-width: 0; }
-.dia-reuniao__semana { font: 600 0.8125rem/1.125rem var(--fonte); color: var(--rotulo-2); }
-.dia-reuniao__data { font: var(--t-titulo-2); letter-spacing: -0.012em; }
-.dia-reuniao__quando { font: var(--t-chamada); color: var(--rotulo-2); font-variant-numeric: tabular-nums; }
-[data-situacao="agora"] .dia-reuniao__quando { color: var(--sucesso); }
+.dia-reuniao[data-situacao="vazia"] .folha-data__dia {
+  color: var(--rotulo-3);
+}
+
+.dia-reuniao__texto {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.dia-reuniao__semana {
+  font: 600 0.8125rem/1.125rem var(--fonte);
+  color: var(--rotulo-2);
+}
+
+.dia-reuniao__data {
+  font: var(--t-titulo-2);
+  letter-spacing: -0.012em;
+}
+
+.dia-reuniao__quando {
+  font: var(--t-chamada);
+  color: var(--rotulo-2);
+  font-variant-numeric: tabular-nums;
+}
+
+[data-situacao="agora"] .dia-reuniao__quando {
+  color: var(--sucesso);
+}
 
 @media (max-width: 519px) {
-  .dia-reuniao { gap: var(--e-3); padding: var(--e-3); }
-  .dia-reuniao .folha-data { width: 68px; min-height: 80px; }
-  .dia-reuniao .folha-data__dia { font-size: 2rem; line-height: 2.375rem; }
-  .dia-reuniao__data { font-size: 1.125rem; line-height: 1.5rem; }
+  .dia-reuniao {
+    gap: var(--e-3);
+    padding: var(--e-3);
+  }
+
+  .dia-reuniao .folha-data {
+    width: 68px;
+    min-height: 80px;
+  }
+
+  .dia-reuniao .folha-data__dia {
+    font-size: 2rem;
+    line-height: 2.375rem;
+  }
+
+  .dia-reuniao__data {
+    font-size: 1.125rem;
+    line-height: 1.5rem;
+  }
 }
 
 @media (forced-colors: active) {
-  .folha-data, .reuniao, .dia-reuniao { border: 1px solid CanvasText; }
-  [data-hoje] > .folha-data { forced-color-adjust: none; }
+
+  .folha-data,
+  .reuniao,
+  .dia-reuniao {
+    border: 1px solid CanvasText;
+  }
+
+  [data-hoje]>.folha-data {
+    forced-color-adjust: none;
+  }
 }

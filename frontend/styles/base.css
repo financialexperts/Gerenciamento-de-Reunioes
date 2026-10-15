@@ -3,14 +3,22 @@
    campos, avatar) reaproveitados pelas telas.
    ============================================================ */
 
-*, *::before, *::after { box-sizing: border-box; }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
 
-html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
 
 body {
   margin: 0;
   min-height: 100dvh;
-  overflow: hidden; /* quem rola é cada tela (login ou área principal) */
+  overflow: hidden;
+  /* quem rola é cada tela (login ou área principal) */
   font: var(--t-corpo);
   color: var(--rotulo);
   background: var(--janela);
@@ -18,32 +26,76 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-[hidden] { display: none !important; }
+[hidden] {
+  display: none !important;
+}
 
-h1, h2, h3, p, ul { margin: 0; }
-ul { padding: 0; list-style: none; }
-img, svg { display: block; }
-button, input, select, textarea { font: inherit; color: inherit; letter-spacing: inherit; }
-button { cursor: pointer; }
-button:disabled { cursor: default; }
-a { color: inherit; }
+h1,
+h2,
+h3,
+p,
+ul {
+  margin: 0;
+}
 
-::selection { background: var(--anel-foco-suave); }
+ul {
+  padding: 0;
+  list-style: none;
+}
+
+img,
+svg {
+  display: block;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: default;
+}
+
+a {
+  color: inherit;
+}
+
+::selection {
+  background: var(--anel-foco-suave);
+}
 
 .vh {
   position: absolute !important;
-  width: 1px; height: 1px;
-  margin: -1px; padding: 0; border: 0;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
   overflow: hidden;
   clip: rect(0 0 0 0);
   white-space: nowrap;
 }
 
 /* Sprite de ícones: os símbolos existem, o SVG em si não ocupa espaço */
-.sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
+.sprite {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
 
 .icone {
-  width: 20px; height: 20px;
+  width: 20px;
+  height: 20px;
   flex: none;
   fill: none;
   stroke: currentColor;
@@ -75,9 +127,18 @@ a { color: inherit; }
   font-weight: 600;
   transition: filter var(--rapido) ease, transform var(--rapido) ease, opacity var(--rapido) ease;
 }
-.botao-primario:hover:not(:disabled) { filter: brightness(1.08); }
-.botao-primario:active:not(:disabled) { transform: scale(0.98); }
-.botao-primario:disabled { opacity: 0.72; }
+
+.botao-primario:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+
+.botao-primario:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.botao-primario:disabled {
+  opacity: 0.72;
+}
 
 /* Ação secundária: só texto no acento, sem fundo (como "Esqueceu a senha?") */
 .botao-texto {
@@ -91,7 +152,11 @@ a { color: inherit; }
   color: var(--link);
   font-weight: 500;
 }
-.botao-texto:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+.botao-texto:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
 
 .botao-secundario {
   display: inline-flex;
@@ -106,7 +171,10 @@ a { color: inherit; }
   font-weight: 600;
   transition: background-color var(--rapido) ease;
 }
-.botao-secundario:hover { background: var(--preenchimento); }
+
+.botao-secundario:hover {
+  background: var(--preenchimento);
+}
 
 /* Botão de ícone "de vidro" da barra de ferramentas (36 × 36 px,
    acima do padrão de 28 pt do macOS). */
@@ -126,12 +194,21 @@ a { color: inherit; }
   color: var(--rotulo);
   transition: background-color var(--rapido) ease, transform var(--rapido) ease;
 }
-.botao-icone:hover { background: var(--vidro-forte); }
-.botao-icone:active { transform: scale(0.95); }
+
+.botao-icone:hover {
+  background: var(--vidro-forte);
+}
+
+.botao-icone:active {
+  transform: scale(0.95);
+}
 
 /* ---------- Campos de texto ---------- */
 
-.campo { display: grid; gap: 6px; }
+.campo {
+  display: grid;
+  gap: 6px;
+}
 
 .campo__rotulo {
   font-weight: 600;
@@ -154,14 +231,25 @@ a { color: inherit; }
   color: var(--rotulo);
   transition: border-color var(--rapido) ease, box-shadow var(--rapido) ease;
 }
-.entrada::placeholder { color: var(--placeholder); opacity: 1; }
+
+.entrada::placeholder {
+  color: var(--placeholder);
+  opacity: 1;
+}
+
 .entrada:focus-visible {
   outline: none;
   border-color: var(--acento);
   box-shadow: 0 0 0 4px var(--anel-foco-suave);
 }
-.entrada[aria-invalid="true"] { border-color: var(--perigo); }
-.entrada[aria-invalid="true"]:focus-visible { box-shadow: 0 0 0 4px var(--perigo-suave); }
+
+.entrada[aria-invalid="true"] {
+  border-color: var(--perigo);
+}
+
+.entrada[aria-invalid="true"]:focus-visible {
+  box-shadow: 0 0 0 4px var(--perigo-suave);
+}
 
 /* Texto de várias linhas: cresce para baixo, se a pessoa quiser */
 textarea.entrada {
@@ -173,12 +261,16 @@ textarea.entrada {
 
 /* Lista de opções com as setas ↕ dos menus do macOS, no lugar da seta
    do Windows */
-.campo-select { position: relative; }
+.campo-select {
+  position: relative;
+}
+
 .campo-select .entrada {
   appearance: none;
   padding-right: 34px;
   cursor: pointer;
 }
+
 .campo-select .icone {
   position: absolute;
   top: 50%;
@@ -191,7 +283,10 @@ textarea.entrada {
   pointer-events: none;
 }
 
-.campo__opcional { font-weight: 400; color: var(--rotulo-2); }
+.campo__opcional {
+  font-weight: 400;
+  color: var(--rotulo-2);
+}
 
 /* Campos curtos lado a lado (dia, início, duração); quebram de linha
    quando a janela estreita */
@@ -203,13 +298,19 @@ textarea.entrada {
 
 /* Celular e tablet: texto dos campos em 16 px. Menor que isso, o iPhone
    dá zoom na página ao tocar no campo (e ela parece "quebrada"). */
-@media (max-width: 599px), (pointer: coarse) {
-  .entrada, .busca__campo { font-size: 1rem; }
+@media (max-width: 599px),
+(pointer: coarse) {
+
+  .entrada,
+  .busca__campo {
+    font-size: 1rem;
+  }
 }
 
 /* iPhone/iPad: os campos de dia e hora do Safari têm largura mínima
    própria e vazam da coluna; sem a aparência nativa, obedecem. */
 @supports (-webkit-touch-callout: none) {
+
   .entrada[type="date"],
   .entrada[type="time"] {
     -webkit-appearance: none;
@@ -217,12 +318,21 @@ textarea.entrada {
     min-width: 0;
     text-align: left;
   }
-  .entrada::-webkit-date-and-time-value { text-align: left; }
+
+  .entrada::-webkit-date-and-time-value {
+    text-align: left;
+  }
 }
 
 /* Campo de senha com o botão mostrar/ocultar dentro, à direita */
-.campo-senha { position: relative; }
-.campo-senha .entrada { padding-right: 48px; }
+.campo-senha {
+  position: relative;
+}
+
+.campo-senha .entrada {
+  padding-right: 48px;
+}
+
 .alternar-senha {
   position: absolute;
   top: 50%;
@@ -237,10 +347,23 @@ textarea.entrada {
   background: none;
   color: var(--rotulo-2);
 }
-.alternar-senha:hover { color: var(--rotulo); background: var(--preenchimento); }
-.alternar-senha .icone-ocultar { display: none; }
-.alternar-senha[aria-pressed="true"] .icone-mostrar { display: none; }
-.alternar-senha[aria-pressed="true"] .icone-ocultar { display: block; }
+
+.alternar-senha:hover {
+  color: var(--rotulo);
+  background: var(--preenchimento);
+}
+
+.alternar-senha .icone-ocultar {
+  display: none;
+}
+
+.alternar-senha[aria-pressed="true"] .icone-mostrar {
+  display: none;
+}
+
+.alternar-senha[aria-pressed="true"] .icone-ocultar {
+  display: block;
+}
 
 .mensagem {
   display: flex;
@@ -250,8 +373,16 @@ textarea.entrada {
   border-radius: 12px;
   font: var(--t-chamada);
 }
-.mensagem--erro { background: var(--perigo-suave); color: var(--perigo); }
-.mensagem--sucesso { background: var(--sucesso-suave); color: var(--sucesso); }
+
+.mensagem--erro {
+  background: var(--perigo-suave);
+  color: var(--perigo);
+}
+
+.mensagem--sucesso {
+  background: var(--sucesso-suave);
+  color: var(--sucesso);
+}
 
 /* Ação principal da página na barra de ferramentas: cápsula azul com "+"
    (uma só por tela — HIG › Buttons). No celular vira só o ícone. */
@@ -272,11 +403,27 @@ textarea.entrada {
   box-shadow: var(--sombra-controle);
   transition: filter var(--rapido) ease, transform var(--rapido) ease;
 }
-.botao-destaque .icone { width: 18px; height: 18px; stroke-width: 2.2; }
-.botao-destaque:hover { filter: brightness(1.08); }
-.botao-destaque:active { transform: scale(0.97); }
+
+.botao-destaque .icone {
+  width: 18px;
+  height: 18px;
+  stroke-width: 2.2;
+}
+
+.botao-destaque:hover {
+  filter: brightness(1.08);
+}
+
+.botao-destaque:active {
+  transform: scale(0.97);
+}
+
 @media (max-width: 599px) {
-  .botao-destaque { width: var(--altura-controle); padding: 0; }
+  .botao-destaque {
+    width: var(--altura-controle);
+    padding: 0;
+  }
+
   .botao-destaque__texto {
     position: absolute;
     width: 1px;
@@ -301,30 +448,66 @@ textarea.entrada {
   box-shadow: var(--sombra-menu);
   color: var(--rotulo);
 }
-.dialogo--largo { width: min(34rem, calc(100vw - 32px)); }
-.dialogo::backdrop { background: rgb(0 0 0 / 0.28); }
-.dialogo[open] { animation: surgir-dialogo 240ms var(--mola); }
-@keyframes surgir-dialogo {
-  from { opacity: 0; transform: translateY(10px) scale(0.98); }
+
+.dialogo--largo {
+  width: min(34rem, calc(100vw - 32px));
 }
 
-.dialogo__corpo { display: grid; gap: var(--e-4); padding: 28px 28px 24px; }
-.dialogo__cabecalho { display: grid; gap: 4px; margin-bottom: var(--e-1); }
-.dialogo__titulo { font: var(--t-titulo-2); letter-spacing: -0.012em; }
-.dialogo__descricao { color: var(--rotulo-2); text-wrap: pretty; }
+.dialogo::backdrop {
+  background: rgb(0 0 0 / 0.28);
+}
+
+.dialogo[open] {
+  animation: surgir-dialogo 240ms var(--mola);
+}
+
+@keyframes surgir-dialogo {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+}
+
+.dialogo__corpo {
+  display: grid;
+  gap: var(--e-4);
+  padding: 28px 28px 24px;
+}
+
+.dialogo__cabecalho {
+  display: grid;
+  gap: 4px;
+  margin-bottom: var(--e-1);
+}
+
+.dialogo__titulo {
+  font: var(--t-titulo-2);
+  letter-spacing: -0.012em;
+}
+
+.dialogo__descricao {
+  color: var(--rotulo-2);
+  text-wrap: pretty;
+}
+
 .dialogo__acoes {
   display: flex;
   justify-content: flex-end;
   gap: var(--e-3);
   margin-top: var(--e-2);
 }
+
 .dialogo__acoes .botao-primario,
-.dialogo__acoes .botao-secundario { min-height: 40px; padding: 0 var(--e-5); }
+.dialogo__acoes .botao-secundario {
+  min-height: 40px;
+  padding: 0 var(--e-5);
+}
 
 /* Celular: a janela vira uma folha que sobe do pé da tela (como as
    folhas do iOS), na largura toda. Os botões ficam presos no rodapé
    dela, sempre à vista enquanto o formulário rola. */
 @media (max-width: 599px) {
+
   .dialogo,
   .dialogo--largo {
     width: 100%;
@@ -335,9 +518,21 @@ textarea.entrada {
     border-radius: 22px 22px 0 0;
     overscroll-behavior: contain;
   }
-  .dialogo[open] { animation: subir-folha 420ms var(--mola); }
-  .dialogo__corpo { gap: 14px; padding: 22px var(--margem) 0; }
-  .dialogo__titulo { font-size: 1.1875rem; line-height: 1.5rem; }
+
+  .dialogo[open] {
+    animation: subir-folha 420ms var(--mola);
+  }
+
+  .dialogo__corpo {
+    gap: 14px;
+    padding: 22px var(--margem) 0;
+  }
+
+  .dialogo__titulo {
+    font-size: 1.1875rem;
+    line-height: 1.5rem;
+  }
+
   .dialogo__acoes {
     position: sticky;
     bottom: 0;
@@ -347,25 +542,68 @@ textarea.entrada {
     border-top: 1px solid var(--separador);
     background: var(--superficie);
   }
+
   .dialogo__acoes .botao-primario,
-  .dialogo__acoes .botao-secundario { flex: 1; min-height: 46px; }
+  .dialogo__acoes .botao-secundario {
+    flex: 1;
+    min-height: 46px;
+  }
+
   /* Dia na linha de cima, inteiro; início e duração lado a lado embaixo */
-  .campos-linha { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .campos-linha > :first-child:nth-last-child(3) { grid-column: 1 / -1; }
-  .dialogo__concluido { padding-top: 28px; }
-}
-@keyframes subir-folha {
-  from { transform: translateY(100%); }
+  .campos-linha {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .campos-linha> :first-child:nth-last-child(3) {
+    grid-column: 1 / -1;
+  }
+
+  .dialogo__concluido {
+    padding-top: 28px;
+  }
 }
 
-.dialogo__concluido { justify-items: center; text-align: center; }
-.dialogo__concluido > .icone { width: 48px; height: 48px; color: var(--sucesso); stroke-width: 1.5; }
-.dialogo__concluido p { color: var(--rotulo-2); text-wrap: pretty; }
-.dialogo__concluido strong { color: var(--rotulo); font-weight: 600; }
-.dialogo__concluido .dialogo__acoes { width: 100%; }
-.dialogo__concluido .dialogo__acoes .botao-primario { flex: 1; }
+@keyframes subir-folha {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+.dialogo__concluido {
+  justify-items: center;
+  text-align: center;
+}
+
+.dialogo__concluido>.icone {
+  width: 48px;
+  height: 48px;
+  color: var(--sucesso);
+  stroke-width: 1.5;
+}
+
+.dialogo__concluido p {
+  color: var(--rotulo-2);
+  text-wrap: pretty;
+}
+
+.dialogo__concluido strong {
+  color: var(--rotulo);
+  font-weight: 600;
+}
+
+.dialogo__concluido .dialogo__acoes {
+  width: 100%;
+}
+
+.dialogo__concluido .dialogo__acoes .botao-primario {
+  flex: 1;
+}
+
 @media (max-width: 599px) {
-  .dialogo__concluido .dialogo__acoes { width: auto; justify-self: stretch; }
+  .dialogo__concluido .dialogo__acoes {
+    width: auto;
+    justify-self: stretch;
+  }
 }
 
 /* Dados de acesso para repassar ao professor (selecionáveis de uma vez) */
@@ -379,15 +617,41 @@ textarea.entrada {
   background: var(--janela);
   text-align: left;
 }
-.credenciais div { display: flex; justify-content: space-between; gap: var(--e-4); }
-.credenciais dt { color: var(--rotulo-2); }
-.credenciais dd { margin: 0; font-weight: 600; word-break: break-all; user-select: all; }
+
+.credenciais div {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--e-4);
+}
+
+.credenciais dt {
+  color: var(--rotulo-2);
+}
+
+.credenciais dd {
+  margin: 0;
+  font-weight: 600;
+  word-break: break-all;
+  user-select: all;
+}
 
 /* ---------- Controle segmentado (escolha entre 2 opções) ----------
    Rádios nativos por baixo: setas do teclado e leitor de tela funcionam. */
-.grupo-escolha { min-width: 0; margin: 0; padding: 0; border: 0; }
-.grupo-escolha legend { margin-bottom: 6px; padding: 0; }
-.grupo-escolha .campo__ajuda { margin-top: 6px; }
+.grupo-escolha {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.grupo-escolha legend {
+  margin-bottom: 6px;
+  padding: 0;
+}
+
+.grupo-escolha .campo__ajuda {
+  margin-top: 6px;
+}
 
 .segmentado {
   display: grid;
@@ -397,7 +661,11 @@ textarea.entrada {
   border-radius: 10px;
   background: var(--preenchimento);
 }
-.segmentado label { position: relative; }
+
+.segmentado label {
+  position: relative;
+}
+
 .segmentado input {
   position: absolute;
   inset: 0;
@@ -405,6 +673,7 @@ textarea.entrada {
   opacity: 0;
   cursor: pointer;
 }
+
 .segmentado span {
   display: grid;
   place-items: center;
@@ -413,12 +682,17 @@ textarea.entrada {
   font-weight: 500;
   transition: background-color var(--rapido) ease, box-shadow var(--rapido) ease;
 }
-.segmentado input:checked + span {
+
+.segmentado input:checked+span {
   background: var(--superficie);
   box-shadow: 0 1px 3px rgb(0 0 0 / 0.12), 0 0 0 0.5px rgb(0 0 0 / 0.06);
   font-weight: 600;
 }
-.segmentado input:focus-visible + span { outline: 2px solid var(--anel-foco); outline-offset: 1px; }
+
+.segmentado input:focus-visible+span {
+  outline: 2px solid var(--anel-foco);
+  outline-offset: 1px;
+}
 
 /* ---------- Avatar (monograma) ---------- */
 
@@ -440,7 +714,10 @@ textarea.entrada {
    Sem escala, deslizes e brilhos animados (HIG › Accessibility ›
    Cognitive). As mudanças de estado continuam visíveis por cor/forma. */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
@@ -450,8 +727,23 @@ textarea.entrada {
 
 /* Alto contraste do Windows: cores do sistema, bordas sempre visíveis */
 @media (forced-colors: active) {
-  .botao-icone, .botao-secundario, .entrada { border: 1px solid ButtonText; }
-  .botao-primario, .botao-destaque { border: 1px solid ButtonText; }
-  .dialogo { border: 1px solid CanvasText; }
-  .segmentado input:checked + span { outline: 2px solid Highlight; }
+
+  .botao-icone,
+  .botao-secundario,
+  .entrada {
+    border: 1px solid ButtonText;
+  }
+
+  .botao-primario,
+  .botao-destaque {
+    border: 1px solid ButtonText;
+  }
+
+  .dialogo {
+    border: 1px solid CanvasText;
+  }
+
+  .segmentado input:checked+span {
+    outline: 2px solid Highlight;
+  }
 }
