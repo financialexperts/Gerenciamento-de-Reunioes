@@ -3,16 +3,19 @@ import { esperar } from './shared/dom.js';
 import { iniciarAutenticacao, sair } from './features/auth/auth.js';
 import { atualizarConta, esconderApp, iniciarShell, mostrarApp, trocarTela } from './features/app/shell.js';
 import {
-  iniciarRotas, irParaCategoria, irParaProfessor, irParaReuniao, limparRota, rotaAtual, voltarParaCategoria, voltarParaLista,
-  voltarParaProfessor,
+  iniciarRotas, irParaAnotacoes, irParaProfessor, irParaReuniao, limparRota, rotaAtual, voltarParaLista,
+  voltarParaProfessor, voltarParaReuniao,
 } from './features/app/rotas.js';
 import { adicionarProfessor, carregarAlinhamento, focarProfessor, iniciarAlinhamento, limparAlinhamento } from './features/alinhamento/alinhamentoView.js';
-import { abrirProfessor, adicionarCategoria, iniciarProfessor, limparProfessor, permitirNovaCategoria } from './features/professores/professorView.js';
+import {
+  abrirProfessor, adicionarReuniao, iniciarProfessor, limparProfessor, permitirAnotacoes, permitirNovaReuniao,
+} from './features/professores/professorView.js';
 import { iniciarNovoProfessor, permitirCadastro } from './features/professores/novoProfessor.js';
+import { esquecerCategorias } from './features/categorias/categorias.js';
 import { iniciarNovaCategoria } from './features/categorias/novaCategoria.js';
 import {
-  abrirReunioes, adicionarReuniao, iniciarReunioes, limparReunioes, permitirAnotacoes, permitirNovaReuniao,
-} from './features/reunioes/reunioesView.js';
+  abrirReuniao, adicionarCategoria, iniciarReuniao, limparReuniao, permitirNovaCategoria,
+} from './features/reunioes/reuniaoView.js';
 import { fecharNovaReuniao, iniciarNovaReuniao } from './features/reunioes/novaReuniao.js';
 import {
   abrirAnotacoes, iniciarAnotacoes, limparAnotacoes, sairDasAnotacoes, salvarAnotacoesPendentes,
@@ -20,8 +23,8 @@ import {
 
 // Ponto de partida: liga as telas, decide pela sessão entre o login e o
 // aplicativo e, dentro dele, mostra a tela do endereço (lista de
-// professores, a página de um professor, a de uma categoria dele ou as
-// anotações de uma reunião).
+// professores, a página de um professor com as reuniões dele, a de uma
+// reunião com as categorias ou as anotações de uma categoria da reunião).
 
 let rotaMostrada = null;
 
@@ -36,9 +39,9 @@ iniciarShell({
   aoAbrirAlinhamento: voltarParaLista,
 });
 iniciarAlinhamento({ aoAbrirProfessor: irParaProfessor });
-iniciarProfessor({ aoVoltar: voltarParaLista, aoAbrirCategoria: irParaCategoria });
-iniciarReunioes({ aoVoltar: voltarParaProfessor, aoVoltarParaLista: voltarParaLista, aoAbrirReuniao: irParaReuniao });
-iniciarAnotacoes({ aoVoltar: voltarParaCategoria });
+iniciarProfessor({ aoVoltar: voltarParaLista, aoAbrirReuniao: irParaReuniao });
+iniciarReuniao({ aoVoltar: voltarParaProfessor, aoVoltarParaLista: voltarParaLista, aoAbrirAnotacoes: irParaAnotacoes });
+iniciarAnotacoes({ aoVoltar: voltarParaReuniao });
 iniciarNovoProfessor({ aoCadastrar: adicionarProfessor });
 iniciarNovaCategoria({ aoCriar: adicionarCategoria });
 iniciarNovaReuniao({ aoCriar: adicionarReuniao });
@@ -75,8 +78,9 @@ iniciarAutenticacao({
     state.perfil = null;
     limparAlinhamento();
     limparProfessor();
-    limparReunioes();
+    limparReuniao();
     limparAnotacoes();
+    esquecerCategorias();
     limparRota();
     rotaMostrada = null;
     document.title = 'Gestão de Reuniões';
@@ -85,7 +89,7 @@ iniciarAutenticacao({
 });
 
 // Mostra a tela do endereço atual. Roda ao entrar, ao clicar num
-// professor, numa categoria ou numa reunião e no Voltar/Avançar do
+// professor, numa reunião ou numa categoria e no Voltar/Avançar do
 // navegador.
 function mostrarRota(rota) {
   if (!state.usuario) return; // na tela de login o endereço espera o login
@@ -101,15 +105,21 @@ function mostrarRota(rota) {
     abrirAnotacoes(rota);
     return;
   }
-  if (rota.tela === 'categoria') {
-    const voltandoDaReuniao = anterior?.tela === 'anotacoes'
-      && anterior.professorId === rota.professorId && anterior.categoriaId === rota.categoriaId;
-    abrirReunioes(rota.professorId, rota.categoriaId, { deReuniao: voltandoDaReuniao ? anterior.reuniaoId : null, salvando });
+  if (rota.tela === 'reuniao') {
+    const voltandoDasAnotacoes = anterior?.tela === 'anotacoes'
+      && anterior.professorId === rota.professorId && anterior.reuniaoId === rota.reuniaoId;
+    abrirReuniao(rota.professorId, rota.reuniaoId, {
+      deCategoria: voltandoDasAnotacoes ? anterior.categoriaId : null,
+      salvando,
+    });
     return;
   }
   if (rota.tela === 'professor') {
-    const voltandoDaCategoria = anterior?.tela === 'categoria' && anterior.professorId === rota.professorId;
-    abrirProfessor(rota.professorId, { deCategoria: voltandoDaCategoria ? anterior.categoriaId : null });
+    // De uma reunião (ou das anotações dela, pelo Voltar do navegador), o
+    // foco volta para o cartão da reunião.
+    const voltandoDaReuniao = (anterior?.tela === 'reuniao' || anterior?.tela === 'anotacoes')
+      && anterior.professorId === rota.professorId;
+    abrirProfessor(rota.professorId, { deReuniao: voltandoDaReuniao ? anterior.reuniaoId : null, salvando });
     return;
   }
   document.title = 'Gestão de Reuniões';

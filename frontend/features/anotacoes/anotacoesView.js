@@ -301,9 +301,10 @@ function ehAdmin() {
 
 // ---------- Salvamento ----------
 
-function novaSessao(reuniaoId, salvo, chave) {
+function novaSessao({ reuniaoId, categoriaId }, salvo, chave) {
   return {
     reuniaoId,
+    categoriaId,
     chave,
     salvo,             // o último HTML gravado no banco
     edicao: 0,         // conta as mudanças
@@ -359,7 +360,12 @@ function salvar(s) {
 
   s.emAndamento = (async () => {
     try {
-      const { error } = await salvarAnotacoes({ reuniao_id: s.reuniaoId, conteudo: html, resumo: texto });
+      const { error } = await salvarAnotacoes({
+        reuniao_id: s.reuniaoId,
+        categoria_id: s.categoriaId,
+        conteudo: html,
+        resumo: texto,
+      });
       if (error) throw error;
       s.salvo = html;
       s.tentativas = 0;
@@ -406,15 +412,18 @@ function falhaDeConexao(erro) {
 function problemaAoSalvar(erro) {
   if (erro?.code === '42501') return 'O banco não reconheceu sua conta como administrador, então as anotações não foram salvas.';
   if (faltaTabelaDeAnotacoes(erro)) return 'As anotações ainda não foram configuradas no banco: rode o arquivo sql/anotacoes_reuniao.sql no Supabase.';
-  if (erro?.code === '23503') return 'Esta reunião não existe mais no banco, então as anotações não foram salvas.';
+  if (faltaAtualizarBanco(erro)) {
+    return 'O banco de dados ainda está na estrutura antiga, com uma categoria por reunião. Rode no Supabase o SQL que separa as anotações por categoria.';
+  }
+  if (erro?.code === '23503') return 'Esta reunião ou esta categoria não existe mais no banco, então as anotações não foram salvas.';
   return 'Não foi possível salvar as anotações. Elas ficam guardadas neste aparelho; tente de novo em instantes.';
 }
 
 // ---------- Rascunho neste aparelho ----------
-// Por pessoa e por reunião. Some quando o banco confirma o salvamento.
+// Por pessoa, reunião e categoria. Some quando o banco confirma o salvamento.
 
-function chaveDoRascunho(reuniaoId) {
-  return `gestao-reunioes:anotacoes:${state.usuario?.id}:${reuniaoId}`;
+function chaveDoRascunho(reuniaoId, categoriaId) {
+  return `gestao-reunioes:anotacoes:${state.usuario?.id}:${reuniaoId}:${categoriaId}`;
 }
 
 function guardarRascunho(s) {
@@ -438,24 +447,26 @@ function lerRascunho(chave) {
 
 // ---------- Desenho ----------
 
+// O título é a categoria ("Feedback"); embaixo, de qual reunião ela é.
 function desenharCabecalho({ carregando = false, reuniao = null, professor = null, categoria = null }) {
-  const voltarPara = categoria ? `Voltar para ${categoria.nome}` : 'Voltar para as reuniões';
-  els.voltar.setAttribute('aria-label', voltarPara);
-  els.voltar.title = voltarPara;
+  els.titulo.textContent = categoria?.nome ?? 'Anotações';
+  els.titulo.title = categoria?.nome ?? ''; // nome longo cortado com "…"
+  els.editor.setAttribute('aria-label', categoria ? `Anotações de ${categoria.nome}` : 'Anotações da reunião');
+  els.voltar.setAttribute('aria-label', 'Voltar para a reunião');
+  els.voltar.title = 'Voltar para a reunião';
   els.salvamento.hidden = true;
   if (!reuniao) {
     els.subtitulo.textContent = carregando ? 'Carregando…' : '';
     els.subtitulo.title = '';
-    document.title = 'Anotações – Gestão de Reuniões';
+    document.title = `${categoria?.nome ?? 'Anotações'} – Gestão de Reuniões`;
     return;
   }
   const inicio = new Date(reuniao.inicio);
   const dia = `${diaDaSemana(inicio)}, ${diaPorExtenso(inicio)}`;
-  const com = [categoria?.nome, professor?.nome].filter(Boolean).join(' com ');
-  const texto = [`${dia} · ${hora(inicio)} às ${hora(fimDaReuniao(reuniao))}`, com].filter(Boolean).join(' · ');
+  const texto = [`${dia} · ${hora(inicio)} às ${hora(fimDaReuniao(reuniao))}`, professor?.nome].filter(Boolean).join(' · ');
   els.subtitulo.textContent = texto;
   els.subtitulo.title = texto;
-  document.title = `Anotações de ${diaPorExtenso(inicio)}${categoria ? ` · ${categoria.nome}` : ''} – Gestão de Reuniões`;
+  document.title = `${categoria?.nome ?? 'Anotações'} · Reunião de ${diaPorExtenso(inicio)} – Gestão de Reuniões`;
 }
 
 function mostrarCarregando() {

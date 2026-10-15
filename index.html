@@ -408,28 +408,28 @@
             <h1 class="titulo-grande titulo-grande--uma-linha" id="professor-nome" tabindex="-1">Professor</h1>
             <p class="subtitulo" id="professor-email"></p>
           </div>
-          <button type="button" class="botao-destaque" id="btn-nova-categoria" hidden>
-            <svg class="icone" aria-hidden="true"><use href="#i-mais"/></svg>
-            <span class="botao-destaque__texto">Nova categoria</span>
-          </button>
-        </div>
-
-        <div class="cabecalho__tela" data-tela="categoria" hidden>
-          <button type="button" class="botao-icone botao-voltar" id="btn-voltar-professor" aria-label="Voltar para o professor" title="Voltar para o professor">
-            <svg class="icone" aria-hidden="true"><use href="#i-voltar"/></svg>
-          </button>
-          <div class="cabecalho__titulos">
-            <h1 class="titulo-grande titulo-grande--uma-linha" id="titulo-categoria" tabindex="-1">Categoria</h1>
-            <p class="subtitulo" id="subtitulo-categoria"></p>
-          </div>
           <button type="button" class="botao-destaque" id="btn-nova-reuniao" hidden>
             <svg class="icone" aria-hidden="true"><use href="#i-mais"/></svg>
             <span class="botao-destaque__texto">Nova reunião</span>
           </button>
         </div>
 
+        <div class="cabecalho__tela" data-tela="reuniao" hidden>
+          <button type="button" class="botao-icone botao-voltar" id="btn-voltar-professor" aria-label="Voltar para o professor" title="Voltar para o professor">
+            <svg class="icone" aria-hidden="true"><use href="#i-voltar"/></svg>
+          </button>
+          <div class="cabecalho__titulos">
+            <h1 class="titulo-grande titulo-grande--uma-linha" id="titulo-reuniao" tabindex="-1">Reunião</h1>
+            <p class="subtitulo" id="subtitulo-reuniao"></p>
+          </div>
+          <button type="button" class="botao-destaque" id="btn-nova-categoria" hidden>
+            <svg class="icone" aria-hidden="true"><use href="#i-mais"/></svg>
+            <span class="botao-destaque__texto">Nova categoria</span>
+          </button>
+        </div>
+
         <div class="cabecalho__tela" data-tela="anotacoes" hidden>
-          <button type="button" class="botao-icone botao-voltar" id="btn-voltar-categoria" aria-label="Voltar para as reuniões" title="Voltar para as reuniões">
+          <button type="button" class="botao-icone botao-voltar" id="btn-voltar-reuniao" aria-label="Voltar para a reunião" title="Voltar para a reunião">
             <svg class="icone" aria-hidden="true"><use href="#i-voltar"/></svg>
           </button>
           <div class="cabecalho__titulos">
@@ -490,25 +490,26 @@
       <div class="estado" id="estado-lista" hidden></div>
     </section>
 
-    <!-- Página de um professor: as categorias de reunião (iguais para todos) -->
-    <section class="conteudo" data-tela="professor" aria-labelledby="rotulo-categorias" hidden>
-      <div class="secao" id="secao-categorias">
-        <h2 class="secao__titulo" id="rotulo-categorias">Categorias de reunião</h2>
-        <p class="secao__descricao">As mesmas para todos os professores. Abra uma para ver as reuniões.</p>
-      </div>
-      <ul class="grade" id="lista-categorias" role="list" aria-labelledby="rotulo-categorias"></ul>
-      <div class="estado" id="estado-categorias" hidden></div>
-      <p class="vh" id="aviso-categorias" aria-live="polite"></p>
-    </section>
-
-    <!-- Página de uma categoria de um professor: as reuniões, com o dia em destaque -->
-    <section class="conteudo" data-tela="categoria" aria-labelledby="titulo-categoria" hidden>
+    <!-- Página de um professor: as reuniões, com o dia em destaque e o começo das anotações de cada categoria -->
+    <section class="conteudo" data-tela="professor" aria-labelledby="professor-nome" hidden>
       <div id="lista-reunioes"></div>
       <div class="estado" id="estado-reunioes" hidden></div>
       <p class="vh" id="aviso-reunioes" aria-live="polite"></p>
     </section>
 
-    <!-- Anotações de uma reunião: uma folha em branco, como no Google Docs -->
+    <!-- Página de uma reunião: o cartão dela e as categorias de anotações (as mesmas em todas as reuniões) -->
+    <section class="conteudo" data-tela="reuniao" aria-labelledby="titulo-reuniao" hidden>
+      <div class="detalhes-reuniao" id="detalhes-reuniao"></div>
+      <div class="secao" id="secao-categorias">
+        <h2 class="secao__titulo" id="rotulo-categorias">Anotações</h2>
+        <p class="secao__descricao">Uma folha para cada categoria. As categorias são as mesmas em todas as reuniões.</p>
+      </div>
+      <ul class="grade" id="lista-categorias" role="list" aria-labelledby="rotulo-categorias"></ul>
+      <div class="estado" id="estado-reuniao" hidden></div>
+      <p class="vh" id="aviso-reuniao" aria-live="polite"></p>
+    </section>
+
+    <!-- Anotações de uma categoria da reunião: uma folha em branco, como no Google Docs -->
     <section class="conteudo conteudo--anotacoes" data-tela="anotacoes" aria-labelledby="titulo-anotacoes" hidden>
       <div class="folha" id="folha-anotacoes">
         <div class="folha__esqueleto" id="esqueleto-anotacoes" aria-hidden="true">
@@ -593,12 +594,12 @@
     </div>
   </dialog>
 
-  <!-- Nova categoria de reunião: uma lista só, igual para todos os professores -->
+  <!-- Nova categoria de anotações: uma lista só, a mesma dentro de todas as reuniões -->
   <dialog class="dialogo" id="dialogo-nova-categoria" aria-labelledby="nova-categoria-titulo" aria-describedby="nova-categoria-descricao">
     <form class="dialogo__corpo" id="form-nova-categoria" novalidate>
       <div class="dialogo__cabecalho">
         <h2 class="dialogo__titulo" id="nova-categoria-titulo">Nova categoria</h2>
-        <p class="dialogo__descricao" id="nova-categoria-descricao">Ela aparece para todos os professores.</p>
+        <p class="dialogo__descricao" id="nova-categoria-descricao">Ela aparece em todas as reuniões, de todos os professores.</p>
       </div>
       <div class="campo">
         <label class="campo__rotulo" for="categoria-nome">Nome</label>

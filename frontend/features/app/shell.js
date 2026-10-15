@@ -1,8 +1,9 @@
 import { iniciais, movimentoReduzido } from '../../shared/dom.js';
 
 // Estrutura do aplicativo: barra lateral (mostrar/ocultar), troca entre as
-// telas (lista, página do professor e página de uma categoria), efeito de
-// borda de rolagem no cabeçalho e o menu da conta no canto superior direito.
+// telas (lista, página do professor, de uma reunião e de anotações),
+// efeito de borda de rolagem no cabeçalho e o menu da conta no canto
+// superior direito.
 
 const app = document.getElementById('app');
 const barra = document.getElementById('barra-lateral');

@@ -1,10 +1,13 @@
 /* ============================================================
-   REUNIÕES — a página de uma categoria (as reuniões com o
-   professor: as próximas e as que já aconteceram) e a janela
-   "Nova reunião". O dia é o destaque: cada reunião tem uma folha
-   de calendário, como o ícone do Calendário — o mês em vermelho,
-   o dia grande e o dia da semana. Para admin, o cartão abre as
-   anotações da reunião (anotacoes.css).
+   REUNIÕES — as reuniões na página do professor (as próximas e
+   as que já aconteceram), a página de uma reunião (o cartão dela
+   e as categorias de anotações em quadrados) e a janela "Nova
+   reunião". O dia é o destaque: cada reunião tem uma folha de
+   calendário, como o ícone do Calendário — o mês em vermelho, o
+   dia grande e o dia da semana. Para admin, o cartão mostra o
+   começo das anotações de cada categoria e abre a página da
+   reunião; cada quadrado de categoria abre as anotações dela
+   (anotacoes.css).
    ============================================================ */
 
 /* ---------- Folha de calendário ---------- */
@@ -61,7 +64,7 @@
   color: var(--rotulo-2);
 }
 
-/* ---------- Página da categoria: grupos e reuniões ---------- */
+/* ---------- Página do professor: grupos e reuniões ---------- */
 
 .grupo-reunioes+.grupo-reunioes {
   margin-top: var(--e-8);
@@ -177,7 +180,7 @@
   overflow-wrap: anywhere;
 }
 
-/* Reunião que abre as anotações (admin): o link do dia se estica por
+/* Reunião que abre a página dela (admin): o link do dia se estica por
    cima do cartão inteiro; o link da chamada continua clicável por cima. */
 .reuniao--abre {
   cursor: pointer;
@@ -219,64 +222,98 @@
   z-index: 1;
 }
 
-/* Começo das anotações, ou o convite para escrever */
-.reuniao__anotacoes {
+/* Começo das anotações de cada categoria, embaixo da reunião (admin): a
+   lista ocupa a largura toda do cartão, depois de uma linha fina. */
+.reuniao--com-previas {
+  flex-wrap: wrap;
+}
+
+.reuniao__previas {
+  display: grid;
+  gap: var(--e-3);
+  flex: 1 0 100%;
+  min-width: 0;
+  padding-top: var(--e-3);
+  border-top: 1px solid var(--separador);
+}
+
+.previa {
   display: flex;
   align-items: flex-start;
-  gap: 6px;
-  margin-top: 4px;
-  padding-top: var(--e-2);
-  border-top: 1px solid var(--separador);
-  font: var(--t-chamada);
-  color: var(--rotulo);
+  gap: 10px;
+  min-width: 0;
 }
 
-.reuniao__anotacoes .icone {
-  width: 16px;
-  height: 16px;
-  margin-top: 1px;
-  color: var(--rotulo-3);
+/* O ícone da categoria em miniatura: o mesmo quadrado cinza dos
+   quadrados de categoria; sem nada escrito, só o fundo claro. */
+.previa__icone {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
+  background: linear-gradient(180deg, var(--avatar-topo), var(--avatar-base));
+  color: #FFFFFF;
 }
 
-.reuniao__anotacoes-texto {
+.previa__icone .icone {
+  width: 14px;
+  height: 14px;
+  stroke-width: 1.9;
+}
+
+.previa--vazia .previa__icone {
+  background: var(--preenchimento);
+  color: var(--rotulo-2);
+}
+
+/* O nome fica na altura do meio do ícone; o texto continua embaixo. */
+.previa__corpo {
   flex: 1;
   min-width: 0;
+  padding-top: 3px;
+}
+
+.previa__nome {
+  overflow: hidden;
+  font: 600 0.8125rem/1.125rem var(--fonte);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.previa__texto {
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
   line-clamp: 2;
   overflow: hidden;
+  font: var(--t-chamada);
+  color: var(--rotulo-2);
   white-space: pre-line;
   overflow-wrap: anywhere;
 }
 
-.reuniao__anotacoes--com-texto .icone:first-child {
-  color: var(--acento);
+/* Categoria ainda sem anotações: nome e aviso numa linha só, apagados */
+.previa--vazia .previa__corpo {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
 }
 
-.reuniao__anotacoes--vazia,
-.reuniao__anotacoes--sem-resumo {
-  color: var(--link);
+.previa--vazia .previa__nome {
+  min-width: 0;
   font-weight: 500;
+  color: var(--rotulo-2);
 }
 
-.reuniao__anotacoes--vazia .icone:first-child,
-.reuniao__anotacoes--sem-resumo .icone:first-child {
-  color: var(--link);
-}
-
-.reuniao__anotacoes .reuniao__seta {
+.previa--vazia .previa__texto {
   flex: none;
-  align-self: center;
-  width: 14px;
-  height: 14px;
-  margin: 0 -2px 0 0;
-  stroke-width: 2.2;
-  transition: translate var(--rapido) ease;
 }
 
-.reuniao--abre:hover .reuniao__seta {
-  translate: 2px 0;
+.previa--vazia .previa__texto::before {
+  content: "· ";
+  content: "· " / "";
 }
 
 /* Reunião recém-criada: entra e fica azul-claro por um instante (as
