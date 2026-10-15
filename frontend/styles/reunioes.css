@@ -223,9 +223,11 @@
 }
 
 /* Começo das anotações de cada categoria, embaixo da reunião (admin): a
-   lista ocupa a largura toda do cartão, depois de uma linha fina. */
+   lista ocupa a largura toda do cartão, depois de uma linha fina. Num
+   cartão esticado pela grade, a sobra fica no pé, não entre as partes. */
 .reuniao--com-previas {
   flex-wrap: wrap;
+  align-content: flex-start;
 }
 
 .reuniao__previas {
@@ -374,11 +376,15 @@
 }
 
 /* O quadrado de uma categoria mostra o começo das anotações dela: ícone
-   e nome no topo e o texto embaixo, alinhado à esquerda como uma nota. */
+   e nome no topo e o texto embaixo, alinhado à esquerda como uma nota. A
+   altura acompanha o texto (o começo das anotações tem até 280
+   caracteres), em vez de um quadrado quase vazio. */
 .cartao--anotacoes {
   align-items: stretch;
   justify-content: flex-start;
   gap: var(--e-3);
+  aspect-ratio: auto;
+  min-height: 11rem;
   padding: var(--e-5);
   text-align: left;
 }
@@ -409,8 +415,8 @@
 .cartao__previa {
   display: -webkit-box;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 8;
-  line-clamp: 8;
+  -webkit-line-clamp: 10;
+  line-clamp: 10;
   overflow: hidden;
   font: var(--t-chamada);
   color: var(--rotulo-2);
@@ -434,6 +440,7 @@
   .cartao--anotacoes {
     flex-direction: column;
     gap: var(--e-2);
+    min-height: 0;
     padding: var(--e-4) 44px var(--e-4) var(--e-4);
   }
 

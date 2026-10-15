@@ -276,10 +276,12 @@ function focarCategoria(id) {
 
 // ---------- Desenho ----------
 
+// O título é o dia ("12 de outubro"), curto para caber no celular; o
+// leitor de tela ouve "Reunião de 12 de outubro".
 function desenharCabecalho(carregando) {
   const dia = reuniao ? diaPorExtenso(new Date(reuniao.inicio)) : null;
-  els.titulo.textContent = dia ? `Reunião de ${dia}` : 'Reunião';
-  els.titulo.title = els.titulo.textContent; // título longo cortado com "…"
+  els.titulo.innerHTML = dia ? `<span class="vh">Reunião de </span>${escapeHtml(dia)}` : 'Reunião';
+  els.titulo.title = dia ? `Reunião de ${dia}` : ''; // título longo cortado com "…"
   els.subtitulo.textContent = professor ? `Com ${professor.nome}` : carregando ? 'Carregando…' : '';
   const voltarPara = professor ? `Voltar para ${professor.nome}` : 'Voltar para o professor';
   els.voltar.setAttribute('aria-label', voltarPara);
