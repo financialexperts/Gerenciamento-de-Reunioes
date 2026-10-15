@@ -1,8 +1,9 @@
 /* ============================================================
    CARTÕES — a grade de quadrados grandes usada nas duas telas:
    professores no Alinhamento (cada cartão abre a página do
-   professor) e categorias de reunião na página do professor (cada
-   uma abre as reuniões). Também o esqueleto e as telas vazias.
+   professor) e categorias na página de uma reunião (cada uma abre
+   as anotações dela; reunioes.css). Também o esqueleto e as telas
+   vazias.
    ============================================================ */
 
 .conteudo {

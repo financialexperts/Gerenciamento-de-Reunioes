@@ -1,7 +1,7 @@
 /* ============================================================
    PÁGINA DO PROFESSOR — cabeçalho com voltar, nome, e-mail e
-   cursos; as categorias de reunião na mesma grade de quadrados
-   do Alinhamento; e a janela "Nova categoria".
+   cursos (as reuniões ficam em reunioes.css); títulos de seção; o
+   ícone das categorias; e a janela "Nova categoria".
    ============================================================ */
 
 /* Voltar: o chevron padrão, um pouco mais grosso que os outros ícones
@@ -35,7 +35,7 @@
   }
 }
 
-/* ---------- Seção de categorias ---------- */
+/* ---------- Seções e ícone das categorias ---------- */
 
 .secao {
   display: grid;

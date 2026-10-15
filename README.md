@@ -6,20 +6,22 @@ Por enquanto tem:
 
 - **Login** com o e-mail e a senha do Sistema de Presença, incluindo "Esqueci minha senha".
 - **Alinhamento** (página inicial): um cartão por professor com e-mail e cursos em que dá aula, busca por nome ou e-mail e filtros de curso e turma. Clicar num cartão abre a página do professor.
-- **Página do professor** (`?professor=<id>`): nome, e-mail, cursos e as **categorias de reunião** em quadrados (Feedback, Atualização de aulas…). Clicar numa categoria abre a página dela. Voltar, recarregar e abrir em outra aba funcionam como num site comum.
-- **Página da categoria** (`?professor=<id>&categoria=<id>`): as reuniões do professor naquela categoria, em "Próximas" e "Já aconteceram". O **dia** é o destaque de cada reunião: uma folha de calendário (mês, dia e dia da semana; a de hoje fica vermelha) e "Hoje", "Em 6 dias", "Há 3 dias"… Abaixo vêm o horário, a duração, presencial (sala) ou online (link clicável) e a pauta.
-- **Nova reunião** (só administradores, dentro da categoria): dia, horário de início, duração, formato, local ou link e pauta. O dia escolhido aparece em destaque no topo da janela e pode ser no passado, para registrar uma reunião que já aconteceu. No celular, a janela vira uma folha que sobe do pé da tela, com os botões sempre à vista.
-- **Anotações da reunião** (só administradores, `?professor=<id>&categoria=<id>&reuniao=<id>`): clicar numa reunião abre uma folha em branco, como no Google Docs, com estilo (texto normal, títulos 1–3), fonte, tamanho, negrito, itálico, sublinhado, tachado, cor do texto, realce, link, alinhamento, listas com marcadores, numeradas e de tarefas, recuo, limpar formatação, desfazer e refazer — com os atalhos do Docs (Ctrl/⌘+B, Ctrl+Shift+8…) e "- ", "1. " e "[] " virando lista ao digitar. Salva sozinho logo depois de cada pausa ("Salvo" no canto); sem internet, o texto fica guardado no aparelho e é salvo quando a conexão volta. Colar do Docs, do Word ou de um site mantém a formatação básica e descarta o resto. No celular, a barra de formatação fica presa logo acima do teclado. O cartão da reunião mostra o começo do que foi anotado.
-- **Nova categoria** (só administradores): cria uma categoria com nome e ícone. As categorias são uma lista só: a nova aparece para todos os professores.
+- **Página do professor** (`?professor=<id>`): nome, e-mail, cursos e as reuniões com ele, em "Próximas" e "Já aconteceram". O **dia** é o destaque de cada reunião: uma folha de calendário (mês, dia e dia da semana; a de hoje fica vermelha) e "Hoje", "Em 6 dias", "Há 3 dias"… Abaixo vêm o horário, a duração, presencial (sala) ou online (link clicável) e a pauta. Cada reunião tem dentro **todas as categorias** (Feedback, Atualização de aulas…): para administradores, o cartão mostra embaixo o começo das anotações de cada categoria ("Sem anotações" na que ainda está em branco), sem precisar abrir nada. Clicar no cartão abre a página da reunião. Voltar, recarregar e abrir em outra aba funcionam como num site comum.
+- **Página da reunião** (só administradores, `?professor=<id>&reuniao=<id>`): o cartão da reunião e as categorias em quadrados, cada um com o começo das anotações daquela categoria nesta reunião. Clicar numa categoria abre a folha dela.
+- **Nova reunião** (só administradores, na página do professor): dia, horário de início, duração, formato, local ou link e pauta. O dia escolhido aparece em destaque no topo da janela e pode ser no passado, para registrar uma reunião que já aconteceu. No celular, a janela vira uma folha que sobe do pé da tela, com os botões sempre à vista.
+- **Anotações** (só administradores, `?professor=<id>&reuniao=<id>&categoria=<id>`): cada categoria de cada reunião tem a sua folha em branco, como no Google Docs, com estilo (texto normal, títulos 1–3), fonte, tamanho, negrito, itálico, sublinhado, tachado, cor do texto, realce, link, alinhamento, listas com marcadores, numeradas e de tarefas, recuo, limpar formatação, desfazer e refazer — com os atalhos do Docs (Ctrl/⌘+B, Ctrl+Shift+8…) e "- ", "1. " e "[] " virando lista ao digitar. Salva sozinho logo depois de cada pausa ("Salvo" no canto); sem internet, o texto fica guardado no aparelho e é salvo quando a conexão volta. Colar do Docs, do Word ou de um site mantém a formatação básica e descarta o resto. No celular, a barra de formatação fica presa logo acima do teclado. O cartão da reunião e o quadrado da categoria mostram o começo do que foi anotado.
+- **Nova categoria** (só administradores, na página de uma reunião): cria uma categoria com nome e ícone. As categorias são uma lista só: a nova aparece em todas as reuniões, de todos os professores.
 - **Novo professor** (só administradores): cria o login e o cadastro do professor do mesmo jeito que o Sistema de Presença. O professor aparece nos dois sistemas e entra nos dois com o mesmo e-mail e senha.
 
 ## Antes do primeiro uso: tabela de categorias
 
 As categorias ficam numa tabela nova, `categorias_reuniao`, que o Sistema de Presença não tinha. Rode **uma vez** o arquivo [`sql/categorias_reuniao.sql`](sql/categorias_reuniao.sql) no Supabase (SQL Editor › New query › colar tudo › Run). Ele cria a tabela, as regras de acesso e as duas primeiras categorias, e pode ser rodado de novo sem duplicar nada. Enquanto isso não for feito, a página do professor mostra "Categorias ainda não configuradas".
 
-As reuniões ficam na tabela `reunioes`, criada por [`sql/reunioes.sql`](sql/reunioes.sql) (rodar do mesmo jeito, depois do arquivo das categorias). Sem ela, a página da categoria mostra "Reuniões ainda não configuradas".
+As reuniões ficam na tabela `reunioes`, criada por [`sql/reunioes.sql`](sql/reunioes.sql) (rodar do mesmo jeito, depois do arquivo das categorias). Sem ela, a página do professor mostra "Reuniões ainda não configuradas".
 
 As anotações ficam na tabela `anotacoes_reuniao`, criada por [`sql/anotacoes_reuniao.sql`](sql/anotacoes_reuniao.sql) (rodar depois do arquivo das reuniões). Sem ela, a página de anotações mostra "Anotações ainda não configuradas".
+
+**Categorias dentro das reuniões:** a reunião não tem mais categoria; as anotações é que são separadas por categoria, uma linha de `anotacoes_reuniao` por reunião + categoria (chave `reuniao_id, categoria_id`), e `reunioes.categoria_id` deixou de ser usada (aceita vazio). Um banco criado na estrutura antiga precisa ser atualizado uma vez: as anotações que já existiam passam para a categoria em que a reunião foi criada. Enquanto isso, a página da reunião e a de anotações mostram "Banco de dados desatualizado", e criar reunião avisa que falta atualizar o banco.
 
 > Rode os arquivos SQL no projeto do Supabase que o sistema usa: o endereço do painel tem `/project/wrdguclwncirgzlpfgjq` (o mesmo de `backend/config/env.js`). Em outro projeto, o arquivo das anotações para com "A tabela public.reunioes não existe neste banco".
 
@@ -53,9 +55,9 @@ frontend/
   features/auth/            entrar, sair, "Esqueci minha senha"
   features/app/             barra lateral, menu da conta e rotas.js (endereço de cada tela)
   features/alinhamento/     busca, filtros e cartões de professores
-  features/professores/     página do professor e janela "Novo professor"
-  features/categorias/      janela "Nova categoria" e os ícones que uma categoria pode ter
-  features/reunioes/        página da categoria (reuniões), janela "Nova reunião" e datas por extenso
+  features/professores/     página do professor (reuniões com o começo das anotações) e janela "Novo professor"
+  features/categorias/      lista de categorias (carregada uma vez para todas as telas), janela "Nova categoria" e ícones
+  features/reunioes/        página da reunião (categorias), cartão da reunião, janela "Nova reunião" e datas por extenso
   features/anotacoes/       página de anotações: editor.js (texto, comandos, desfazer), barraFormatacao.js
                             (botões e menus), limparHtml.js (o que pode entrar no texto), opcoes.js (fontes, cores)
   shared/menuFiltro.js      menu dos filtros de curso e turma (com busca)
@@ -70,17 +72,17 @@ frontend/
 |---|---|---|
 | `professores` | `id`, `nome`, `email`, `papel`, `user_id` | cartões, nome no menu da conta e quem pode cadastrar (`papel = 'admin'`) |
 | `turmas` | `id`, `turma`, `curso`, `professor_id`, `ativa` | cursos de cada professor e filtros |
-| `categorias_reuniao` | `id`, `nome`, `icone`, `criado_por`, `created_at` | categorias de reunião, iguais para todos os professores (tabela nova, só deste sistema) |
-| `reunioes` | `id`, `professor_id`, `categoria_id`, `inicio`, `duracao_min`, `formato`, `local`, `pauta`, `criado_por` | reuniões de uma categoria com um professor (tabela nova, só deste sistema) |
-| `anotacoes_reuniao` | `reuniao_id`, `conteudo`, `resumo`, `atualizado_em`, `atualizado_por` | anotações de cada reunião (tabela nova, só deste sistema) |
+| `categorias_reuniao` | `id`, `nome`, `icone`, `criado_por`, `created_at` | categorias de anotações, as mesmas dentro de todas as reuniões (tabela nova, só deste sistema) |
+| `reunioes` | `id`, `professor_id`, `inicio`, `duracao_min`, `formato`, `local`, `pauta`, `criado_por` | reuniões com um professor, cada uma com todas as categorias dentro (tabela nova, só deste sistema) |
+| `anotacoes_reuniao` | `reuniao_id`, `categoria_id`, `conteudo`, `resumo`, `atualizado_em`, `atualizado_por` | anotações de cada categoria de cada reunião (tabela nova, só deste sistema) |
 
 Turmas com `ativa = false` ficam de fora, como no Sistema de Presença.
 
 **Nova categoria** grava uma linha em `categorias_reuniao`. Pelo RLS do arquivo SQL, qualquer pessoa logada lê as categorias, só admin cria, e a chave anônima não acessa nada. Nome repetido é recusado (sem diferenciar maiúsculas).
 
-**Nova reunião** grava uma linha em `reunioes`. `inicio` é o instante (com fuso), e cada pessoa vê no horário do próprio computador. `formato` é `presencial` ou `online`, e `local` guarda a sala ou o link. `criado_por` é preenchido pelo banco com quem está logado. Pelo RLS do arquivo SQL, só admin cria; admin vê todas as reuniões e o professor vê só as dele. A tela também recusa uma segunda reunião da mesma categoria com o mesmo professor no mesmo dia e horário.
+**Nova reunião** grava uma linha em `reunioes`. `inicio` é o instante (com fuso), e cada pessoa vê no horário do próprio computador. `formato` é `presencial` ou `online`, e `local` guarda a sala ou o link. `criado_por` é preenchido pelo banco com quem está logado. Pelo RLS do arquivo SQL, só admin cria; admin vê todas as reuniões e o professor vê só as dele. A tela também recusa uma segunda reunião com o mesmo professor no mesmo dia e horário.
 
-**Anotações** gravam uma linha por reunião em `anotacoes_reuniao`, criada no primeiro salvamento e atualizada a cada pausa na escrita. `conteudo` é o HTML da folha (só as marcações do editor: o resto é filtrado ao abrir, colar e salvar, até 1 milhão de caracteres) e `resumo`, o começo do texto para o cartão da reunião. `atualizado_em` e `atualizado_por` são preenchidos pelo banco. Pelo RLS do arquivo SQL, só admin lê e escreve; o professor não vê as anotações. Se dois admins editarem a mesma reunião ao mesmo tempo, vale o último salvamento.
+**Anotações** gravam uma linha por reunião e categoria em `anotacoes_reuniao`, criada no primeiro salvamento e atualizada a cada pausa na escrita. `conteudo` é o HTML da folha (só as marcações do editor: o resto é filtrado ao abrir, colar e salvar, até 1 milhão de caracteres) e `resumo`, o começo do texto para o cartão da reunião e o quadrado da categoria. `atualizado_em` e `atualizado_por` são preenchidos pelo banco. Pelo RLS do arquivo SQL, só admin lê e escreve; o professor não vê as anotações. Se dois admins editarem a mesma folha ao mesmo tempo, vale o último salvamento.
 
 **Novo professor** grava com os mesmos dois passos do Sistema de Presença:
 
@@ -95,4 +97,4 @@ A senha inicial sugerida é a mesma do Sistema de Presença (`Teste1234`). Se o 
 - **Link de "Esqueci minha senha":** para o e-mail trazer a pessoa de volta a este sistema, a URL dele precisa estar em Supabase → Authentication → URL Configuration → Redirect URLs. Sem isso, o link cai na Site URL configurada, onde a troca de senha também funciona se for o Sistema de Presença.
 - **Aparência:** sempre clara, no estilo Apple (cinzas neutros, cartões brancos e azul do sistema nas ações), mesmo com o Windows/macOS no modo escuro.
 - **Fontes das anotações:** além das do sistema (Arial, Georgia, Times New Roman, Verdana, Courier New), algumas vêm do Google Fonts (Roboto, Open Sans, Montserrat, Lora, Merriweather, Playfair Display, Caveat), carregadas só quando a página de anotações abre. Sem internet, o texto aparece numa fonte parecida.
-- **Rascunho no aparelho:** enquanto as anotações não chegam ao banco, ficam no `localStorage` do navegador (por pessoa e por reunião) e voltam ao abrir a reunião de novo. Somem assim que o banco confirma o salvamento.
+- **Rascunho no aparelho:** enquanto as anotações não chegam ao banco, ficam no `localStorage` do navegador (por pessoa, reunião e categoria) e voltam ao abrir a mesma folha de novo. Somem assim que o banco confirma o salvamento.
