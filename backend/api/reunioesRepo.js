@@ -1,24 +1,24 @@
 import { sb } from './supabaseClient.js';
 
-// Reuniões de uma categoria com um professor (tabela criada por
-// sql/reunioes.sql). Quem vê o quê é o RLS: admin vê todas, o professor
-// só as dele; só admin cria.
+// Reuniões de um professor (tabela `reunioes`). A reunião não é de uma
+// categoria: todas as categorias (Feedback…) ficam dentro de cada reunião,
+// cada uma com a sua página de anotações (anotacoesRepo.js). Quem vê o quê
+// é o RLS: admin vê todas, o professor só as dele; só admin cria.
 
-const COLUNAS = 'id, professor_id, categoria_id, inicio, duracao_min, formato, local, pauta';
+const COLUNAS = 'id, professor_id, inicio, duracao_min, formato, local, pauta';
 
-export async function buscarReunioes(professorId, categoriaId) {
+export async function buscarReunioes(professorId) {
   const { data, error } = await sb
     .from('reunioes')
     .select(COLUNAS)
     .eq('professor_id', professorId)
-    .eq('categoria_id', categoriaId)
     .order('inicio');
   if (error) throw error;
   return data ?? [];
 }
 
-// Uma reunião só (a página de anotações aberta pelo endereço). null = não
-// existe ou o RLS não deixa ver.
+// Uma reunião só (a página dela ou a de anotações, aberta pelo endereço).
+// null = não existe ou o RLS não deixa ver.
 export async function buscarReuniao(id) {
   const { data, error } = await sb.from('reunioes').select(COLUNAS).eq('id', id).maybeSingle();
   if (error) throw error;
@@ -26,10 +26,10 @@ export async function buscarReuniao(id) {
 }
 
 // `criado_por` fica de fora: o banco preenche com quem está logado.
-export async function criarReuniao({ professor_id, categoria_id, inicio, duracao_min, formato, local, pauta }) {
+export async function criarReuniao({ professor_id, inicio, duracao_min, formato, local, pauta }) {
   return sb
     .from('reunioes')
-    .insert({ professor_id, categoria_id, inicio, duracao_min, formato, local, pauta })
+    .insert({ professor_id, inicio, duracao_min, formato, local, pauta })
     .select(COLUNAS)
     .single();
 }
